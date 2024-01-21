@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# cmake
+build/
+
+# macos
+.DS_Store
+
+# vscode
+.vscode/
