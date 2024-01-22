@@ -40,6 +40,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     auto title = sf::Text{ "chordcat", font, 50u };
     auto chord_notes_text = sf::Text("", font, 30u);
+    std::vector<sf::Text> chord_name_list = {};
     // center the title
     title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
 
@@ -63,7 +64,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     current_msg += note + " ";
                 }
                 if (!current_msg.empty()) current_msg.pop_back(); // remove extra space
-
+                auto name_list = name_that_chord(piano.getPressedNotes());
+                chord_name_list = {};
+                for (auto name : name_list) {
+                    chord_name_list.push_back(sf::Text(name,font,30u));
+                    chord_name_list.back().setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150 + 50 * chord_name_list.size());
+                }
                 chord_notes_text = sf::Text(current_msg, font, 50u);
                 chord_notes_text.setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150);
              },
@@ -110,6 +116,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
         window.clear();
         // window.draw(sprite);
         piano.Draw();
+        for (auto chordname : chord_name_list) {
+            window.draw(chordname);
+        }
         window.draw(title);
         window.draw(portinfo_text);
         window.draw(chord_notes_text);
