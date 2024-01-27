@@ -26,7 +26,7 @@ inline unsigned short get_note_distance(unsigned short root, unsigned short othe
     return other - root;
 }
 
-void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals, std::set<Chord>& res) {
+void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals, std::multiset<Chord>& res) {
     for (auto& [name, notes] : chord_db) {
         Chord chord = {};
         chord.root = root;
@@ -46,13 +46,13 @@ void insert_chords(const unsigned short root, const std::set<unsigned short>& in
     }
 }
 
-std::set<Chord> name_that_chord(const std::vector<size_t>& indices)
+std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices)
 {
     std::set<unsigned short> notes = {};
     for (auto index : indices) {
         notes.insert(index % 12);
     }
-    std::set<Chord> result = {};
+    std::multiset<Chord> result = {};
     for (auto root : notes) {
         std::set<unsigned short> intervals = {};
         for (auto other : notes) {
