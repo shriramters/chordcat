@@ -64,10 +64,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     current_msg += note + " ";
                 }
                 if (!current_msg.empty()) current_msg.pop_back(); // remove extra space
-                auto name_list = name_that_chord(piano.getPressedNotes());
+                auto chordset = name_that_chord(piano.getPressedNotes());
                 chord_name_list = {};
-                for (auto name : name_list) {
-                    chord_name_list.push_back(sf::Text(name,font,30u));
+                for (auto chord : chordset) {
+                    chord_name_list.push_back(sf::Text(chord.to_string(),font,30u));
                     chord_name_list.back().setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150 + 50 * chord_name_list.size());
                 }
                 chord_notes_text = sf::Text(current_msg, font, 50u);
