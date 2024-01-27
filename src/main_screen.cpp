@@ -48,7 +48,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     title.setPosition(width / 2 - title.getGlobalBounds().width / 2, 50);
 
     // Piano
-    Piano piano(window);
+    Piano piano;
 
     libremidi::midi_in midiin{ {
             // Set our callback function.
@@ -118,7 +118,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         }
         window.clear();
         // window.draw(sprite);
-        piano.Draw();
+        window.draw(piano);
         for (auto chordname : chord_name_list) {
             window.draw(chordname);
         }

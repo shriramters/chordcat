@@ -12,28 +12,27 @@ inline bool isBlackKey(size_t index) {
     }
 }
 
-inline sf::Color Piano::getKeyColor(size_t index) {
-
-    if (keys[index])
-        return sf::Color::Blue;
-    else if (isBlackKey(index))
-        return sf::Color::Black;
-    else return sf::Color::White;
-
+Piano::Piano() {
 }
 
-Piano::Piano(sf::RenderWindow& window) : window(window) {
-}
-
-void Piano::Draw() {
+void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     static std::array<sf::RectangleShape, 88> key_sprites;
-    static float key_width_white = window.getSize().x / 52;
+    static float key_width_white = target.getView().getSize().x / 52;
     static float key_height_white = key_width_white * 4;
     static float key_width_black = key_width_white / 2;
     static float key_height_black = key_width_black * 4;
+    unsigned ypos = target.getView().getSize().y;
+
+    auto getKeyColor = [this](size_t index) {
+        if (this->keys[index])
+            return sf::Color::Blue;
+        else if (isBlackKey(index))
+            return sf::Color::Black;
+        else return sf::Color::White;
+        };
 
     key_sprites[0] = sf::RectangleShape(sf::Vector2f(key_width_white, key_height_white));
-    key_sprites[0].setPosition(0, window.getSize().y - key_height_white);
+    key_sprites[0].setPosition(0, ypos - key_height_white);
     key_sprites[0].setFillColor(getKeyColor(0));
     size_t last_white_key_index = 0;
     // White Keys
@@ -42,7 +41,7 @@ void Piano::Draw() {
             key_sprites[i] = sf::RectangleShape(sf::Vector2f(key_width_white, key_height_white));
             key_sprites[i].setPosition(
                 key_sprites[last_white_key_index].getPosition().x + key_width_white,
-                window.getSize().y - key_height_white);
+                ypos - key_height_white);
             key_sprites[i].setFillColor(getKeyColor(i));
             key_sprites[i].setOutlineColor(sf::Color::Black);
             key_sprites[i].setOutlineThickness(1.f);
@@ -52,17 +51,17 @@ void Piano::Draw() {
             key_sprites[i] = sf::RectangleShape(sf::Vector2f(key_width_black, key_height_black));
             key_sprites[i].setPosition(
                 key_sprites[last_white_key_index].getPosition().x + key_width_white - key_width_black / 2.f,
-                window.getSize().y - key_height_white);
+                ypos - key_height_white);
             key_sprites[i].setFillColor(getKeyColor(i));
         }
     }
     for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
         if (!isBlackKey(std::distance(key_sprites.begin(), it)))
-            window.draw(*it);
+            target.draw(*it, states);
     }
     for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
         if (isBlackKey(std::distance(key_sprites.begin(), it)))
-            window.draw(*it);
+            target.draw(*it, states);
     }
 }
 
