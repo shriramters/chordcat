@@ -13,9 +13,6 @@ MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
 std::shared_ptr<AppState> MainScreen::Run() {
 
-    auto height = window.getSize().y;
-    auto width = window.getSize().x;
-
     sf::View view = window.getDefaultView();
     // load audio file from assets
     sf::SoundBuffer buffer;
@@ -45,7 +42,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
-    title.setPosition(width / 2 - title.getGlobalBounds().width / 2, 50);
+    title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
 
     // Piano
     Piano piano;
@@ -71,10 +68,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 chord_name_list = {};
                 for (auto chord : chordset) {
                     chord_name_list.push_back(sf::Text(chord.to_string(),font,30u));
-                    chord_name_list.back().setPosition(width / 3, 200 + 50 * chord_name_list.size());
+                    chord_name_list.back().setPosition(window.getSize().x / 3, 200 + 50 * chord_name_list.size());
                 }
                 chord_notes_text = sf::Text(current_msg, font, 50u);
-                chord_notes_text.setPosition(width / 2 - chord_notes_text.getGlobalBounds().width / 2, 150);
+                chord_notes_text.setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150);
              },
         .ignore_sysex = false,
         .ignore_timing = false,
@@ -94,7 +91,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         portName = "couldn't choose device";
 
     auto portinfo_text = sf::Text(portName, font, 30u);
-    portinfo_text.setPosition(width / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
+    portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -109,11 +106,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
             }
             if (event.type == sf::Event::Resized) {
                 // resize my view
-                view.setSize({
-                        static_cast<float>(event.size.width),
-                        static_cast<float>(event.size.height)
-                    });
-                window.setView(view);
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                window.setView(sf::View(visibleArea));
+                title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
+                portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
             }
         }
         window.clear();
