@@ -33,7 +33,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     // sprite.setScale(window.getSize().x / sprite.getLocalBounds().width, window.getSize().y / sprite.getLocalBounds().height);
 
     sf::Font font;
-    if (!font.loadFromFile("assets/fonts/Open_Sans-2/static/OpenSans-Light.ttf"))
+    if (!font.loadFromFile("assets/fonts/Questrial/Questrial-Regular.ttf"))
     {
         std::cerr << "Error loading font" << std::endl;
     }
