@@ -8,7 +8,7 @@ const std::vector<std::pair<const std::string, std::set<unsigned short> > > chor
     {"sus2",{2,7}},
     {"minor",{3,7}},
     {"dim",{3,6}},
-    {"aug",{3,8}},
+    {"aug",{4,8}},
     {"major",{4,7}},
     {"sus4",{5,7}},
     {"maj7",{4,7,11}},
