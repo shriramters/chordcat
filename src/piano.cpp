@@ -79,7 +79,7 @@ std::vector<size_t> Piano::getPressedNotes() {
     return pressed_notes;
 }
 
-void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window)
+void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth)
 {
     if (event.type == sf::Event::MouseButtonReleased)
     {
@@ -90,6 +90,12 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window)
                 if (isBlackKey(std::distance(key_sprites.begin(), it)))
                     if (it->getGlobalBounds().contains(worldPos)) {
                         size_t index = std::distance(key_sprites.begin(), it);
+                        if (keys[index]) {
+                            fluid_synth_noteoff(synth, 0, (int)(index + 21));
+                        }
+                        else {
+                            fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
+                        }
                         keys[index] = !keys[index];
                         return;
                     }
@@ -97,6 +103,12 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window)
             for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
                 if (it->getGlobalBounds().contains(worldPos)) {
                     size_t index = std::distance(key_sprites.begin(), it);
+                    if (keys[index]) {
+                        fluid_synth_noteoff(synth, 0, (int)(index + 21));
+                    }
+                    else {
+                        fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
+                    }
                     keys[index] = !keys[index];
                     return;
                 }
