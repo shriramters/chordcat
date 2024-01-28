@@ -39,3 +39,7 @@ build/
 
 # vscode
 .vscode/
+
+# clangd config
+.clangd
+.clang-format
