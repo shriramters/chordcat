@@ -18,6 +18,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
     MidiAudioStream mas;
     fluid_synth_t* synth = mas.getSynth();
     fluid_synth_sfload(synth, "assets/soundfonts/TimGM6mb.sf2", 1);
+    //TODO: all these need imgui widgets
+    fluid_synth_set_gain(synth, 2.0);
 
     sf::View view = window.getDefaultView();
 
@@ -104,7 +106,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
             chord_name_list.back().setPosition(window.getSize().x / 3, 200 + 50 * chord_name_list.size());
         }
         chord_notes_text = sf::Text(current_msg, font, 50u);
-        chord_notes_text.setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150);
+        chord_notes_text.setPosition(window.getSize().x / 3, 150);
 
         window.clear();
         // window.draw(sprite);
