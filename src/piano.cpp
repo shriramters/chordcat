@@ -16,7 +16,6 @@ Piano::Piano() {
 }
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    static std::array<sf::RectangleShape, 88> key_sprites;
     float key_width_white = target.getView().getSize().x / 52;
     float key_height_white = key_width_white * 4;
     float key_width_black = key_width_white / 2;
@@ -44,7 +43,7 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
                 ypos - key_height_white);
             key_sprites[i].setFillColor(getKeyColor(i));
             key_sprites[i].setOutlineColor(sf::Color::Black);
-            key_sprites[i].setOutlineThickness(1.f);
+            key_sprites[i].setOutlineThickness(key_width_white / 10.f);
             last_white_key_index = i;
         }
         else {
@@ -77,4 +76,22 @@ std::vector<size_t> Piano::getPressedNotes() {
         if (keys[i])pressed_notes.push_back(i);
     }
     return pressed_notes;
+}
+
+void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window)
+{
+    if (event.type == sf::Event::MouseButtonReleased)
+    {
+        if (event.mouseButton.button == sf::Mouse::Left)
+        {
+            for (auto it = key_sprites.begin(); it != key_sprites.end(); it++)
+            {
+                sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                if (it->getGlobalBounds().contains(worldPos)) {
+                    size_t index = std::distance(key_sprites.begin(), it);
+                    keys[index] = !keys[index];
+                }
+            }
+        }
+    }
 }

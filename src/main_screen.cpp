@@ -58,20 +58,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
                         piano.setKeyPressed((int)message[1],true);
                     }
                 }
-                std::vector<std::string> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
-                std::string current_msg = "";
-                for (auto& note : pressed_notes) {
-                    current_msg += note + " ";
-                }
-                if (!current_msg.empty()) current_msg.pop_back(); // remove extra space
-                auto chordset = name_that_chord(piano.getPressedNotes());
-                chord_name_list = {};
-                for (auto chord : chordset) {
-                    chord_name_list.push_back(sf::Text(chord.to_string(),font,30u));
-                    chord_name_list.back().setPosition(window.getSize().x / 3, 200 + 50 * chord_name_list.size());
-                }
-                chord_notes_text = sf::Text(current_msg, font, 50u);
-                chord_notes_text.setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150);
              },
         .ignore_sysex = false,
         .ignore_timing = false,
@@ -111,7 +97,23 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
                 portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
             }
+            piano.mouseEvent(event, window);
         }
+        std::vector<std::string> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
+        std::string current_msg = "";
+        for (auto& note : pressed_notes) {
+            current_msg += note + " ";
+        }
+        if (!current_msg.empty()) current_msg.pop_back(); // remove extra space
+        auto chordset = name_that_chord(piano.getPressedNotes());
+        chord_name_list = {};
+        for (auto chord : chordset) {
+            chord_name_list.push_back(sf::Text(chord.to_string(), font, 30u));
+            chord_name_list.back().setPosition(window.getSize().x / 3, 200 + 50 * chord_name_list.size());
+        }
+        chord_notes_text = sf::Text(current_msg, font, 50u);
+        chord_notes_text.setPosition(window.getSize().x / 2 - chord_notes_text.getGlobalBounds().width / 2, 150);
+
         window.clear();
         // window.draw(sprite);
         window.draw(piano);
