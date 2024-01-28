@@ -17,10 +17,10 @@ Piano::Piano() {
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     static std::array<sf::RectangleShape, 88> key_sprites;
-    static float key_width_white = target.getView().getSize().x / 52;
-    static float key_height_white = key_width_white * 4;
-    static float key_width_black = key_width_white / 2;
-    static float key_height_black = key_width_black * 4;
+    float key_width_white = target.getView().getSize().x / 52;
+    float key_height_white = key_width_white * 4;
+    float key_width_black = key_width_white / 2;
+    float key_height_black = key_width_black * 4;
     unsigned ypos = target.getView().getSize().y;
 
     auto getKeyColor = [this](size_t index) {
