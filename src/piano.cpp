@@ -84,12 +84,20 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window)
     {
         if (event.mouseButton.button == sf::Mouse::Left)
         {
-            for (auto it = key_sprites.begin(); it != key_sprites.end(); it++)
-            {
-                sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
+                if (isBlackKey(std::distance(key_sprites.begin(), it)))
+                    if (it->getGlobalBounds().contains(worldPos)) {
+                        size_t index = std::distance(key_sprites.begin(), it);
+                        keys[index] = !keys[index];
+                        return;
+                    }
+            }
+            for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
                 if (it->getGlobalBounds().contains(worldPos)) {
                     size_t index = std::distance(key_sprites.begin(), it);
                     keys[index] = !keys[index];
+                    return;
                 }
             }
         }
