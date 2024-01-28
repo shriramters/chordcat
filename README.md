@@ -1,5 +1,7 @@
 # chordcat
 Chord Naming App with MIDI Support
+<img width="200" src="https://github.com/shriramters/chordcat/assets/127589779/08db3d3e-8201-48b0-afa3-d79c098f3d83" align="right">
+
 
 ## WIP
 Only works when there is just one MIDI device plugged in to the computer. Will fix in future updates.
