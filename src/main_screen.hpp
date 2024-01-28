@@ -1,5 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include "app_state.hpp"

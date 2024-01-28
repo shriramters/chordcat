@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 #include <SFML/Graphics.hpp>
 #include "main_screen.hpp"
 
