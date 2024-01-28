@@ -16,12 +16,18 @@ FetchContent_Declare(REMIDI
     GIT_TAG v4.2.4)
 FetchContent_MakeAvailable(REMIDI)
 
+# FluidSynth
+FetchContent_Declare(FLUIDSYNTH
+    GIT_REPOSITORY https://github.com/FluidSynth/fluidsynth.git
+    GIT_TAG v2.3.4)
+FetchContent_MakeAvailable(FLUIDSYNTH)
+
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
 file(GLOB src_files CONFIGURE_DEPENDS "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${src_files})
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 if (WIN32 AND BUILD_SHARED_LIBS)

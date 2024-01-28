@@ -6,32 +6,20 @@
 #include <vector>
 #include <string>
 #include <libremidi/libremidi.hpp>
+#include <fluidsynth.h>
 #include "main_screen.hpp"
 #include "piano.hpp"
 #include "utils.hpp"
+#include "midi_audio_stream.hpp"
 
 MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
 std::shared_ptr<AppState> MainScreen::Run() {
+    MidiAudioStream mas;
+    fluid_synth_t* synth = mas.getSynth();
+    fluid_synth_sfload(synth, "assets/soundfonts/TimGM6mb.sf2", 1);
 
     sf::View view = window.getDefaultView();
-    // load audio file from assets
-    sf::SoundBuffer buffer;
-    buffer.loadFromFile("assets/audio/title_bgm.mp3");
-    sf::Sound sound;
-    sound.setBuffer(buffer);
-    sound.play();
-    sound.setLoop(true);
-
-    // load background image from assets
-    sf::Texture texture;
-    if (!texture.loadFromFile("assets/images/main_screen.png"))
-    {
-        std::cerr << "Error loading title screen image" << std::endl;
-    }
-
-    // sf::Sprite sprite(texture);
-    // sprite.setScale(window.getSize().x / sprite.getLocalBounds().width, window.getSize().y / sprite.getLocalBounds().height);
 
     sf::Font font;
     if (!font.loadFromFile("assets/fonts/Questrial/Questrial-Regular.ttf"))
@@ -47,6 +35,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     // Piano
     Piano piano;
+    mas.play();
 
     libremidi::midi_in midiin{ {
             // Set our callback function.
@@ -54,9 +43,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 if (message.size() == 3 && (int)message[0] == 144) {
                     if ((int)message[2] == 0) {
                         piano.setKeyPressed((int)message[1],false);
+                        fluid_synth_noteoff(synth, 0, (int)message[1]);
                     }
                     else {
                         piano.setKeyPressed((int)message[1],true);
+                        fluid_synth_noteon(synth, 0,(int)message[1], (int)message[2]);
                     }
                 }
              },
@@ -98,7 +89,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
                 portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
             }
-            piano.mouseEvent(event, window);
+            piano.mouseEvent(event, window, synth);
         }
         std::vector<std::string> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
         std::string current_msg = "";
@@ -126,6 +117,5 @@ std::shared_ptr<AppState> MainScreen::Run() {
         window.draw(chord_notes_text);
         window.display();
     }
-    sound.stop();
     return nullptr;
 }
