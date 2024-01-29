@@ -16,7 +16,7 @@ inline bool isBlackKey(size_t index) {
 
 Piano::Piano() {}
 
-void Piano::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
     float key_height_white = key_width_white * 4;
     float key_width_black = key_width_white / 2;
@@ -80,7 +80,7 @@ std::vector<size_t> Piano::getPressedNotes() {
     return pressed_notes;
 }
 
-void Piano::mouseEvent(sf::Event &event, sf::RenderWindow &window, fluid_synth_t *synth) {
+void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth) {
     if (event.type == sf::Event::MouseButtonReleased) {
         if (event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));

@@ -6,7 +6,7 @@
 
 class MainScreen : public AppState {
 public:
-    MainScreen(sf::RenderWindow &window);
+    MainScreen(sf::RenderWindow& window);
     ~MainScreen() = default;
 
     std::shared_ptr<AppState> Run() override;

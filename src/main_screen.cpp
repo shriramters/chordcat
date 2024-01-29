@@ -12,11 +12,11 @@
 #include <string>
 #include <vector>
 
-MainScreen::MainScreen(sf::RenderWindow &window) : AppState(window) {}
+MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
 std::shared_ptr<AppState> MainScreen::Run() {
     MidiAudioStream mas;
-    fluid_synth_t *synth = mas.getSynth();
+    fluid_synth_t* synth = mas.getSynth();
     fluid_synth_sfload(synth, "assets/soundfonts/TimGM6mb.sf2", 1);
     // TODO: all these need imgui widgets
     fluid_synth_set_gain(synth, 2.0);
@@ -41,7 +41,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     libremidi::midi_in midiin{{
         // Set our callback function.
         .on_message =
-            [&](const libremidi::message &message) {
+            [&](const libremidi::message& message) {
                 if (message.size() == 3 && (int)message[0] == 144) {
                     if ((int)message[2] == 0) {
                         piano.setKeyPressed((int)message[1], false);
@@ -95,7 +95,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         }
         std::vector<std::string> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
         std::string current_msg = "";
-        for (auto &note : pressed_notes) {
+        for (auto& note : pressed_notes) {
             current_msg += note + " ";
         }
         if (!current_msg.empty())

@@ -8,10 +8,10 @@
 
 class AppState {
 protected:
-    sf::RenderWindow &window;
+    sf::RenderWindow& window;
 
 public:
-    AppState(sf::RenderWindow &window) : window(window){};
+    AppState(sf::RenderWindow& window) : window(window){};
     virtual ~AppState() = default;
 
     virtual std::shared_ptr<AppState> Run() = 0;
