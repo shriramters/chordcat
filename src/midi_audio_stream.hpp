@@ -15,7 +15,7 @@ public:
         // initialize the base class
         initialize(2, 44100);
     }
-    void load(const sf::SoundBuffer &buffer) {
+    void load(const sf::SoundBuffer& buffer) {
         // extract the audio samples from the sound buffer to our own container
         m_samples.assign(buffer.getSamples(), buffer.getSamples() + buffer.getSampleCount());
 
@@ -26,7 +26,7 @@ public:
         initialize(2, 44100);
     }
 
-    fluid_synth_t *getSynth() { return synth; }
+    fluid_synth_t* getSynth() { return synth; }
 
     ~MidiAudioStream() {
         delete_fluid_settings(settings);
@@ -34,7 +34,7 @@ public:
     }
 
 private:
-    virtual bool onGetData(Chunk &data) {
+    virtual bool onGetData(Chunk& data) {
         static const unsigned int samplesToStream = 1024;
         static const unsigned int audioBufferSize = samplesToStream * 2;
 
@@ -52,8 +52,8 @@ private:
             static_cast<std::size_t>(timeOffset.asSeconds() * getSampleRate() * getChannelCount());
     }
 
-    fluid_settings_t *settings;
-    fluid_synth_t *synth;
+    fluid_settings_t* settings;
+    fluid_synth_t* synth;
     std::vector<sf::Int16> m_samples;
     std::size_t m_currentSample;
 };

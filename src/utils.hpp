@@ -11,7 +11,7 @@
 const std::vector<std::string> note_names = {"A",  "Bb", "B", "C",  "C#", "D",
                                              "Eb", "E",  "F", "F#", "G",  "Ab"};
 
-std::vector<std::string> key_numbers_to_note_names(const std::vector<size_t> &indices) {
+std::vector<std::string> key_numbers_to_note_names(const std::vector<size_t>& indices) {
     std::vector<std::string> result = {};
     for (auto index : indices) {
         result.push_back(note_names[index % note_names.size()]);
@@ -26,10 +26,10 @@ inline unsigned short get_note_distance(unsigned short root, unsigned short othe
     return other - root;
 }
 
-void insert_chords(const unsigned short root, const std::set<unsigned short> &intervals,
-                   std::multiset<Chord> &res) {
+void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals,
+                   std::multiset<Chord>& res) {
     std::set<Chord> temp;
-    for (auto &[name, notes] : chord_db) {
+    for (auto& [name, notes] : chord_db) {
         Chord chord = {};
         chord.root = root;
         chord.base_name = name;
@@ -49,7 +49,7 @@ void insert_chords(const unsigned short root, const std::set<unsigned short> &in
         res.insert(*temp.begin());
 }
 
-std::multiset<Chord> name_that_chord(const std::vector<size_t> &indices) {
+std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices) {
     std::set<unsigned short> notes = {};
     for (auto index : indices) {
         notes.insert(index % 12);

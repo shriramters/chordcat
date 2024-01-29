@@ -23,7 +23,7 @@ struct Chord {
     unsigned num_accidentals;
 
     // support sorting
-    friend auto operator<=>(Chord const &a, Chord const &b) {
+    friend auto operator<=>(Chord const& a, Chord const& b) {
         return a.num_accidentals <=> b.num_accidentals;
     }
 
