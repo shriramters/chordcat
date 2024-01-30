@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
-project(chordcat LANGUAGES CXX)
+project(chordcat LANGUAGES CXX VERSION 0.0.1)
 
 set(CMAKE_CXX_STANDARD 20)
+
+set(ASSETS_DIR assets)
 
 include(FetchContent)
 # SFML
@@ -36,9 +38,23 @@ FetchContent_Declare(ImGui-SFML
     GIT_TAG v2.6)
 FetchContent_MakeAvailable(ImGui-SFML)
 
-file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+option(RELEASE_MODE "Flag that defines if cmake is running in release mode or development mode. Runs in development mode by default" OFF)
+
+include(GNUInstallDirs)
+
+# Copy files to build dir if in development or install to CMAKE_INSTALL_DATADIR
+if( ${RELEASE_MODE} )
+  set(ASSETS_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/${ASSETS_DIR})
+else()
+  file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_BINARY_DIR}/${ASSETS_PATH})
+  set(ASSETS_PATH ${CMAKE_BINARY_DIR}/${ASSETS_DIR})
+endif()
+
+configure_file(src/config.h.in config/config.h)
+
 
 file(GLOB src_files CONFIGURE_DEPENDS "src/*.cpp")
+include_directories(${CMAKE_BINARY_DIR}/config)
 
 add_executable(${PROJECT_NAME} ${src_files})
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth ImGui-SFML::ImGui-SFML)
@@ -51,3 +67,4 @@ if (WIN32 AND BUILD_SHARED_LIBS)
 endif()
 
 install(TARGETS ${PROJECT_NAME})
+install(DIRECTORY ${ASSETS_DIR} DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
