@@ -25,12 +25,12 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
     auto getKeyColor = [this](size_t index) {
         if (this->keys[index])
-            return sf::Color::Blue;
+            return sf::Color(static_cast<uint8_t>(note_colors[0] * 255), static_cast<uint8_t>(note_colors[1] * 255), static_cast<uint8_t>(note_colors[2] * 255), static_cast<uint8_t>(note_colors[3] * 255));
         else if (isBlackKey(index))
             return sf::Color::Black;
         else
             return sf::Color::White;
-    };
+        };
 
     key_sprites[0] = sf::RectangleShape(sf::Vector2f(key_width_white, key_height_white));
     key_sprites[0].setPosition(0, ypos - key_height_white);
@@ -41,17 +41,18 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         if (!isBlackKey(i)) {
             key_sprites[i] = sf::RectangleShape(sf::Vector2f(key_width_white, key_height_white));
             key_sprites[i].setPosition(key_sprites[last_white_key_index].getPosition().x +
-                                           key_width_white,
-                                       ypos - key_height_white);
+                key_width_white,
+                ypos - key_height_white);
             key_sprites[i].setFillColor(getKeyColor(i));
             key_sprites[i].setOutlineColor(sf::Color::Black);
             key_sprites[i].setOutlineThickness(key_width_white / 10.f);
             last_white_key_index = i;
-        } else {
+        }
+        else {
             key_sprites[i] = sf::RectangleShape(sf::Vector2f(key_width_black, key_height_black));
             key_sprites[i].setPosition(key_sprites[last_white_key_index].getPosition().x +
-                                           key_width_white - key_width_black / 2.f,
-                                       ypos - key_height_white);
+                key_width_white - key_width_black / 2.f,
+                ypos - key_height_white);
             key_sprites[i].setFillColor(getKeyColor(i));
         }
     }
@@ -90,7 +91,8 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t
                         size_t index = std::distance(key_sprites.begin(), it);
                         if (keys[index]) {
                             fluid_synth_noteoff(synth, 0, (int)(index + 21));
-                        } else {
+                        }
+                        else {
                             fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
                         }
                         keys[index] = !keys[index];
@@ -102,7 +104,8 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t
                     size_t index = std::distance(key_sprites.begin(), it);
                     if (keys[index]) {
                         fluid_synth_noteoff(synth, 0, (int)(index + 21));
-                    } else {
+                    }
+                    else {
                         fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
                     }
                     keys[index] = !keys[index];

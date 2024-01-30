@@ -44,9 +44,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     // Piano
     Piano piano;
+    float piano_note_color[4] = { 0.f,0.f,0.f,0.f };
     mas.play();
 
-    libremidi::midi_in midiin{ {
+    libremidi::midi_in midiin{
+        {
             // Set our callback function.
             .on_message =
                 [&](const libremidi::message& message) {
@@ -55,16 +57,17 @@ std::shared_ptr<AppState> MainScreen::Run() {
                             piano.setKeyPressed((int)message[1], false);
                             fluid_synth_noteoff(synth, 0, (int)message[1]);
                         }
-     else {
-      piano.setKeyPressed((int)message[1], true);
-      fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
-  }
-}
-},
-.ignore_sysex = false,
-.ignore_timing = false,
-.ignore_sensing = false,
-} };
+                        else {
+                        piano.setKeyPressed((int)message[1], true);
+                        fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+                        }
+                    }
+                },
+            .ignore_sysex = false,
+            .ignore_timing = false,
+            .ignore_sensing = false,
+        }
+    };
 
     std::string portName;
     auto ports = libremidi::observer{ {}, observer_configuration_for(midiin.get_current_api()) }
@@ -121,7 +124,13 @@ std::shared_ptr<AppState> MainScreen::Run() {
         chord_notes_text.setPosition(window.getSize().x / 3, 150);
 
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::ShowDemoWindow();
+
+        ImGui::Begin("Preferences", nullptr, ImGuiWindowFlags_MenuBar);
+        ImGui::Text("Sample Text %d", 123);
+        if (ImGui::Button("Save"));
+        ImGui::Text("Note Color");
+        ImGui::ColorPicker4("Color", &piano.note_colors[0], ImGuiColorEditFlags_DefaultOptions_);
+        ImGui::End();
 
         window.clear();
         // window.draw(sprite);
