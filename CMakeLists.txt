@@ -71,5 +71,5 @@ install(DIRECTORY ${ASSETS_DIR} DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_N
 
 
 # CPack config
-set(CPACK_SOURCE_IGNORE_FILES "build" ".git" ".gitignore" ".clangd" ".clang-format")
+set(CPACK_SOURCE_IGNORE_FILES "build" ".git" ".github" ".gitignore" ".clangd" ".clang-format")
 include(CPack)
