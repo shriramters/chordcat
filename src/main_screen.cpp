@@ -7,19 +7,27 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <fluidsynth.h>
-#include <iostream>
+#include <imgui-SFML.h>
+#include <imgui.h>
 #include <libremidi/libremidi.hpp>
+#include <iostream>
 #include <string>
 #include <vector>
 
 MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
 std::shared_ptr<AppState> MainScreen::Run() {
+
+    // Audio
     MidiAudioStream mas;
     fluid_synth_t* synth = mas.getSynth();
     fluid_synth_sfload(synth, "assets/soundfonts/TimGM6mb.sf2", 1);
     // TODO: all these need imgui widgets
     fluid_synth_set_gain(synth, 2.0);
+
+    // ImGui
+    ImGui::SFML::Init(window);
+    sf::Clock deltaClock;
 
     sf::View view = window.getDefaultView();
 
@@ -28,7 +36,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading font" << std::endl;
     }
 
-    auto title = sf::Text{"chordcat", font, 50u};
+    auto title = sf::Text{ "chordcat", font, 50u };
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
@@ -38,28 +46,29 @@ std::shared_ptr<AppState> MainScreen::Run() {
     Piano piano;
     mas.play();
 
-    libremidi::midi_in midiin{{
-        // Set our callback function.
-        .on_message =
-            [&](const libremidi::message& message) {
-                if (message.size() == 3 && (int)message[0] == 144) {
-                    if ((int)message[2] == 0) {
-                        piano.setKeyPressed((int)message[1], false);
-                        fluid_synth_noteoff(synth, 0, (int)message[1]);
-                    } else {
-                        piano.setKeyPressed((int)message[1], true);
-                        fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
-                    }
-                }
-            },
-        .ignore_sysex = false,
-        .ignore_timing = false,
-        .ignore_sensing = false,
-    }};
+    libremidi::midi_in midiin{ {
+            // Set our callback function.
+            .on_message =
+                [&](const libremidi::message& message) {
+                    if (message.size() == 3 && (int)message[0] == 144) {
+                        if ((int)message[2] == 0) {
+                            piano.setKeyPressed((int)message[1], false);
+                            fluid_synth_noteoff(synth, 0, (int)message[1]);
+                        }
+     else {
+      piano.setKeyPressed((int)message[1], true);
+      fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+  }
+}
+},
+.ignore_sysex = false,
+.ignore_timing = false,
+.ignore_sensing = false,
+} };
 
     std::string portName;
-    auto ports = libremidi::observer{{}, observer_configuration_for(midiin.get_current_api())}
-                     .get_input_ports();
+    auto ports = libremidi::observer{ {}, observer_configuration_for(midiin.get_current_api()) }
+    .get_input_ports();
     unsigned int nPorts = ports.size();
     if (nPorts == 1) {
         midiin.open_port(ports[0]);
@@ -70,7 +79,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     auto portinfo_text = sf::Text(portName, font, 30u);
     portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2,
-                              100);
+        100);
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -91,6 +100,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 portinfo_text.setPosition(
                     window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
             }
+            ImGui::SFML::ProcessEvent(event);
             piano.mouseEvent(event, window, synth);
         }
         std::vector<std::string> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
@@ -105,10 +115,13 @@ std::shared_ptr<AppState> MainScreen::Run() {
         for (auto chord : chordset) {
             chord_name_list.push_back(sf::Text(chord.to_string(), font, 30u));
             chord_name_list.back().setPosition(window.getSize().x / 3,
-                                               200 + 50 * chord_name_list.size());
+                200 + 50 * chord_name_list.size());
         }
         chord_notes_text = sf::Text(current_msg, font, 50u);
         chord_notes_text.setPosition(window.getSize().x / 3, 150);
+
+        ImGui::SFML::Update(window, deltaClock.restart());
+        ImGui::ShowDemoWindow();
 
         window.clear();
         // window.draw(sprite);
@@ -119,7 +132,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
         window.draw(title);
         window.draw(portinfo_text);
         window.draw(chord_notes_text);
+        ImGui::SFML::Render(window);
         window.display();
     }
+
+    ImGui::SFML::Shutdown();
     return nullptr;
 }

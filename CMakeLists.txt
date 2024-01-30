@@ -22,14 +22,29 @@ FetchContent_Declare(FLUIDSYNTH
     GIT_TAG v2.3.4)
 FetchContent_MakeAvailable(FLUIDSYNTH)
 
+# ImGui
+FetchContent_Declare(ImGui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.90.1)
+FetchContent_MakeAvailable(ImGui)
+
+# ImGui-SFML
+set(IMGUI_DIR ${imgui_SOURCE_DIR})
+set(IMGUI_SFML_FIND_SFML OFF)
+FetchContent_Declare(ImGui-SFML
+    GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
+    GIT_TAG v2.6)
+FetchContent_MakeAvailable(ImGui-SFML)
+
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
 file(GLOB src_files CONFIGURE_DEPENDS "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${src_files})
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth ImGui-SFML::ImGui-SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+
 if (WIN32 AND BUILD_SHARED_LIBS)
   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}> COMMAND_EXPAND_LISTS)
