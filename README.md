@@ -8,7 +8,7 @@ Chord naming app with MIDI Support. Pre-Alpha.
 
 All contributions welcome
 
-<img src="https://github.com/shriramters/chordcat/assets/127589779/f4c9e039-ac61-482e-9583-ee3e2f4f4452" width="600">
+<img src="https://github.com/shriramters/chordcat/assets/127589779/816172ad-6b05-4615-8522-9b991d46b969" width="600">
 
 ## What works
 - Chord Names will be displayed when: 
