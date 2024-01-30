@@ -9,7 +9,7 @@ public:
     MidiAudioStream() {
         settings = new_fluid_settings();
         synth = new_fluid_synth(settings);
-        m_samples.resize(2048);
+        m_samples.resize(audioBufferSize);
         // reset the current playing position
         m_currentSample = 0;
         // initialize the base class
@@ -35,9 +35,6 @@ public:
 
 private:
     virtual bool onGetData(Chunk& data) {
-        static const unsigned int samplesToStream = 1024;
-        static const unsigned int audioBufferSize = samplesToStream * 2;
-
         int read =
             fluid_synth_write_s16(synth, samplesToStream, &m_samples[0], 0, 2, &m_samples[0], 1, 2);
 
@@ -56,4 +53,6 @@ private:
     fluid_synth_t* synth;
     std::vector<sf::Int16> m_samples;
     std::size_t m_currentSample;
+    static const unsigned int samplesToStream = 512;
+    static const unsigned int audioBufferSize = samplesToStream * 2;
 };

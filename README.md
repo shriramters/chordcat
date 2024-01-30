@@ -4,7 +4,7 @@ Chord Naming App with MIDI Support
 
 
 ## WIP
-Only works when there is just one MIDI device plugged in to the computer. Will fix in future updates.
+Chord naming app with MIDI Support. Pre-Alpha.
 
 All contributions welcome
 
@@ -12,10 +12,11 @@ All contributions welcome
 
 ## What works
 - Chord Names will be displayed when: 
-  - 1 midi keyboard is connected and you play a chord
+  - 1 or more MIDI devices are connected and you play a chord
   - you click the piano keys with a mouse
+- Selecting preferred MIDI Device
 - Piano Sounds
-- Resizing the window
+- Fullscreen / Resizing Window
 
 ## Building and Running
 
@@ -34,3 +35,5 @@ $ ./chordcat
 - [libremidi](https://github.com/jcelerier/libremidi)
 - [SFML](https://www.sfml-dev.org/index.php)
 - [fluidsynth](https://www.fluidsynth.org/)
+- [Dear ImGui](https://github.com/ocornut/imgui)
+- [ImGui-SFML](https://github.com/SFML/imgui-sfml)
