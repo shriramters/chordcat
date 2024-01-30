@@ -18,9 +18,9 @@ Piano::Piano() {}
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
-    float key_height_white = key_width_white * 4;
+    float key_height_white = key_width_white * key_aspect_ratio;
     float key_width_black = key_width_white / 2;
-    float key_height_black = key_width_black * 4;
+    float key_height_black = key_width_black * key_aspect_ratio;
     unsigned ypos = target.getView().getSize().y;
 
     auto getKeyColor = [this](size_t index) {
@@ -114,4 +114,8 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t
             }
         }
     }
+}
+
+void Piano::clearAllKeys() {
+    keys.fill(false);
 }

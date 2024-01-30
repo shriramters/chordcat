@@ -73,16 +73,18 @@ std::shared_ptr<AppState> MainScreen::Run() {
     auto ports = libremidi::observer{ {}, observer_configuration_for(midiin.get_current_api()) }
     .get_input_ports();
     unsigned int nPorts = ports.size();
-    if (nPorts == 1) {
+    if (nPorts >= 1) {
         midiin.open_port(ports[0]);
         portName = ports[0].display_name;
     }
     if (portName.empty())
-        portName = "couldn't choose device";
+        portName = "No MIDI Devices Found";
 
     auto portinfo_text = sf::Text(portName, font, 30u);
     portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2,
         100);
+
+    bool show_preferences = false;
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -125,15 +127,57 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
-        ImGui::Begin("Preferences", nullptr, ImGuiWindowFlags_MenuBar);
-        ImGui::Text("Sample Text %d", 123);
-        if (ImGui::Button("Save"));
-        ImGui::Text("Note Color");
-        ImGui::ColorPicker4("Color", &piano.note_colors[0], ImGuiColorEditFlags_DefaultOptions_);
+        if (show_preferences) {
+            ImGui::Begin("Preferences", nullptr);
+            if (ImGui::CollapsingHeader("Configuration"))
+            {
+                if (ImGui::TreeNode("MIDI Device")) {
+                    if (ImGui::BeginCombo("##combo", portName.c_str()))
+                    {
+                        for (int n = 0; n < ports.size(); n++)
+                        {
+                            bool is_selected = (portName == ports[n].display_name); // You can store your selection however you want, outside or inside your objects
+                            if (ImGui::Selectable(ports[n].display_name.c_str(), is_selected)) {
+                                portName = ports[n].display_name;
+                                midiin.close_port();
+                                midiin.open_port(ports[n]);
+                                portinfo_text.setString(portName);
+                            }
+                            if (is_selected) {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+            }
+            if (ImGui::CollapsingHeader("Piano")) {
+                if (ImGui::TreeNode("Aspect Ratio")) {
+                    ImGui::SliderFloat("KeyH/KeyW", &piano.key_aspect_ratio, 0.0f, 20.0f, "ratio = %.2f");
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+                if (ImGui::TreeNode("Pressed Note Color")) {
+                    ImGui::ColorPicker4("Color", &piano.note_colors[0], ImGuiColorEditFlags_DefaultOptions_);
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+            }
+            ImGui::End();
+        }
+
+        ImGui::Begin("MENUWINDOW", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+        ImGui::SetWindowPos({ 0,0 });
+        if (ImGui::Button("Clear All"))
+            piano.clearAllKeys();
+        ImGui::SameLine();
+        if (ImGui::Button("Preferences"))
+            show_preferences = !show_preferences;
         ImGui::End();
 
         window.clear();
-        // window.draw(sprite);
         window.draw(piano);
         for (auto chordname : chord_name_list) {
             window.draw(chordname);

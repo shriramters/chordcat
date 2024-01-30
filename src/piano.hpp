@@ -9,9 +9,11 @@ class Piano : public sf::Drawable {
 public:
     Piano();
     void setKeyPressed(size_t midi_note_number, bool isPressed);
+    void clearAllKeys();
     std::vector<size_t> getPressedNotes();
     void mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth);
     std::array<float, 4> note_colors = { 0.f,0.f,1.f,1.f };
+    float key_aspect_ratio = 4.f;
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     std::array<bool, 88> keys = {};
