@@ -68,3 +68,8 @@ endif()
 
 install(TARGETS ${PROJECT_NAME})
 install(DIRECTORY ${ASSETS_DIR} DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
+
+
+# CPack config
+set(CPACK_SOURCE_IGNORE_FILES "build" ".git" ".gitignore" ".clangd" ".clang-format")
+include(CPack)
