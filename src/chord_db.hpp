@@ -5,7 +5,7 @@
 #include <vector>
 
 // TODO: constexpr in future
-const std::vector<std::pair<const std::string, std::set<unsigned short>>> chord_db = {
+const std::vector<std::pair<const sf::String, std::set<unsigned short>>> chord_db = {
     {"major", {4, 7}},
     {"7", {4, 7, 10}},
     {"9", {4, 7, 10, 2}},
@@ -54,12 +54,12 @@ const std::vector<std::pair<const std::string, std::set<unsigned short>>> chord_
     {" Harmonic Minor Scale", {2, 3, 5, 7, 8, 11}},
     {" Locrian Natural 6 Scale", {1, 3, 5, 6, 9, 10}},
     {" Augmented Major Scale", {2, 4, 5, 8, 9, 11}},
-    {" Dorian #11 Scale", {2, 3, 6, 7, 9, 10}},
+    {L" Dorian ♯11 Scale", {2, 3, 6, 7, 9, 10}},
     {" Phrygian Dominant Scale", {1, 4, 5, 7, 8, 10}},
-    {" Lydian #2 Scale", {3, 4, 6, 7, 9, 11}},
-    {" Super Locrian bb7 Scale", {1, 3, 4, 6, 8, 9}},
+    {L" Lydian ♯2 Scale", {3, 4, 6, 7, 9, 11}},
+    {L" Super Locrian 𝄫7 Scale", {1, 3, 4, 6, 8, 9}},
     {" Jazz Minor Scale", {2, 3, 5, 7, 9, 11}},
-    {" Dorian b2 Scale", {1, 3, 5, 7, 9, 10}},
+    {L" Dorian ♭2 Scale", {1, 3, 5, 7, 9, 10}},
     {" Lydian Augmented Scale", {2, 4, 6, 8, 9, 11}},
     {" Lydian Dominant Scale", {2, 4, 6, 7, 9, 10}},
     {" Aeolian Dominant Scale", {2, 4, 5, 7, 8, 10}},

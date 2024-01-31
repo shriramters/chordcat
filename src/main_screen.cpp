@@ -32,7 +32,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     sf::View view = window.getDefaultView();
 
     sf::Font font;
-    if (!font.loadFromFile("assets/fonts/Questrial/Questrial-Regular.ttf")) {
+    if (!font.loadFromFile("assets/fonts/Noto_Music/NotoMusic-Regular.ttf")) {
         std::cerr << "Error loading font" << std::endl;
     }
 
@@ -108,17 +108,17 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::SFML::ProcessEvent(event);
             piano.mouseEvent(event, window, synth);
         }
-        std::vector<std::string> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
-        std::string current_msg = "";
+        std::vector<sf::String> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
+        sf::String current_msg = "";
         for (auto& note : pressed_notes) {
             current_msg += note + " ";
         }
-        if (!current_msg.empty())
-            current_msg.pop_back(); // remove extra space
+        if (!current_msg.isEmpty())
+            current_msg.erase(current_msg.getSize() - 1, 1); // remove extra space
         auto chordset = name_that_chord(piano.getPressedNotes());
         chord_name_list = {};
         for (auto chord : chordset) {
-            chord_name_list.push_back(sf::Text(chord.to_string(), font, 30u));
+            chord_name_list.push_back(sf::Text(chord.to_sf_string(), font, 30u));
             chord_name_list.back().setPosition(window.getSize().x / 3,
                 200 + 50 * chord_name_list.size());
         }
