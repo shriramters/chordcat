@@ -32,7 +32,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     sf::View view = window.getDefaultView();
 
     sf::Font font;
-    if (!font.loadFromFile("assets/fonts/Noto_Music/NotoMusic-Regular.ttf")) {
+    if (!font.loadFromFile("assets/fonts/FirstTimeWriting/FirstTimeWriting!.ttf")) {
         std::cerr << "Error loading font" << std::endl;
     }
 
