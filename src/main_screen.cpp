@@ -31,12 +31,21 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     sf::View view = window.getDefaultView();
 
+    //TODO: std::filesystem Path
+    std::vector <std::pair<std::string, std::string> > fonts = {
+        {"DejaVu Sans", "assets/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
+        {"FirstTimeWriting!", "assets/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
+        {"Petaluma", "assets/fonts/Petaluma/otf/PetalumaScript.otf"}
+    };
+    std::pair<std::string, std::string> selected_font = fonts[0];
+
+    //TODO: Remember choice from config.ini
     sf::Font font;
-    if (!font.loadFromFile("assets/fonts/FirstTimeWriting/FirstTimeWriting!.ttf")) {
+    if (!font.loadFromFile(selected_font.second)) {
         std::cerr << "Error loading font" << std::endl;
     }
 
-    auto title = sf::Text{ "chordcat", font, 50u };
+    auto title = sf::Text{ L"c♯ordcat", font, 50u };
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
@@ -129,6 +138,28 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         if (show_preferences) {
             ImGui::Begin("Preferences", nullptr);
+            if (ImGui::CollapsingHeader("User Interface"))
+            {
+                if (ImGui::TreeNode("Font Face")) {
+                    if (ImGui::BeginCombo("##combo", font.getInfo().family.c_str()))
+                    {
+                        for (int n = 0; n < fonts.size(); n++)
+                        {
+                            bool is_selected = (selected_font.first == fonts[n].first); // You can store your selection however you want, outside or inside your objects
+                            if (ImGui::Selectable(fonts[n].first.c_str(), is_selected)) {
+                                selected_font = fonts[n];
+                                font.loadFromFile(selected_font.second);
+                            }
+                            if (is_selected) {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+            }
             if (ImGui::CollapsingHeader("Configuration"))
             {
                 if (ImGui::TreeNode("MIDI Device")) {
