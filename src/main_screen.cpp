@@ -23,7 +23,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
     MidiAudioStream mas;
     fluid_synth_t* synth = mas.getSynth();
     std::string assets_path = ASSETS_PATH;
-    std::string font_path = assets_path + "/fonts/FirstTimeWriting/FirstTimeWriting!.ttf";
     std::string sound_font_path = assets_path + "/soundfonts/TimGM6mb.sf2";
     fluid_synth_sfload(synth, sound_font_path.c_str(), 1);
     // TODO: all these need imgui widgets
@@ -37,9 +36,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     //TODO: std::filesystem Path
     std::vector <std::pair<std::string, std::string> > fonts = {
-        {"DejaVu Sans", "assets/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
-        {"FirstTimeWriting!", "assets/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
-        {"Petaluma", "assets/fonts/Petaluma/otf/PetalumaScript.otf"}
+        {"DejaVu Sans", assets_path + "/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
+        {"FirstTimeWriting!", assets_path + "/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
+        {"Petaluma", assets_path + "/fonts/Petaluma/otf/PetalumaScript.otf"}
     };
     std::pair<std::string, std::string> selected_font = fonts[0];
 
