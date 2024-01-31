@@ -8,11 +8,11 @@
 #include <string>
 #include <vector>
 
-const std::vector<std::string> note_names = {"A",  "Bb", "B", "C",  "C#", "D",
-                                             "Eb", "E",  "F", "F#", "G",  "Ab"};
+const std::array<sf::String, 12> note_names = { "A",  L"B♭", "B", "C",  L"C♯", "D",
+                                                           L"E♭", "E",  "F", L"F♯", "G",  L"A♭" };
 
-std::vector<std::string> key_numbers_to_note_names(const std::vector<size_t>& indices) {
-    std::vector<std::string> result = {};
+std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices) {
+    std::vector<sf::String> result = {};
     for (auto index : indices) {
         result.push_back(note_names[index % note_names.size()]);
     }
@@ -27,7 +27,7 @@ inline unsigned short get_note_distance(unsigned short root, unsigned short othe
 }
 
 void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals,
-                   std::multiset<Chord>& res) {
+    std::multiset<Chord>& res) {
     std::set<Chord> temp;
     for (auto& [name, notes] : chord_db) {
         Chord chord = {};
@@ -36,9 +36,9 @@ void insert_chords(const unsigned short root, const std::set<unsigned short>& in
 
         // TODO: Rewite using std::ranges::set_difference
         std::set_difference(notes.begin(), notes.end(), intervals.begin(), intervals.end(),
-                            std::back_inserter(chord.omitted_tones));
+            std::back_inserter(chord.omitted_tones));
         std::set_difference(intervals.begin(), intervals.end(), notes.begin(), notes.end(),
-                            std::back_inserter(chord.extra_tones));
+            std::back_inserter(chord.extra_tones));
         chord.num_accidentals = chord.extra_tones.size() + chord.omitted_tones.size();
 
         temp.insert(chord);
