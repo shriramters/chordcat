@@ -30,10 +30,15 @@ struct Chord {
     // to string
     std::string to_string() {
         std::string res = key_number_to_note_name(root) + base_name;
+        unsigned accidentals_count = num_accidentals;
+        if (accidentals_count > 0) {
+            res += "(";
+        }
+
         for (auto tone : omitted_tones)
-            res += "(no" + degrees[tone % 12] + ")";
+            res += "no" + degrees[tone % 12] + (--num_accidentals == 0 ? ")" : ",");
         for (auto tone : extra_tones)
-            res += "/" + compound_tones[tone % 12];
+            res += compound_tones[tone % 12] + (--num_accidentals == 0 ? ")" : ",");
         return res;
     }
 };
