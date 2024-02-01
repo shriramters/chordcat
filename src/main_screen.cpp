@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-only
-#include "main_screen.hpp"
-#include "config.h"
-#include "midi_audio_stream.hpp"
-#include "piano.hpp"
-#include "utils.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -14,25 +9,52 @@
 #include <libremidi/libremidi.hpp>
 #include <string>
 #include <vector>
+#include <cstdlib>
+#include <filesystem>
+#include "main_screen.hpp"
+#include "config.h"
+#include "midi_audio_stream.hpp"
+#include "piano.hpp"
+#include "utils.hpp"
+#include "preferences.hpp"
 
 MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
 std::shared_ptr<AppState> MainScreen::Run() {
 
+    // Setup Preferences
+    Preferences preferences;
+    std::optional<std::string> appdata_path = get_appdata_path();
+    if (appdata_path.has_value()) {
+        try {
+            preferences.load(*appdata_path + "/settings.xml");
+        }
+        catch (boost::wrapexcept<boost::property_tree::xml_parser::xml_parser_error> e) {
+            std::error_code err;
+            if (!CreateDirectoryRecursive(*appdata_path, err))
+            {
+                std::cout << "CreateDirectoryRecursive FAILED, err: " << err.message() << std::endl;
+                return nullptr;
+            }
+            preferences.save(*appdata_path + "/settings.xml");
+        }
+    }
+    else {
+        return nullptr;
+    }
+
     // Audio
     MidiAudioStream mas;
     fluid_synth_t* synth = mas.getSynth();
-    std::string assets_path = ASSETS_PATH;
+    std::string assets_path = APP_ASSETS_PATH;
     std::string sound_font_path = assets_path + "/soundfonts/TimGM6mb.sf2";
     fluid_synth_sfload(synth, sound_font_path.c_str(), 1);
-    // TODO: all these need imgui widgets
-    fluid_synth_set_gain(synth, 2.0);
+    fluid_synth_set_gain(synth, preferences.piano.gain);
 
     // ImGui
-    ImGui::SFML::Init(window);
+    if (!ImGui::SFML::Init(window))
+        return nullptr;
     sf::Clock deltaClock;
-
-    sf::View view = window.getDefaultView();
 
     //TODO: std::filesystem Path
     std::vector <std::pair<std::string, std::string> > fonts = {
@@ -55,8 +77,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
 
     // Piano
-    Piano piano;
-    float piano_note_color[4] = { 0.f, 0.f, 0.f, 0.f };
+    Piano piano(preferences.piano.pressed_note_colors);
     mas.play();
 
     libremidi::midi_in midiin{ {
@@ -135,6 +156,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
         chord_notes_text = sf::Text(current_msg, font, 50u);
         chord_notes_text.setPosition(window.getSize().x / 3, 150);
 
+        // Fluid Synth Stuff
+        fluid_synth_set_gain(synth, preferences.piano.gain);
+
         ImGui::SFML::Update(window, deltaClock.restart());
 
         if (show_preferences) {
@@ -193,8 +217,14 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     ImGui::TreePop();
                     ImGui::Spacing();
                 }
+                if (ImGui::TreeNode("Synth Gain")) {
+                    ImGui::SliderFloat("Gain", &preferences.piano.gain, 0.0f, 10.0f,
+                        "%.2f");
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
                 if (ImGui::TreeNode("Pressed Note Color")) {
-                    ImGui::ColorPicker4("Color", &piano.note_colors[0],
+                    ImGui::ColorPicker4("Color", &preferences.piano.pressed_note_colors[0],
                         ImGuiColorEditFlags_DefaultOptions_);
                     ImGui::TreePop();
                     ImGui::Spacing();
@@ -224,7 +254,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
         ImGui::SFML::Render(window);
         window.display();
     }
-
     ImGui::SFML::Shutdown();
+    midiin.close_port();
+    preferences.save(*appdata_path + "/settings.xml");
     return nullptr;
 }

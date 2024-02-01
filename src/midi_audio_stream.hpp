@@ -29,8 +29,9 @@ public:
     fluid_synth_t* getSynth() { return synth; }
 
     ~MidiAudioStream() {
-        delete_fluid_settings(settings);
+        stop();
         delete_fluid_synth(synth);
+        delete_fluid_settings(settings);
     }
 
 private:

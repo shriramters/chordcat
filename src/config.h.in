@@ -1,1 +1,1 @@
-#cmakedefine ASSETS_PATH "@ASSETS_PATH@"
+#cmakedefine APP_ASSETS_PATH "@APP_ASSETS_PATH@"

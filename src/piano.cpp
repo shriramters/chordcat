@@ -14,7 +14,8 @@ inline bool isBlackKey(size_t index) {
     }
 }
 
-Piano::Piano() {}
+Piano::Piano(std::array<float, 4>& pressed_note_colors) : note_colors(pressed_note_colors) {
+}
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
