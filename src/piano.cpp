@@ -53,6 +53,8 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
             key_sprites[i].setPosition(key_sprites[last_white_key_index].getPosition().x +
                 key_width_white - key_width_black / 2.f,
                 ypos - key_height_white);
+            key_sprites[i].setOutlineColor(sf::Color::Black);
+            key_sprites[i].setOutlineThickness(key_width_black / 10.f);
             key_sprites[i].setFillColor(getKeyColor(i));
         }
     }

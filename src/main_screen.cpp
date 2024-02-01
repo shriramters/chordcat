@@ -61,23 +61,23 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     libremidi::midi_in midiin{ {
             // Set our callback function.
-            .on_message =
-                [&](const libremidi::message& message) {
-                    if (message.size() == 3 && (int)message[0] == 144) {
-                        if ((int)message[2] == 0) {
-                            piano.setKeyPressed((int)message[1], false);
-                            fluid_synth_noteoff(synth, 0, (int)message[1]);
-                        }
-     else {
-      piano.setKeyPressed((int)message[1], true);
-      fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
-  }
-}
-},
-.ignore_sysex = false,
-.ignore_timing = false,
-.ignore_sensing = false,
-} };
+        .on_message =
+            [&](const libremidi::message& message) {
+                if (message.size() == 3 && (int)message[0] == 144) {
+                    if ((int)message[2] == 0) {
+                        piano.setKeyPressed((int)message[1], false);
+                        fluid_synth_noteoff(synth, 0, (int)message[1]);
+                    }
+                    else {
+                    piano.setKeyPressed((int)message[1], true);
+                    fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+                    }
+                }
+            },
+        .ignore_sysex = false,
+        .ignore_timing = false,
+        .ignore_sensing = false,
+    } };
 
     std::string portName;
     auto ports = libremidi::observer{ {}, observer_configuration_for(midiin.get_current_api()) }
