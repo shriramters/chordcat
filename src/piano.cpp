@@ -14,7 +14,8 @@ inline bool isBlackKey(size_t index) {
     }
 }
 
-Piano::Piano() {}
+Piano::Piano(std::array<float, 4>& pressed_note_colors) : note_colors(pressed_note_colors) {
+}
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
@@ -53,6 +54,8 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
             key_sprites[i].setPosition(key_sprites[last_white_key_index].getPosition().x +
                 key_width_white - key_width_black / 2.f,
                 ypos - key_height_white);
+            key_sprites[i].setOutlineColor(sf::Color::Black);
+            key_sprites[i].setOutlineThickness(key_width_black / 10.f);
             key_sprites[i].setFillColor(getKeyColor(i));
         }
     }

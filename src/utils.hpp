@@ -66,3 +66,54 @@ std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices) {
     }
     return result;
 }
+
+
+#include <filesystem>
+
+// Returns:
+//   true upon success.
+//   false upon failure, and set the std::error_code & err accordingly.
+bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err)
+{
+    err.clear();
+    if (!std::filesystem::create_directories(dirName, err))
+    {
+        if (std::filesystem::exists(dirName))
+        {
+            // The folder already exists:
+            err.clear();
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
+std::optional<std::string> get_appdata_path() {
+    char* app_data_root;
+
+#ifdef _WIN32
+    app_data_root = std::getenv("APPDATA");
+    if (app_data_root == nullptr) {
+        std::cerr << "Can't find configuration directory, env variable $APPDATA was NULL";
+        return std::nullopt;
+    }
+    return std::string(app_data_root) + "/Local/chordcat";
+#endif
+
+#if defined(__unix__) || defined(__APPLE__)
+    app_data_root = std::getenv("XDG_CONFIG_HOME");
+    if (app_data_root == nullptr) {
+        app_data_root = std::getenv("HOME");
+        if (app_data_root != nullptr)
+            return std::string(app_data_root) + "/.config/chordcat";
+        else
+        {
+            std::cerr << "Can't find configuration directory, env variable $HOME and $XDG_CONFIG_HOME were NULL";
+            return std::nullopt;
+        }
+    }
+    return std::string(app_data_root) + "/chordcat";
+#endif
+    return std::nullopt;
+}

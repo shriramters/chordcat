@@ -42,16 +42,24 @@ FetchContent_Declare(ImGui-SFML
     GIT_TAG v2.6)
 FetchContent_MakeAvailable(ImGui-SFML)
 
+# Boost Property Tree
+set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME OFF) 
+find_package(Boost 1.84.0) 
+include_directories(${Boost_INCLUDE_DIRS})
+
+
 option(RELEASE_MODE "Flag that defines if cmake is running in release mode or development mode. Runs in development mode by default" OFF)
 
 include(GNUInstallDirs)
 
 # Copy files to build dir if in development or install to CMAKE_INSTALL_DATADIR
 if( ${RELEASE_MODE} )
-  set(ASSETS_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/${ASSETS_DIR})
+  set(APP_APP_ASSETS_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/${ASSETS_DIR})
 else()
-  file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_BINARY_DIR}/${ASSETS_PATH})
-  set(ASSETS_PATH ${CMAKE_BINARY_DIR}/${ASSETS_DIR})
+  file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_BINARY_DIR}/${APP_ASSETS_PATH})
+  set(APP_ASSETS_PATH ${CMAKE_BINARY_DIR}/${ASSETS_DIR})
 endif()
 
 configure_file(src/config.h.in config/config.h)
@@ -61,7 +69,7 @@ file(GLOB src_files CONFIGURE_DEPENDS "src/*.cpp")
 include_directories(${CMAKE_BINARY_DIR}/config)
 
 add_executable(${PROJECT_NAME} ${src_files})
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth ImGui-SFML::ImGui-SFML)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth ImGui-SFML::ImGui-SFML Boost::boost)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
