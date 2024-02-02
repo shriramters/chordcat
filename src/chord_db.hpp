@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include <SFML/System/String.hpp>
 #include <set>
-#include <string>
 #include <vector>
 
 // TODO: constexpr in future
@@ -26,12 +26,12 @@ const std::vector<std::pair<const sf::String, std::set<unsigned short>>> chord_d
     {"mMaj13", {3, 7, 11, 2, 5, 9}},
     {"sus2", {2, 7}},
     {"7sus2", {2, 7, 10}},
-    {"maj7sus2", {2,7,11}},
+    {"maj7sus2", {2, 7, 11}},
     {"sus4", {5, 7}},
     {"7sus4", {5, 7, 10}},
     {"9sus4", {5, 7, 10, 2}},
-    {"maj7sus4", {5,7,11}},
-    {"maj9sus4", {5,7,11,2}},
+    {"maj7sus4", {5, 7, 11}},
+    {"maj9sus4", {5, 7, 11, 2}},
     {"dim", {3, 6}},
     {"dim7", {3, 6, 9}},
     {"dim9", {3, 6, 9, 2}},
