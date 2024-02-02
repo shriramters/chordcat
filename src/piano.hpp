@@ -13,6 +13,7 @@ public:
     std::vector<size_t> getPressedNotes();
     void mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth);
     float key_aspect_ratio = 4.f;
+
 private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     std::array<bool, 88> keys = {};

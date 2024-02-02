@@ -1,10 +1,8 @@
 #include "preferences.hpp"
-#include <exception>
-#include <iostream>
+
 namespace pt = boost::property_tree;
 
-void Preferences::load(const std::string& filename)
-{
+void Preferences::load(const std::string& filename) {
     pt::read_xml(filename, tree);
     this->piano.gain = tree.get<float>("piano.gain");
     this->ui.font.name = tree.get<std::string>("ui.font.name");
@@ -15,8 +13,7 @@ void Preferences::load(const std::string& filename)
     this->piano.pressed_note_colors[3] = tree.get<float>("piano.pressed_note_colors.a");
 }
 
-void Preferences::save(const std::string& filename)
-{
+void Preferences::save(const std::string& filename) {
     tree.put("piano.gain", piano.gain);
     tree.put("ui.font.name", ui.font.name);
     tree.put("ui.font.path", ui.font.path);

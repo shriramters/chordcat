@@ -3,13 +3,14 @@
 #include "chord.hpp"
 #include "chord_db.hpp"
 #include <algorithm>
+#include <iostream>
 #include <ranges>
 #include <set>
 #include <string>
 #include <vector>
 
-const std::array<sf::String, 12> note_names = { "A",  L"B♭", "B", "C",  L"C♯", "D",
-                                                           L"E♭", "E",  "F", L"F♯", "G",  L"A♭" };
+const std::array<sf::String, 12> note_names = {"A",   L"B♭", "B", "C",   L"C♯", "D",
+                                               L"E♭", "E",   "F", L"F♯", "G",   L"A♭"};
 
 std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices) {
     std::vector<sf::String> result = {};
@@ -27,7 +28,7 @@ inline unsigned short get_note_distance(unsigned short root, unsigned short othe
 }
 
 void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals,
-    std::multiset<Chord>& res) {
+                   std::multiset<Chord>& res) {
     std::set<Chord> temp;
     for (auto& [name, notes] : chord_db) {
         Chord chord = {};
@@ -36,9 +37,9 @@ void insert_chords(const unsigned short root, const std::set<unsigned short>& in
 
         // TODO: Rewite using std::ranges::set_difference
         std::set_difference(notes.begin(), notes.end(), intervals.begin(), intervals.end(),
-            std::back_inserter(chord.omitted_tones));
+                            std::back_inserter(chord.omitted_tones));
         std::set_difference(intervals.begin(), intervals.end(), notes.begin(), notes.end(),
-            std::back_inserter(chord.extra_tones));
+                            std::back_inserter(chord.extra_tones));
         chord.num_accidentals = chord.extra_tones.size() + chord.omitted_tones.size();
 
         temp.insert(chord);
@@ -67,19 +68,15 @@ std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices) {
     return result;
 }
 
-
 #include <filesystem>
 
 // Returns:
 //   true upon success.
 //   false upon failure, and set the std::error_code & err accordingly.
-bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err)
-{
+bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err) {
     err.clear();
-    if (!std::filesystem::create_directories(dirName, err))
-    {
-        if (std::filesystem::exists(dirName))
-        {
+    if (!std::filesystem::create_directories(dirName, err)) {
+        if (std::filesystem::exists(dirName)) {
             // The folder already exists:
             err.clear();
             return true;
@@ -107,9 +104,9 @@ std::optional<std::string> get_appdata_path() {
         app_data_root = std::getenv("HOME");
         if (app_data_root != nullptr)
             return std::string(app_data_root) + "/.config/chordcat";
-        else
-        {
-            std::cerr << "Can't find configuration directory, env variable $HOME and $XDG_CONFIG_HOME were NULL";
+        else {
+            std::cerr << "Can't find configuration directory, env variable $HOME and "
+                         "$XDG_CONFIG_HOME were NULL";
             return std::nullopt;
         }
     }
