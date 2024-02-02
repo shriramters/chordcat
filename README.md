@@ -38,3 +38,4 @@ $ ./chordcat
 - [fluidsynth](https://www.fluidsynth.org/)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [ImGui-SFML](https://github.com/SFML/imgui-sfml)
+- [Boost.PropertyTree](https://www.boost.org/doc/libs/1_84_0/doc/html/property_tree.html)
