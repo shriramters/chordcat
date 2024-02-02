@@ -56,17 +56,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
         return nullptr;
     sf::Clock deltaClock;
 
-    //TODO: std::filesystem Path
-    std::vector <std::pair<std::string, std::string> > fonts = {
-        {"DejaVu Sans", assets_path + "/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
-        {"FirstTimeWriting!", assets_path + "/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
-        {"Petaluma", assets_path + "/fonts/Petaluma/otf/PetalumaScript.otf"}
-    };
-    std::pair<std::string, std::string> selected_font = fonts[0];
-
     //TODO: Remember choice from config.ini
     sf::Font font;
-    if (!font.loadFromFile(selected_font.second)) {
+    if (!font.loadFromFile(preferences.ui.font.path)) {
         std::cerr << "Error loading font" << std::endl;
     }
 
@@ -168,12 +160,13 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 if (ImGui::TreeNode("Font Face")) {
                     if (ImGui::BeginCombo("##combo", font.getInfo().family.c_str()))
                     {
-                        for (int n = 0; n < fonts.size(); n++)
+                        for (int n = 0; n < available_fonts.size(); n++)
                         {
-                            bool is_selected = (selected_font.first == fonts[n].first); // You can store your selection however you want, outside or inside your objects
-                            if (ImGui::Selectable(fonts[n].first.c_str(), is_selected)) {
-                                selected_font = fonts[n];
-                                font.loadFromFile(selected_font.second);
+                            bool is_selected = (preferences.ui.font.name == available_fonts[n].first); // You can store your selection however you want, outside or inside your objects
+                            if (ImGui::Selectable(available_fonts[n].first.c_str(), is_selected)) {
+                                preferences.ui.font.name = available_fonts[n].first;
+                                preferences.ui.font.path = available_fonts[n].second;
+                                font.loadFromFile(preferences.ui.font.path);
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
