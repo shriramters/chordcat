@@ -25,7 +25,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
     std::optional<std::string> appdata_path = get_appdata_path();
     if (appdata_path.has_value()) {
         try {
-            preferences.load(*appdata_path + "/settings.xml");
+            std::cout << APP_ASSETS_PATH << "\n";
+            //preferences.load(*appdata_path + "/settings.xml");
         }
         catch (boost::wrapexcept<boost::property_tree::xml_parser::xml_parser_error> e) {
             std::error_code err;
@@ -49,7 +50,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     MidiAudioStream mas;
     fluid_synth_t* synth = mas.getSynth();
     std::string assets_path = APP_ASSETS_PATH;
-    std::string sound_font_path = assets_path + "/soundfonts/TimGM6mb.sf2";
+    std::string sound_font_path = get_resources_dir() + "/assets/soundfonts/TimGM6mb.sf2";
     fluid_synth_sfload(synth, sound_font_path.c_str(), 1);
     fluid_synth_set_gain(synth, preferences.piano.gain);
 

@@ -24,3 +24,20 @@ void Preferences::save(const std::string& filename) {
     tree.put("piano.pressed_note_colors.a", piano.pressed_note_colors[3]);
     pt::write_xml(filename, tree);
 }
+
+std::string get_resources_dir() {
+
+    CFURLRef resourceURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
+    char resourcePath[PATH_MAX];
+    if (CFURLGetFileSystemRepresentation(resourceURL, true,
+        (UInt8*)resourcePath,
+        PATH_MAX))
+    {
+        if (resourceURL != NULL)
+        {
+            CFRelease(resourceURL);
+        }
+        return resourcePath;
+    }
+    return "";
+}

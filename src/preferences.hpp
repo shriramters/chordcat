@@ -4,13 +4,16 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <string>
+#include <CoreFoundation/CFBundle.h>
+
+std::string get_resources_dir();
 
 // TODO: std::filesystem Path
 const std::vector<std::pair<std::string, std::string>> available_fonts = {
-    {"DejaVu Sans", std::string(APP_ASSETS_PATH) + "/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
+    {"DejaVu Sans", get_resources_dir() + "/assets/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
     {"FirstTimeWriting!",
-     std::string(APP_ASSETS_PATH) + "/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
-    {"Petaluma", std::string(APP_ASSETS_PATH) + "/fonts/Petaluma/otf/PetalumaScript.otf"} };
+     get_resources_dir() + "/assets/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
+    {"Petaluma", get_resources_dir() + "/assets/fonts/Petaluma/otf/PetalumaScript.otf"} };
 
 namespace pt = boost::property_tree;
 
