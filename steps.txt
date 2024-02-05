@@ -1,5 +1,0 @@
-cmake .. -DCMAKE_INSTALL_PREFIX=.
-make -j4
-cpack # this will create a lib directory inside "build/out/_CPack_Packages/Darwin/DragNDrop/chordcat-0.1.0-Darwin/ALL_IN_ONE/lib"
-# copy this folder into build/chordcat.app/Contents/ and rename it to Frameworks
-run cpack again

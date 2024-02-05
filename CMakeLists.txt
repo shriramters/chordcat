@@ -63,7 +63,7 @@ add_executable(chordcat MACOSX_BUNDLE
     ${src_files}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE libfluidsynth.a sfml-graphics sfml-audio sfml-system ImGui-SFML::ImGui-SFML Boost::boost)
+target_link_libraries(${PROJECT_NAME} PRIVATE libfluidsynth sfml-graphics sfml-audio sfml-system ImGui-SFML::ImGui-SFML Boost::boost)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
