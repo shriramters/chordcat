@@ -25,8 +25,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     std::optional<std::string> appdata_path = get_appdata_path();
     if (appdata_path.has_value()) {
         try {
-            std::cout << APP_ASSETS_PATH << "\n";
-            //preferences.load(*appdata_path + "/settings.xml");
+            preferences.load(*appdata_path + "/settings.xml");
         }
         catch (boost::wrapexcept<boost::property_tree::xml_parser::xml_parser_error> e) {
             std::error_code err;
