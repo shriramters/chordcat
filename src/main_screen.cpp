@@ -26,22 +26,19 @@ std::shared_ptr<AppState> MainScreen::Run() {
     if (appdata_path.has_value()) {
         try {
             preferences.load(*appdata_path + "/settings.xml");
-        }
-        catch (boost::wrapexcept<boost::property_tree::xml_parser::xml_parser_error> e) {
+        } catch (boost::wrapexcept<boost::property_tree::xml_parser::xml_parser_error> e) {
             std::error_code err;
             if (!CreateDirectoryRecursive(*appdata_path, err)) {
                 std::cout << "CreateDirectoryRecursive FAILED, err: " << err.message() << std::endl;
                 return nullptr;
             }
             preferences.save(*appdata_path + "/settings.xml");
-        }
-        catch (boost::wrapexcept<boost::property_tree::ptree_bad_path>) {
+        } catch (boost::wrapexcept<boost::property_tree::ptree_bad_path>) {
             // if a node is missing / settings file was tampered improperly
             // reset the settings file with sensible defaults
             preferences.save(*appdata_path + "/settings.xml");
         }
-    }
-    else {
+    } else {
         return nullptr;
     }
 
@@ -64,7 +61,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading font" << std::endl;
     }
 
-    auto title = sf::Text{ L"c♯ordcat", font, 50u };
+    auto title = sf::Text{L"c♯ordcat", font, 50u};
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
@@ -74,29 +71,30 @@ std::shared_ptr<AppState> MainScreen::Run() {
     Piano piano(preferences.piano.pressed_note_colors);
     mas.play();
 
-    libremidi::midi_in midiin{ {
-            // Set our callback function.
-            .on_message =
-                [&](const libremidi::message& message) {
-                    if (message.size() == 3 && (int)message[0] == 144) {
-                        if ((int)message[2] == 0) {
-                            piano.setKeyPressed((int)message[1], false);
-                            fluid_synth_noteoff(synth, 0, (int)message[1]);
-                        }
-     else {
-      piano.setKeyPressed((int)message[1], true);
-      fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
-  }
-}
-},
-.ignore_sysex = false,
-.ignore_timing = false,
-.ignore_sensing = false,
-} };
+    libremidi::midi_in midiin{{
+        // Set our callback function.
+        .on_message =
+            [&](const libremidi::message& message) {
+                // 0th byte of message i.e., status byte represents "note on"
+                // between 144 and 159 inclusive
+                if (message.size() == 3 && ((int)message[0] >= 144 && (int)message[0] <= 159)) {
+                    if ((int)message[2] == 0) {
+                        piano.setKeyPressed((int)message[1], false);
+                        fluid_synth_noteoff(synth, 0, (int)message[1]);
+                    } else {
+                        piano.setKeyPressed((int)message[1], true);
+                        fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+                    }
+                }
+            },
+        .ignore_sysex = false,
+        .ignore_timing = false,
+        .ignore_sensing = false,
+    }};
 
     std::string portName;
-    auto ports = libremidi::observer{ {}, observer_configuration_for(midiin.get_current_api()) }
-    .get_input_ports();
+    auto ports = libremidi::observer{{}, observer_configuration_for(midiin.get_current_api())}
+                     .get_input_ports();
     unsigned int nPorts = ports.size();
     if (nPorts >= 1) {
         midiin.open_port(ports[0]);
@@ -107,7 +105,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     auto portinfo_text = sf::Text(portName, font, 30u);
     portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2,
-        100);
+                              100);
 
     bool show_preferences = false;
 
@@ -145,7 +143,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         for (auto chord : chordset) {
             chord_name_list.push_back(sf::Text(chord.to_sf_string(), font, 30u));
             chord_name_list.back().setPosition(window.getSize().x / 3,
-                200 + 50 * chord_name_list.size());
+                                               200 + 50 * chord_name_list.size());
         }
         chord_notes_text = sf::Text(current_msg, font, 50u);
         chord_notes_text.setPosition(window.getSize().x / 3, 150);
@@ -163,8 +161,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
                         for (int n = 0; n < available_fonts.size(); n++) {
                             bool is_selected =
                                 (preferences.ui.font.name ==
-                                    available_fonts[n]
-                                    .first); // You can store your selection however you want,
+                                 available_fonts[n]
+                                     .first); // You can store your selection however you want,
                             // outside or inside your objects
                             if (ImGui::Selectable(available_fonts[n].first.c_str(), is_selected)) {
                                 preferences.ui.font.name = available_fonts[n].first;
@@ -187,7 +185,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                         for (int n = 0; n < ports.size(); n++) {
                             bool is_selected =
                                 (portName ==
-                                    ports[n].display_name); // You can store your selection however you
+                                 ports[n].display_name); // You can store your selection however you
                             // want, outside or inside your objects
                             if (ImGui::Selectable(ports[n].display_name.c_str(), is_selected)) {
                                 portName = ports[n].display_name;
@@ -208,7 +206,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
             if (ImGui::CollapsingHeader("Piano")) {
                 if (ImGui::TreeNode("Aspect Ratio")) {
                     ImGui::SliderFloat("KeyH/KeyW", &piano.key_aspect_ratio, 0.0f, 20.0f,
-                        "ratio = %.2f");
+                                       "ratio = %.2f");
                     ImGui::TreePop();
                     ImGui::Spacing();
                 }
@@ -219,7 +217,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 }
                 if (ImGui::TreeNode("Pressed Note Color")) {
                     ImGui::ColorPicker4("Color", &preferences.piano.pressed_note_colors[0],
-                        ImGuiColorEditFlags_DefaultOptions_);
+                                        ImGuiColorEditFlags_DefaultOptions_);
                     ImGui::TreePop();
                     ImGui::Spacing();
                 }
@@ -228,8 +226,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
         }
 
         ImGui::Begin("MENUWINDOW", nullptr,
-            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
-        ImGui::SetWindowPos({ 0, 0 });
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+        ImGui::SetWindowPos({0, 0});
         if (ImGui::Button("Clear All"))
             piano.clearAllKeys();
         ImGui::SameLine();
