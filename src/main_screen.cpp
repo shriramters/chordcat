@@ -75,15 +75,23 @@ std::shared_ptr<AppState> MainScreen::Run() {
         // Set our callback function.
         .on_message =
             [&](const libremidi::message& message) {
-                // 0th byte of message i.e., status byte represents "note on"
-                // between 144 and 159 inclusive
-                if (message.size() == 3 && ((int)message[0] >= 144 && (int)message[0] <= 159)) {
-                    if ((int)message[2] == 0) {
-                        piano.setKeyPressed((int)message[1], false);
-                        fluid_synth_noteoff(synth, 0, (int)message[1]);
-                    } else {
-                        piano.setKeyPressed((int)message[1], true);
-                        fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+                // 0th byte: status byte containing message type and channel. we only care for the first nibble, see if it is noteOn or noteOff while ignoring the channel
+                // 1st byte: note number (for noteOn and noteOff)
+                // 2nd byte: velocity (for noteOn and noteOff)
+                if (message.size() == 3) {
+                    switch (message[0] >> 4) {
+                        case 9:
+                            if ((int)message[2] > 0) {
+                                piano.setKeyPressed((int)message[1], true);
+                                fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+                                break;
+                            }
+                        case 8:
+                            piano.setKeyPressed((int)message[1], false);
+                            fluid_synth_noteoff(synth, 0, (int)message[1]);
+                            break;
+                        default:
+                            break;
                     }
                 }
             },
