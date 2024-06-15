@@ -1,6 +1,6 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://shriramters.github.io/chordcat/'
 languageCode = 'en-us'
-title = 'My New Hugo Site'
+title = "Chordcat Users' Manual"
 theme = "hugo-book"
 
 # (Optional) Set this to true to enable 'Last Modified by' date and git author
@@ -24,11 +24,6 @@ disableKinds = ['taxonomy', 'taxonomyTerm']
   # (Optional, default none) Set the path to a logo for the book. If the logo is
   # /static/logo.png then the path would be 'logo.png'
   BookLogo = 'chordcat.png'
-
-  # (Optional, default none) Set leaf bundle to render as side menu
-  # When not specified file structure and weights will be used
-  # Deprecated, to be removed in June 2022
-  BookMenuBundle = '/menu'
 
   # (Optional, default docs) Specify section of content to render as menu
   # You can also set value to "*" to render all sections to menu

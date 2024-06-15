@@ -1,0 +1,102 @@
+#+TITLE: Building From Source
+#+DATE: 2024-06-15T08:48:12Z
+
+* Building From Source
+Chordcat depends on the following libraries:
+- [[https://github.com/jcelerier/libremidi][libremidi]]
+- [[https://www.sfml-dev.org/index.php][SFML]]
+- [[https://www.fluidsynth.org/][fluidsynth]]
+- [[https://github.com/ocornut/imgui][Dear ImGui]]
+- [[https://github.com/SFML/imgui-sfml][ImGui-SFML]]
+- [[https://www.boost.org/doc/libs/1_84_0/doc/html/property_tree.html][Boost.PropertyTree]]
+
+CMake will fetch and build these dependencies from source while
+building chordcat. See the next section for installation of the
+required dependencies of above libraries.
+
+** Prerequisites
+Firstly, you will need CMake and a modern C++ compiler that supports
+C++20 (gcc, clang, etc.)
+
+On debian-based systems, these can be installed by:
+#+begin_example bash
+sudo apt install cmake build-essential
+#+end_example
+
+In order for CMake to be able to build the above libraries, you will
+need to install the dependencies for each of those libraries.  This
+varies from platform to platform so please visit the respective
+project pages to find out the dependencies for your platform.
+
+Here's the command to install the dependencies on debian-based
+systems:
+
+#+begin_example bash
+sudo apt install \
+    libxrandr-dev \
+    libxcursor-dev \
+    libudev-dev \
+    libopenal-dev \
+    libflac-dev \
+    libvorbis-dev \
+    libgl1-mesa-dev \
+    libegl1-mesa-dev \
+    libdrm-dev \
+    libgbm-dev \
+    libgtk2.0-dev \
+    libboost-all-dev \ 
+#+end_example
+
+** Linux
+The midi functionality of chordcat is provided by libremidi. libremidi
+can work with several backends such as ALSA, JACK, PipeWire, Pulse,
+etc.  For libremidi to work with said backends, the development
+libraries for that particular backend needs to be installed.
+
+*** JACK
+If you use JACK as your audio server and want chordcat to be able to
+use JACK for midi, you will need to have the jackd2 development
+package installed. libremidi will automatically detect it and will be
+built with JACK support.
+
+On debian-based systems, you can install it using the command:
+#+begin_example bash
+sudo apt install libjack-jackd2-dev
+#+end_example
+
+You can also install [[https://jack-keyboard.sourceforge.net/][jack-keyboard]] if you do not own a midi controller.
+This can be particularly useful for development.
+
+*** PipeWire
+PipeWire support in libremidi is experimental (as of v4.5.0). We
+highly recommend that you stick with ALSA or JACK unless you are a
+hardcore user.
+
+You will need to have the PipeWire development libs installed to build
+chordcat with PipeWire midi support.
+
+On debian-based systems, you can install it using the command:
+#+begin_example bash
+sudo apt install libpipewire-0.3-dev # on debian bookworm
+#+end_example
+
+*** ALSA
+You will need to have the ALSA development libs installed to build
+chordcat with ALSA midi support.
+
+To install the ALSA development libraries on debian-based systems:
+#+begin_example bash
+sudo apt install libasound2-dev
+#+end_example
+
+*** PulseAudio
+You will need to have the Pulse development libs installed to build
+chordcat with PulseAudio midi support.
+
+To install the Pulse development libraries on debian-based systems:
+#+begin_example bash
+sudo apt install libpulse-dev
+#+end_example
+
+** MacOS
+WIP

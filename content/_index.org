@@ -1,0 +1,16 @@
+#+TITLE: Overview
+#+DATE: 2024-06-15T08:43:30Z
+#+WEIGHT: 1
+
+* Chordcat
+
+[[chordcat-banner.png]]
+
+Welcome to [[https://github.com/shriramters/chordcat/][chordcat]] documentation. Chordcat is a chord naming application. It is written in C++ and SFML.
+
+Read about how the chordcat chord naming algorithm works in [[https://blog.s20n.dev/posts/how-chordcat-works/][this blog post]].
+
+** Screenshots
+
+[[screenshot-macos-1.png]]
+
