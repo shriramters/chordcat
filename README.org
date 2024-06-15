@@ -1,0 +1,12 @@
+#+TITLE: Chordcat Docs README
+
+This is the source code for [[https://shriramters.github.io/chordcat]]. 
+
+** Requirements:
+- hugo v0.125.7+
+- emacs (or any org-mode editor)
+
+** Adding a new page:
+#+begin_example
+hugo new content docs/page-name.org
+#+end_example
