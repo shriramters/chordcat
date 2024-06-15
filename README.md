@@ -2,6 +2,7 @@
 Chord Naming App with MIDI Support
 <img width="200" src="desktop/chordcat.png" align="right">
 
+[Documentation](https://shriramters.github.io/chordcat/)
 
 ## WIP
 Chord naming app with MIDI Support. Pre-Alpha.
@@ -20,6 +21,7 @@ All contributions welcome
 - 3 Cool Fonts
 
 ## Building and Running
+For more detailed information, please refer to the [Building From Source](https://shriramters.github.io/chordcat/docs/building-from-source/) section of the Chordcat Users' Manual.
 
 Requires C++20
 
