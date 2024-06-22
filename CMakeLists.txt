@@ -8,10 +8,7 @@ set(ASSETS_DIR assets)
 
 include(FetchContent)
 # SFML
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.x)
-FetchContent_MakeAvailable(SFML)
+find_package(SFML COMPONENTS graphics audio system REQUIRED)
 
 # REMIDI
 FetchContent_Declare(REMIDI
@@ -20,10 +17,7 @@ FetchContent_Declare(REMIDI
 FetchContent_MakeAvailable(REMIDI)
 
 # FluidSynth
-FetchContent_Declare(FLUIDSYNTH
-    GIT_REPOSITORY https://github.com/FluidSynth/fluidsynth.git
-    GIT_TAG v2.3.4)
-FetchContent_MakeAvailable(FLUIDSYNTH)
+find_package(FluidSynth REQUIRED)
 
 # ImGui
 FetchContent_Declare(ImGui
@@ -66,7 +60,7 @@ file(GLOB src_files CONFIGURE_DEPENDS "src/*.cpp")
 include_directories(${CMAKE_BINARY_DIR}/config)
 
 add_executable(${PROJECT_NAME} ${src_files})
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system libfluidsynth ImGui-SFML::ImGui-SFML Boost::boost)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system fluidsynth ImGui-SFML::ImGui-SFML Boost::boost)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
