@@ -12,3 +12,5 @@ Read about how the chordcat chord naming algorithm works in [[https://blog.s20n.
 
 [[screenshot-macos-1.png]]
 
+[[screenshot-windows-1.png]]
+

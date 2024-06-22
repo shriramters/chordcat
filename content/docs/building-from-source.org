@@ -10,44 +10,35 @@ Chordcat depends on the following libraries:
 - [[https://github.com/SFML/imgui-sfml][ImGui-SFML]]
 - [[https://www.boost.org/doc/libs/1_84_0/doc/html/property_tree.html][Boost.PropertyTree]]
 
-CMake will fetch and build these dependencies from source while
-building chordcat. See the next section for installation of the
+CMake will fetch and build some of these dependencies from source
+while building chordcat. See the next section for installation of the
 required dependencies of above libraries.
 
 ** Prerequisites
 Firstly, you will need CMake and a modern C++ compiler that supports
 C++20 (gcc, clang, etc.)
 
-On debian-based systems, these can be installed by:
-#+begin_example bash
-sudo apt install cmake build-essential
-#+end_example
-
 In order for CMake to be able to build the above libraries, you will
 need to install the dependencies for each of those libraries.  This
 varies from platform to platform so please visit the respective
 project pages to find out the dependencies for your platform.
 
-Here's the command to install the dependencies on debian-based
-systems:
+** Linux
+
+On debian-based systems, the compiler toolchain can be installed with:
+#+begin_example bash
+sudo apt install cmake build-essential
+#+end_example
+
+And the dependencies with:
 
 #+begin_example bash
 sudo apt install \
-    libxrandr-dev \
-    libxcursor-dev \
-    libudev-dev \
-    libopenal-dev \
-    libflac-dev \
-    libvorbis-dev \
-    libgl1-mesa-dev \
-    libegl1-mesa-dev \
-    libdrm-dev \
-    libgbm-dev \
-    libgtk2.0-dev \
+    libsfml-dev \
+    libfluidsynth-dev \
     libboost-all-dev \ 
 #+end_example
 
-** Linux
 The midi functionality of chordcat is provided by libremidi. libremidi
 can work with several backends such as ALSA, JACK, PipeWire, Pulse,
 etc.  For libremidi to work with said backends, the development
@@ -100,3 +91,78 @@ sudo apt install libpulse-dev
 
 ** MacOS
 WIP
+
+** Windows
+It is recommended that MSYS2 be used for building chordcat on Windows
+as it is relatively straightforward to do it this way.  While it is
+also possible to build chordcat with Visual Studio, doing so might
+involve several complexities and may demand a lot of effort.
+
+*** Installing MSYS2
+If you do not have MSYS2 installed, you can get it using [[https://learn.microsoft.com/en-us/windows/package-manager/winget/][Winget]] which
+comes with Windows 11.
+
+#+begin_example powershell
+winget install MSYS2.MSYS2
+#+end_example
+
+Once MSYS2 is installed, you can open the ~MSYS2 UCRT64~ app which
+will take you into a shell (bash).
+
+You can copy and paste the commands below. On the ~MSYS2 UCRT64~ app,
+~shift+ins~ might be the paste key combo.
+
+Sync and upgrade your packages using:
+#+begin_example bash
+pacman -Syu
+#+end_example
+
+You can also install git if you wish
+#+begin_example bash
+pacman -S git
+#+end_example
+
+*** Installing Dependencies
+You will need the following dependencies to build chordcat. You can install them on MSYS2 with this command.
+
+#+begin_example bash
+pacman -S mingw-w64-ucrt-x86_64-gcc \
+    mingw-w64-ucrt-x86_64-cmake \
+    mingw-w64-ucrt-x86_64-sfml \
+    mingw-w64-ucrt-x86_64-fluidsynth \
+    mingw-w64-ucrt-x86_64-boost
+#+end_example
+
+You can also install ~mingw-w64-ucrt-x86_64-nsis~ if you wish to
+create an installer for windows.  As of now, making a working
+installer will involve copying all the required DLLs from
+~/ucrt64/bin/~ into the cmake build folder.  Skip this if you do not
+wish to create an installer and just want to run chordcat.
+
+*** Building chordcat
+Clone or download-zip-and-extract chordcat into the MSYS2 filesystem.
+
+#+begin_example bash
+git clone https://github.com/shriramters/chordcat.git
+cd chordcat
+#+end_example
+
+Configure with CMake: 
+#+begin_example bash
+mkdir build && cd build
+cmake ..
+#+end_example
+
+CMake should have generated the Ninja files now. Build and run
+~chordcat.exe~ with:
+
+#+begin_example bash
+cmake --build .
+./chordcat.exe
+#+end_example
+
+You can't run this generated ~chordcat.exe~ from Windows Explorer as
+the required DLLs are all in ~/ucrt64/bin/~. MSYS2 bash knows to look
+for these DLLs here but Windows doesn't. So, if you don't want to run
+this from the terminal everytime, you can copy all the required DLLs
+from the ~/ucrt64/bin/~ folder to the cmake build folder.
