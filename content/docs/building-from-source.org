@@ -1,7 +1,12 @@
 #+TITLE: Building From Source
 #+DATE: 2024-06-15T08:48:12Z
 
-* Building From Source
+@@html:<h1>@@Building From Source@@html:</h1>@@
+
+This document covers in detail how to build chordcat from source.
+
+* Introduction
+
 Chordcat depends on the following libraries:
 - [[https://github.com/jcelerier/libremidi][libremidi]]
 - [[https://www.sfml-dev.org/index.php][SFML]]
@@ -9,21 +14,21 @@ Chordcat depends on the following libraries:
 - [[https://github.com/ocornut/imgui][Dear ImGui]]
 - [[https://github.com/SFML/imgui-sfml][ImGui-SFML]]
 - [[https://www.boost.org/doc/libs/1_84_0/doc/html/property_tree.html][Boost.PropertyTree]]
-
+ 
+You will also need CMake and a modern C++ compiler that supports C++20
+(gcc, clang, etc.)
+  
 CMake will fetch and build some of these dependencies from source
-while building chordcat. See the next section for installation of the
-required dependencies of above libraries.
+while building chordcat. See the next sections for installation of the
+required dependencies.
 
-** Prerequisites
-Firstly, you will need CMake and a modern C++ compiler that supports
-C++20 (gcc, clang, etc.)
+In order for CMake to be able to build chordcat, you will need to
+install these libraries on your system. Libraries which are not
+commonly available on most systems (like libremidi, ImGui and
+ImGui-SFML) will be fetched and built by CMake as part of the build
+process.
 
-In order for CMake to be able to build the above libraries, you will
-need to install the dependencies for each of those libraries.  This
-varies from platform to platform so please visit the respective
-project pages to find out the dependencies for your platform.
-
-** Linux
+* Linux
 
 On debian-based systems, the compiler toolchain can be installed with:
 #+begin_example bash
@@ -35,8 +40,9 @@ And the dependencies with:
 #+begin_example bash
 sudo apt install \
     libsfml-dev \
+    fluidsynth \
     libfluidsynth-dev \
-    libboost-all-dev \ 
+    libboost-all-dev 
 #+end_example
 
 The midi functionality of chordcat is provided by libremidi. libremidi
@@ -44,7 +50,7 @@ can work with several backends such as ALSA, JACK, PipeWire, Pulse,
 etc.  For libremidi to work with said backends, the development
 libraries for that particular backend needs to be installed.
 
-*** JACK
+** JACK
 If you use JACK as your audio server and want chordcat to be able to
 use JACK for midi, you will need to have the jackd2 development
 package installed. libremidi will automatically detect it and will be
@@ -58,7 +64,7 @@ sudo apt install libjack-jackd2-dev
 You can also install [[https://jack-keyboard.sourceforge.net/][jack-keyboard]] if you do not own a midi controller.
 This can be particularly useful for development.
 
-*** PipeWire
+** PipeWire
 PipeWire support in libremidi is experimental (as of v4.5.0). We
 highly recommend that you stick with ALSA or JACK unless you are a
 hardcore user.
@@ -71,7 +77,7 @@ On debian-based systems, you can install it using the command:
 sudo apt install libpipewire-0.3-dev # on debian bookworm
 #+end_example
 
-*** ALSA
+** ALSA
 You will need to have the ALSA development libs installed to build
 chordcat with ALSA midi support.
 
@@ -80,7 +86,7 @@ To install the ALSA development libraries on debian-based systems:
 sudo apt install libasound2-dev
 #+end_example
 
-*** PulseAudio
+** PulseAudio
 You will need to have the Pulse development libs installed to build
 chordcat with PulseAudio midi support.
 
@@ -89,16 +95,28 @@ To install the Pulse development libraries on debian-based systems:
 sudo apt install libpulse-dev
 #+end_example
 
-** MacOS
+** Building
+Once you have all the dependencies you need for your system, build
+and run chordcat with:
+
+#+begin_example bash
+cd chordcat
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+./chordcat
+#+end_example
+
+* MacOS
 WIP
 
-** Windows
+* Windows
 It is recommended that MSYS2 be used for building chordcat on Windows
 as it is relatively straightforward to do it this way.  While it is
 also possible to build chordcat with Visual Studio, doing so might
 involve several complexities and may demand a lot of effort.
 
-*** Installing MSYS2
+** Installing MSYS2
 If you do not have MSYS2 installed, you can get it using [[https://learn.microsoft.com/en-us/windows/package-manager/winget/][Winget]] which
 comes with Windows 11.
 
@@ -109,7 +127,7 @@ winget install MSYS2.MSYS2
 Once MSYS2 is installed, you can open the ~MSYS2 UCRT64~ app which
 will take you into a shell (bash).
 
-You can copy and paste the commands below. On the ~MSYS2 UCRT64~ app,
+You can copy and paste the below commands. On the ~MSYS2 UCRT64~ app,
 ~shift+ins~ might be the paste key combo.
 
 Sync and upgrade your packages using:
@@ -122,7 +140,7 @@ You can also install git if you wish
 pacman -S git
 #+end_example
 
-*** Installing Dependencies
+** Installing Dependencies
 You will need the following dependencies to build chordcat. You can install them on MSYS2 with this command.
 
 #+begin_example bash
@@ -139,7 +157,7 @@ installer will involve copying all the required DLLs from
 ~/ucrt64/bin/~ into the cmake build folder.  Skip this if you do not
 wish to create an installer and just want to run chordcat.
 
-*** Building chordcat
+** Building chordcat
 Clone or download-zip-and-extract chordcat into the MSYS2 filesystem.
 
 #+begin_example bash
@@ -165,4 +183,4 @@ You can't run this generated ~chordcat.exe~ from Windows Explorer as
 the required DLLs are all in ~/ucrt64/bin/~. MSYS2 bash knows to look
 for these DLLs here but Windows doesn't. So, if you don't want to run
 this from the terminal everytime, you can copy all the required DLLs
-from the ~/ucrt64/bin/~ folder to the cmake build folder.
+from ~/ucrt64/bin/~ to the cmake build folder.
