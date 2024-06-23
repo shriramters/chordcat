@@ -108,7 +108,33 @@ make -j$(nproc)
 #+end_example
 
 * MacOS
-WIP
+*NOTE:* /This has been tested with arm64 macs only. There might be some
+linking issues with fluidsynth when used with Intel macs./
+
+You can install git and clang++ (which will be symlinked to ~/usr/bin/gcc~
+lol) with:
+#+begin_example zsh
+xcode-select --install
+#+end_example
+
+You will also need to install [[https://brew.sh/][Homebrew]] in order to download dependencies. 
+Check their official page for instructions on how to install brew.
+
+You can then download chordcat's dependencies with:
+#+begin_example zsh
+brew install cmake \
+    sfml \
+    fluid-synth \
+    boost
+#+end_example
+
+Build and run chordcat with:
+#+begin_example zsh
+mkdir build && cd build
+cmake ..
+make -j$(nrpoc)
+./chordcat
+#+end_example
 
 * Windows
 It is recommended that MSYS2 be used for building chordcat on Windows
