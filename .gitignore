@@ -43,3 +43,4 @@ build/
 # clangd config
 .clangd
 .clang-format
+.cache/

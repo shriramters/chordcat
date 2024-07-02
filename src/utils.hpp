@@ -8,6 +8,12 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <filesystem>
+
+#ifdef _WIN32
+    #include <windows.h>
+    #include <shlobj.h>
+#endif
 
 const std::array<sf::String, 12> note_names = {"A",   L"B♭", "B", "C",   L"C♯", "D",
                                                L"E♭", "E",   "F", L"F♯", "G",   L"A♭"};
@@ -86,31 +92,44 @@ bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err) 
     return true;
 }
 
-std::optional<std::string> get_appdata_path() {
-    char* app_data_root;
-
+std::optional<std::string> get_windows_appdata_path() {
 #ifdef _WIN32
-    app_data_root = std::getenv("APPDATA");
-    if (app_data_root == nullptr) {
-        std::cerr << "Can't find configuration directory, env variable $APPDATA was NULL";
+    char path[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, path))) {
+        return std::string(path) + "\\Local\\chordcat";
+    } else {
+        std::cerr << "Can't find config dir, SHGetFolderPath failed";
         return std::nullopt;
     }
-    return std::string(app_data_root) + "/Local/chordcat";
+#else
+    return std::nullopt;
 #endif
+}
 
+std::optional<std::string> get_unix_appdata_path() {
 #if defined(__unix__) || defined(__APPLE__)
-    app_data_root = std::getenv("XDG_CONFIG_HOME");
+    char* app_data_root = std::getenv("XDG_CONFIG_HOME");
     if (app_data_root == nullptr) {
         app_data_root = std::getenv("HOME");
-        if (app_data_root != nullptr)
+        if (app_data_root != nullptr) {
             return std::string(app_data_root) + "/.config/chordcat";
-        else {
-            std::cerr << "Can't find configuration directory, env variable $HOME and "
-                         "$XDG_CONFIG_HOME were NULL";
+        } else {
+            std::cerr << "Can't find config dir, $HOME and $XDG_CONFIG_HOME are NULL";
             return std::nullopt;
         }
     }
     return std::string(app_data_root) + "/chordcat";
-#endif
+#else
     return std::nullopt;
+#endif
+}
+
+std::optional<std::string> get_appdata_path() {
+#ifdef _WIN32
+    return get_windows_appdata_path();
+#elif defined(__unix__) || defined(__APPLE__)
+    return get_unix_appdata_path();
+#else
+    return std::nullopt;
+#endif
 }
