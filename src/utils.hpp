@@ -95,7 +95,7 @@ std::optional<std::string> get_appdata_path() {
         std::cerr << "Can't find configuration directory, env variable $APPDATA was NULL";
         return std::nullopt;
     }
-    return std::string(app_data_root) + "/Local/chordcat";
+    return std::string(app_data_root) + "/chordcat";
 #endif
 
 #if defined(__unix__) || defined(__APPLE__)
