@@ -168,4 +168,15 @@ if(WIN32)
   set(CPACK_GENERATOR "NSIS")
 endif()
 
+if(UNIX AND NOT APPLE)
+  # Temporarily setting to DEB. Will support RPMs in the future.
+  set(CPACK_GENERATOR "DEB")
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Shriram Ravindranathan <s20n@ters.dev>")
+  set(CPACK_DEBIAN_PACKAGE_DEBUG ON)
+  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+  set(CPACK_DEBIAN_PACKAGE_GENERATE_SHLIBS ON)
+  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+  set(CPACK_SET_DESTDIR ON)
+endif()
+
 include(CPack)
