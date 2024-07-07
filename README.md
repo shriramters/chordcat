@@ -4,8 +4,9 @@ Chord Naming App with MIDI Support
 
 [Documentation](https://shriramters.github.io/chordcat/)
 
-## WIP
-Chord naming app with MIDI Support. Pre-Alpha.
+Chord naming app with MIDI Support. 
+
+Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.1.0).
 
 All contributions welcome
 
@@ -20,8 +21,11 @@ All contributions welcome
 - Fullscreen / Resizing Window
 - 3 Cool Fonts
 
+## Installing From Binaries
+Please refer to [this](https://shriramters.github.io/chordcat/docs/installing-from-binaries/) section of the Chordcat User's Manual.
+
 ## Building and Running
-For more detailed information, please refer to the [Building From Source](https://shriramters.github.io/chordcat/docs/building-from-source/) section of the Chordcat Users' Manual.
+For more detailed information, please refer to the [Building From Source](https://shriramters.github.io/chordcat/docs/building-from-source/) section of the Chordcat User's Manual.
 
 Requires C++20
 
