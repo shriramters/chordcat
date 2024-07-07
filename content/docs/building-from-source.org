@@ -1,5 +1,6 @@
 #+TITLE: Building From Source
 #+DATE: 2024-06-15T08:48:12Z
+#+WEIGHT: 10
 
 @@html:<h1>@@Building From Source@@html:</h1>@@
 

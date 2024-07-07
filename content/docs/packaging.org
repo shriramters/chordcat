@@ -1,0 +1,102 @@
+#+TITLE: Packaging
+#+DATE: 2024-07-07T12:44:08Z
+#+WEIGHT: 20
+
+@@html:<h1>@@Packaging Chordcat@@html:</h1>@@
+
+Please refer to [[/chordcat/docs/building-from-source/][Building From Source]] before reading this page.
+
+* Debian
+
+Currently the ~CMakeLists.txt~ file only contains instructions to
+package for debian.
+
+Here are the commands to build a deb package.  We have to set the
+install prefix or else it will be installed to ~/usr/local~ (which is
+for locally compiled packages).
+
+#+begin_example bash
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr
+cmake --build . -j$(nrpoc)
+cpack -V -C Release
+#+end_example
+
+You should find a ~chordcat_<version_number>_<arch>.deb~ in the
+build directory
+
+
+* Windows
+
+You need to have MSYS2 installed to package for windows. Refer to [[/chordcat/docs/building-from-source/][Building From Source]] page of the chordcat user manual.
+
+Configure the project with cmake like so:
+
+We need to set the Install Prefix as CMake defaults to ~Program Files (x86)~.
+Also, we need to add the ~-mwindows~ flag so that GCC can replace main with WinMain.
+
+#+begin_example bash
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="C:/Program Files/chordcat" -DCMAKE_CXX_FLAGS="-mwindows"
+#+end_example
+
+Now, you need to copy all the required DLLs from ~/ucrt64/bin~ to the build directory.
+Here is the ldd output on my machine:
+#+begin_example bash
+shriram@tersbox UCRT64 ~/chordcat/build
+$ ldd chordcat.exe | grep -v Windows
+        libfluidsynth-3.dll => /ucrt64/bin/libfluidsynth-3.dll (0x7ffd741a0000)
+        libgcc_s_seh-1.dll => /ucrt64/bin/libgcc_s_seh-1.dll (0x7ffd97470000)
+        libwinpthread-1.dll => /ucrt64/bin/libwinpthread-1.dll (0x7ffd8dbd0000)
+        libstdc++-6.dll => /ucrt64/bin/libstdc++-6.dll (0x7ffd6c130000)
+        libintl-8.dll => /ucrt64/bin/libintl-8.dll (0x7ffd835e0000)
+        libsfml-graphics-2.dll => /ucrt64/bin/libsfml-graphics-2.dll (0x7ffd74820000)
+        libsfml-audio-2.dll => /ucrt64/bin/libsfml-audio-2.dll (0x7ffd85310000)
+        libsfml-system-2.dll => /ucrt64/bin/libsfml-system-2.dll (0x7ffd8d440000)
+        libsfml-window-2.dll => /ucrt64/bin/libsfml-window-2.dll (0x7ffd7ebe0000)
+        libgmodule-2.0-0.dll => /ucrt64/bin/libgmodule-2.0-0.dll (0x7ffd99b80000)
+        libportaudio.dll => /ucrt64/bin/libportaudio.dll (0x7ffd78f80000)
+        libgomp-1.dll => /ucrt64/bin/libgomp-1.dll (0x7ffd78390000)
+        libglib-2.0-0.dll => /ucrt64/bin/libglib-2.0-0.dll (0x7ffd6c750000)
+        libreadline8.dll => /ucrt64/bin/libreadline8.dll (0x7ffd77d90000)
+        SDL2.dll => /ucrt64/bin/SDL2.dll (0x7ffd5eab0000)
+        libsndfile-1.dll => /ucrt64/bin/libsndfile-1.dll (0x7ffd6ca10000)
+        libiconv-2.dll => /ucrt64/bin/libiconv-2.dll (0x7ffd5ee50000)
+        libfreetype-6.dll => /ucrt64/bin/libfreetype-6.dll (0x7ffd5e9e0000)
+        libogg-0.dll => /ucrt64/bin/libogg-0.dll (0x7ffd88750000)
+        libFLAC.dll => /ucrt64/bin/libFLAC.dll (0x7ffd76ee0000)
+        libopenal-1.dll => /ucrt64/bin/libopenal-1.dll (0x7ffd4b1d0000)
+        libvorbis-0.dll => /ucrt64/bin/libvorbis-0.dll (0x7ffd76e10000)
+        libvorbisenc-2.dll => /ucrt64/bin/libvorbisenc-2.dll (0x7ffd6e370000)
+        libvorbisfile-3.dll => /ucrt64/bin/libvorbisfile-3.dll (0x7ffd83ca0000)
+        libpcre2-8-0.dll => /ucrt64/bin/libpcre2-8-0.dll (0x7ffd6c9a0000)
+        libtermcap-0.dll => /ucrt64/bin/libtermcap-0.dll (0x7ffd83b70000)
+        libmp3lame-0.dll => /ucrt64/bin/libmp3lame-0.dll (0x7ffd6c0a0000)
+        libmpg123-0.dll => /ucrt64/bin/libmpg123-0.dll (0x7ffd63e90000)
+        libopus-0.dll => /ucrt64/bin/libopus-0.dll (0x7ffd5ed70000)
+        libbz2-1.dll => /ucrt64/bin/libbz2-1.dll (0x7ffd839e0000)
+        libharfbuzz-0.dll => /ucrt64/bin/libharfbuzz-0.dll (0x7ffd4dd10000)
+        libbrotlidec.dll => /ucrt64/bin/libbrotlidec.dll (0x7ffd7f1b0000)
+        libpng16-16.dll => /ucrt64/bin/libpng16-16.dll (0x7ffd73750000)
+        zlib1.dll => /ucrt64/bin/zlib1.dll (0x7ffd7e7c0000)
+        libbrotlicommon.dll => /ucrt64/bin/libbrotlicommon.dll (0x7ffd7a610000)
+        libgraphite2.dll => /ucrt64/bin/libgraphite2.dll (0x7ffd74c30000)
+#+end_example
+
+After that, you can build the installer like so:
+
+#+begin_example bash
+cmake --build .
+cpack -C Release
+#+end_example
+
+you should find an installer called ~chordcat-0.1.0-win64.exe~ in the build directory.
+
+* MacOS
+
+WIP
+
+I was able to get a dmg to build by doing lot of terminal gymnastics.
+You can head over to the [[https://github.com/shriramters/chordcat/tree/macosx][macosx branch]] to see my notes (steps.md and
+fixup.sh). However, I do not recommend building a dmg at all as it
+can not be shared to other computers. Apple requires every dmg to be
+signed with an official developer certificate.
