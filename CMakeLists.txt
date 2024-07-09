@@ -50,8 +50,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(APP_ASSETS_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/${ASSETS_DIR}")
 else()
   # Debug build: copy assets to build directory
-  file(COPY "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}" DESTINATION "${CMAKE_BINARY_DIR}/${ASSETS_DIR}")
-  set(APP_ASSETS_PATH "${CMAKE_BINARY_DIR}/${ASSETS_DIR}")
+  file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_BINARY_DIR}/${APP_ASSETS_PATH})
+  set(APP_ASSETS_PATH ${CMAKE_BINARY_DIR}/${ASSETS_DIR})
 endif()
 
 # Convert paths to CMake style paths for cross-platform compatibility
