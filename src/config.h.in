@@ -1,1 +1,2 @@
 #cmakedefine APP_ASSETS_PATH "@APP_ASSETS_PATH@"
+#define CHORDCAT_VERSION "@chordcat_VERSION@"

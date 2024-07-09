@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "main_screen.hpp"
 #include "config.h"
+#include "libremidi/config.hpp"
 #include "midi_audio_stream.hpp"
 #include "piano.hpp"
 #include "preferences.hpp"
 #include "utils.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System.hpp>
+#include <SFML/Config.hpp>
+#include <boost/version.hpp>
 #include <fluidsynth.h>
+#include <fluidsynth/version.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <iostream>
@@ -71,6 +76,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
     Piano piano(preferences.piano.pressed_note_colors);
     mas.play();
 
+    // Images
+    sf::Texture logo;
+    if (!logo.loadFromFile(assets_path + "/images/chordcat.png")) {
+        std::cerr << "Error loading logo" << std::endl;
+    }
+
     libremidi::midi_in midiin{{
         // Set our callback function.
         .on_message =
@@ -115,7 +126,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
     portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2,
                               100);
 
+    // TODO: Move these to a state object
     bool show_preferences = false;
+    bool show_about = false;
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -233,14 +246,59 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::End();
         }
 
+        if (show_about) {
+            #define STRINGIZE(s) #s
+            #define STRINGCEPTION(s) STRINGIZE(s)
+
+            const std::vector<const char *> about_lines = {
+                "Chordcat v" CHORDCAT_VERSION,
+                "Chord Naming Application",
+                "© 2024 Shriram Ravindranathan",
+                "",
+                // MACRO integers 2.X.X defined in SFML/Config.hpp 
+                "SFML Version: " STRINGCEPTION(SFML_VERSION_MAJOR)
+                "." STRINGCEPTION(SFML_VERSION_MINOR)
+                "." STRINGCEPTION(SFML_VERSION_PATCH),
+                "FluidSynth Version: " FLUIDSYNTH_VERSION,
+                "Libremidi Version: " LIBREMIDI_VERSION,
+                "Boost Version: " BOOST_LIB_VERSION
+            };
+            
+            ImGui::Begin("About", nullptr);
+            ImGui::SetWindowSize({0,0});
+
+            sf::Sprite logoSprite;
+            logoSprite.setTexture(logo);
+            logoSprite.setScale(0.2, 0.2);
+            ImGui::SameLine((ImGui::GetWindowWidth() - logoSprite.getGlobalBounds().width) / 2);
+            ImGui::Image(logoSprite);
+            ImGui::NewLine();
+            
+            for(auto line : about_lines) {
+                ImGui::SameLine((ImGui::GetWindowWidth() - ImGui::CalcTextSize(line).x) / 2);
+                ImGui::Text("%s", line);
+                ImGui::NewLine();
+            }
+            ImGui::End();
+        }
+
+        // The entire top bar with the buttons:(Clear All, Preferences, <-->, About) 
         ImGui::Begin("MENUWINDOW", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
         ImGui::SetWindowPos({0, 0});
+        ImGui::SetWindowSize({ImGui::GetIO().DisplaySize.x, ImGui::GetWindowHeight()});
         if (ImGui::Button("Clear All"))
             piano.clearAllKeys();
         ImGui::SameLine();
         if (ImGui::Button("Preferences"))
             show_preferences = !show_preferences;
+        // Align to the right of screen (screenwidth - button size)
+        ImGui::SameLine(ImGui::GetWindowWidth()
+                        - ImGui::GetStyle().WindowPadding.x
+                        - ImGui::CalcTextSize("About").x
+                        - (ImGui::GetStyle().FramePadding.x * 2.f));
+        if (ImGui::Button("About"))
+            show_about = !show_about;
         ImGui::End();
 
         window.clear();
