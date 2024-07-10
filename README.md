@@ -1,47 +1,67 @@
-# chordcat
+# Chordcat
+
+<img width="150px" src="desktop/chordcat.png" align="right">
+
 Chord Naming App with MIDI Support
-<img width="200" src="desktop/chordcat.png" align="right">
 
-[Documentation](https://shriramters.github.io/chordcat/)
+Chordcat is a desktop app that helps you identify and name chords based on inputted notes. 
 
-Chord naming app with MIDI Support. 
+- [Documentation](https://shriramters.github.io/chordcat/)
+- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.1.0)
 
-Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.1.0).
+## Features
 
-All contributions welcome
+- Displays chord names when:
+  - MIDI devices are connected and you play a chord
+  - Piano keys are clicked using the mouse
+- Select MIDI device
+- Inbuilt piano sounds
+- Supports fullscreen mode and resizable window mode.
+- Includes 3 fun fonts (DejaVu Sans, Petaluma and FirstTimeWriting).
 
-<img src="https://github.com/shriramters/chordcat/assets/127589779/4ba040e4-29a8-4026-9d2c-e76a2ded030f">
+## Screenshot
 
-## What works
-- Chord Names will be displayed when: 
-  - 1 or more MIDI devices are connected and you play a chord
-  - you click the piano keys with a mouse
-- Selecting preferred MIDI Device
-- Piano Sounds
-- Fullscreen / Resizing Window
-- 3 Cool Fonts
+<img src="https://github.com/shriramters/chordcat/assets/127589779/697dc8d9-b8d6-412e-be2d-fea71f324311" height="400px">
 
 ## Installing From Binaries
-Please refer to [this](https://shriramters.github.io/chordcat/docs/installing-from-binaries/) section of the Chordcat User's Manual.
 
-## Building and Running
-For more detailed information, please refer to the [Building From Source](https://shriramters.github.io/chordcat/docs/building-from-source/) section of the Chordcat User's Manual.
+For installation instructions using pre-built binaries, refer to the [Chordcat User's Manual](https://shriramters.github.io/chordcat/docs/installing-from-binaries/).
 
-Requires C++20
+## Building and Running From Source
 
-```bash
-$ git clone https://github.com/shriramters/chordcat.git
-$ cd chordcat
-$ mkdir build && cd build
-$ cmake .. # fix any missing dependencies on your OS such as libgtk2.0-dev
-$ make -j$(nproc)
-$ ./chordcat
-```
+To build and run chordcat from source, follow these steps:
 
-## Built With
+1. Clone the repository:
+   ```bash
+   $ git clone https://github.com/shriramters/chordcat.git
+   $ cd chordcat
+   ```
+
+2. Create a build directory and navigate into it:
+   ```bash
+   $ mkdir build && cd build
+   ```
+
+3. Configure the build using CMake. Ensure all dependencies are installed on your system.
+   (refer to [Building From Source](https://shriramters.github.io/chordcat/docs/building-from-source/) section of the chordcat user's manual):
+   ```bash
+   $ cmake ..
+   ```
+
+4. Build the application using `make`:
+   ```bash
+   $ make -j$(nproc)
+   ```
+
+5. Run Chordcat:
+   ```bash
+   $ ./chordcat
+   ```
+
+## Built With (Thanks to)
 - [libremidi](https://github.com/jcelerier/libremidi)
 - [SFML](https://www.sfml-dev.org/index.php)
-- [fluidsynth](https://www.fluidsynth.org/)
+- [FluidSynth](https://www.fluidsynth.org/)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [ImGui-SFML](https://github.com/SFML/imgui-sfml)
-- [Boost.PropertyTree](https://www.boost.org/doc/libs/1_84_0/doc/html/property_tree.html)
+- [Boost.PropertyTree](https://www.boost.org/doc/libs/release/doc/html/property_tree.html)
