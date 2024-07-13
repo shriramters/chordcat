@@ -70,7 +70,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
-    title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
+    title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2, 50);
 
     // Piano
     Piano piano(preferences.piano.pressed_note_colors);
@@ -123,7 +123,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         portName = "No MIDI Devices Found";
 
     auto portinfo_text = sf::Text(portName, font, 30u);
-    portinfo_text.setPosition(window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2,
+    portinfo_text.setPosition(window.getSize().x / 2.f - portinfo_text.getGlobalBounds().width / 2,
                               100);
 
     // TODO: Move these to a state object
@@ -145,9 +145,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 // resize my view
                 sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 window.setView(sf::View(visibleArea));
-                title.setPosition(window.getSize().x / 2 - title.getGlobalBounds().width / 2, 50);
+                title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2, 50);
                 portinfo_text.setPosition(
-                    window.getSize().x / 2 - portinfo_text.getGlobalBounds().width / 2, 100);
+                    window.getSize().x / 2.f - portinfo_text.getGlobalBounds().width / 2, 100);
             }
             ImGui::SFML::ProcessEvent(event);
             piano.mouseEvent(event, window, synth);
@@ -163,11 +163,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
         chord_name_list = {};
         for (auto chord : chordset) {
             chord_name_list.push_back(sf::Text(chord.to_sf_string(), font, 30u));
-            chord_name_list.back().setPosition(window.getSize().x / 3,
+            chord_name_list.back().setPosition(window.getSize().x / 3.f,
                                                200 + 50 * chord_name_list.size());
         }
         chord_notes_text = sf::Text(current_msg, font, 50u);
-        chord_notes_text.setPosition(window.getSize().x / 3, 150);
+        chord_notes_text.setPosition(window.getSize().x / 3.f, 150);
 
         // Fluid Synth Stuff
         fluid_synth_set_gain(synth, preferences.piano.gain);

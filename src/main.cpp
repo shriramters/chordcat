@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 int main() {
-    auto window = sf::RenderWindow{{1000u, 800u}, "chordcat"};
+    auto window = sf::RenderWindow{{1114u, 642u}, "chordcat"};
     window.setIcon(chordcat_icon.width, chordcat_icon.height, chordcat_icon.pixel_data);
     window.setFramerateLimit(144);
 
