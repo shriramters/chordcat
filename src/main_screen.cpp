@@ -150,7 +150,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     window.getSize().x / 2.f - portinfo_text.getGlobalBounds().width / 2, 100);
             }
             ImGui::SFML::ProcessEvent(event);
-            piano.mouseEvent(event, window, synth);
+            piano.processEvent(event, window, synth);
         }
         std::vector<sf::String> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
         sf::String current_msg = "";

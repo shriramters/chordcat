@@ -1,0 +1,10 @@
+* v0.2.0
+  - Add "about" window
+  - Add PC keyboard support to piano
+
+  -- Shriram Ravindranathan <s20n@ters.dev> <2024-07-13 Sat>
+
+* v0.1.0
+  - Initial Release
+
+  -- Shriram Ravindranathan <s20n@ters.dev> <2024-07-07 Sun>

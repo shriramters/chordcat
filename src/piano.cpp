@@ -1,5 +1,44 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "piano.hpp"
+#include <SFML/Window/Keyboard.hpp>
+
+inline int getNoteFromKeyCode(sf::Keyboard::Key keycode) {
+    int index = 3; // start from C not A
+    
+    switch(keycode) {
+    case sf::Keyboard::Z:    index+=0; break;
+    case sf::Keyboard::S:    index+=1; break;
+    case sf::Keyboard::X:    index+=2; break;
+    case sf::Keyboard::D:    index+=3; break;
+    case sf::Keyboard::C:    index+=4; break;
+    case sf::Keyboard::V:    index+=5; break;
+    case sf::Keyboard::G:    index+=6; break;
+    case sf::Keyboard::B:    index+=7; break;
+    case sf::Keyboard::H:    index+=8; break;
+    case sf::Keyboard::N:    index+=9; break;
+    case sf::Keyboard::J:    index+=10; break;
+    case sf::Keyboard::M:    index+=11; break;         
+    case sf::Keyboard::Q:    index+=12; break;
+    case sf::Keyboard::Num2: index+=13; break;
+    case sf::Keyboard::W:    index+=14; break;
+    case sf::Keyboard::Num3: index+=15; break;
+    case sf::Keyboard::E:    index+=16; break;
+    case sf::Keyboard::R:    index+=17; break;
+    case sf::Keyboard::Num5: index+=18; break;
+    case sf::Keyboard::T:    index+=19; break;
+    case sf::Keyboard::Num6: index+=20; break;
+    case sf::Keyboard::Y:    index+=21; break;
+    case sf::Keyboard::Num7: index+=22; break;
+    case sf::Keyboard::U:    index+=23; break;        
+    case sf::Keyboard::I:    index+=24; break;
+    case sf::Keyboard::Num9: index+=25; break;
+    case sf::Keyboard::O:    index+=26; break;
+    case sf::Keyboard::Num0: index+=27; break;
+    case sf::Keyboard::P:    index+=28; break;
+    default: return -1;
+    }
+    return index;
+}
 
 inline bool isBlackKey(size_t index) {
     switch (index % 12) {
@@ -85,6 +124,12 @@ std::vector<size_t> Piano::getPressedNotes() {
     return pressed_notes;
 }
 
+void Piano::processEvent(sf::Event &event, sf::RenderWindow &window,
+                         fluid_synth_t *synth) {
+    this->mouseEvent(event, window, synth);
+    this->keyboardEvent(event, window, synth);    
+}
+
 void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth) {
     if (event.type == sf::Event::MouseButtonReleased) {
         if (event.mouseButton.button == sf::Mouse::Left) {
@@ -115,6 +160,36 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t
                 }
             }
         }
+    }
+}
+
+void Piano::keyboardEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth) {
+    static unsigned int octave = 1;
+    
+    if (event.type == sf::Event::KeyPressed) {
+        if(event.key.code == sf::Keyboard::Hyphen) {
+            if(octave >= 0)
+                octave--;
+        }
+        if(event.key.code == sf::Keyboard::Equal) {
+            if(octave <= 6)
+                octave++;
+        }
+        int note = getNoteFromKeyCode(event.key.code);
+        if(note < 0) return;
+        size_t index = note + octave * 12;
+        if(index >= keys.size() || keys[index]) return;
+        fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
+        keys[index] = true;
+    }
+    
+    if (event.type == sf::Event::KeyReleased) {
+        int note = getNoteFromKeyCode(event.key.code);
+        if(note < 0) return;
+        size_t index = note + octave * 12;
+        if(index >= keys.size() || !keys[index]) return;
+        fluid_synth_noteoff(synth, 0, (int)(index + 21));
+        keys[index] = false;
     }
 }
 

@@ -14,6 +14,7 @@ Chordcat is a desktop app that helps you identify and name chords based on input
 - Displays chord names when:
   - MIDI devices are connected and you play a chord
   - Piano keys are clicked using the mouse
+  - The corresponding PC Keyboard keys are pressed 
 - Select MIDI device
 - Inbuilt piano sounds
 - Supports fullscreen mode and resizable window mode.

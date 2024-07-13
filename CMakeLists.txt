@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(chordcat LANGUAGES CXX VERSION 0.1.0)
+project(chordcat LANGUAGES CXX VERSION 0.2.0)
 
 message(STATUS "Configuring chordcat ${CMAKE_PROJECT_VERSION} - ${CMAKE_BUILD_TYPE}")
 
