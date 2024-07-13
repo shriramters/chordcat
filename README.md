@@ -19,9 +19,10 @@ Chordcat is a desktop app that helps you identify and name chords based on input
 - Supports fullscreen mode and resizable window mode.
 - Includes 3 fun fonts (DejaVu Sans, Petaluma and FirstTimeWriting).
 
-## Screenshot
+## Screenshots
 
-<img src="https://github.com/shriramters/chordcat/assets/127589779/697dc8d9-b8d6-412e-be2d-fea71f324311" height="400px">
+<img src="https://github.com/user-attachments/assets/fce29f4a-9113-47ff-9a61-bc16081508e0" height="400px" width="608px">
+<img src="https://github.com/shriramters/chordcat/assets/127589779/697dc8d9-b8d6-412e-be2d-fea71f324311" height="400px"  width="608px">
 
 ## Installing From Binaries
 
