@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "piano.hpp"
 #include <SFML/Window/Keyboard.hpp>
+#include <fluidsynth/synth.h>
 
 inline int getNoteFromKeyCode(sf::Keyboard::Key keycode) {
-    int index = 3; // start from C not A
+    int index = 21 + 3; // 21 is A0, 21 + 3 is C1
     
     switch(keycode) {
     case sf::Keyboard::Z:    index+=0; break;
@@ -53,7 +54,15 @@ inline bool isBlackKey(size_t index) {
     }
 }
 
-Piano::Piano(std::array<float, 4>& pressed_note_colors) : note_colors(pressed_note_colors) {}
+Piano::Piano(sf::RenderWindow &window, std::array<float, 4> &pressed_note_colors)
+    : window(window), note_colors(pressed_note_colors) {
+    synth = mas.getSynth();
+    mas.play();
+}
+
+fluid_synth_t* Piano::getSynth() {
+    return synth;
+}
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
@@ -109,12 +118,32 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     }
 }
 
-void Piano::setKeyPressed(size_t midi_note, bool isPressed) {
+void Piano::keyOn(int midi_note, int velocity) {
     size_t index = midi_note - 21; // 21 is A0;
-    if (index < keys.size() && index >= 0) {
-        keys[index] = isPressed;
+    if (index < keys.size() && index >= 0 && !keys[index]) {
+        fluid_synth_noteon(synth, 0, midi_note, velocity);
+        keys[index] = true;
     }
 }
+
+void Piano::keyOff(int midi_note) {
+    size_t index = midi_note - 21; // 21 is A0;
+    if (index < keys.size() && index >= 0 && keys[index]) {
+        fluid_synth_noteoff(synth, 0, midi_note);
+        keys[index] = false;
+    }
+}
+
+void Piano::keyToggle(int midi_note) {
+    size_t index = midi_note - 21; // 21 is A0;
+    if (index < keys.size() && index >= 0) {
+        keys[index] ?
+            fluid_synth_noteoff(synth, 0, midi_note):
+            fluid_synth_noteon(synth, 0, midi_note, 100);
+        keys[index] = !keys[index];
+    }
+}
+
 std::vector<size_t> Piano::getPressedNotes() {
     std::vector<size_t> pressed_notes = {};
     for (int i = 0; i < keys.size(); i++) {
@@ -124,13 +153,12 @@ std::vector<size_t> Piano::getPressedNotes() {
     return pressed_notes;
 }
 
-void Piano::processEvent(sf::Event &event, sf::RenderWindow &window,
-                         fluid_synth_t *synth) {
-    this->mouseEvent(event, window, synth);
-    this->keyboardEvent(event, window, synth);    
+void Piano::processEvent(sf::Event &event) {
+    this->mouseEvent(event);
+    this->keyboardEvent(event);    
 }
 
-void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth) {
+void Piano::mouseEvent(sf::Event& event) {
     if (event.type == sf::Event::MouseButtonReleased) {
         if (event.mouseButton.button == sf::Mouse::Left) {
             sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -138,24 +166,14 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t
                 if (isBlackKey(std::distance(key_sprites.begin(), it)))
                     if (it->getGlobalBounds().contains(worldPos)) {
                         size_t index = std::distance(key_sprites.begin(), it);
-                        if (keys[index]) {
-                            fluid_synth_noteoff(synth, 0, (int)(index + 21));
-                        } else {
-                            fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
-                        }
-                        keys[index] = !keys[index];
+                        keyToggle(index + 21);
                         return;
                     }
             }
             for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
                 if (it->getGlobalBounds().contains(worldPos)) {
                     size_t index = std::distance(key_sprites.begin(), it);
-                    if (keys[index]) {
-                        fluid_synth_noteoff(synth, 0, (int)(index + 21));
-                    } else {
-                        fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
-                    }
-                    keys[index] = !keys[index];
+                    keyToggle(index + 21);
                     return;
                 }
             }
@@ -163,8 +181,8 @@ void Piano::mouseEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t
     }
 }
 
-void Piano::keyboardEvent(sf::Event& event, sf::RenderWindow& window, fluid_synth_t* synth) {
-    static unsigned int octave = 1;
+void Piano::keyboardEvent(sf::Event& event) {
+    static int octave = 1;
     
     if (event.type == sf::Event::KeyPressed) {
         if(event.key.code == sf::Keyboard::Hyphen) {
@@ -177,19 +195,13 @@ void Piano::keyboardEvent(sf::Event& event, sf::RenderWindow& window, fluid_synt
         }
         int note = getNoteFromKeyCode(event.key.code);
         if(note < 0) return;
-        size_t index = note + octave * 12;
-        if(index >= keys.size() || keys[index]) return;
-        fluid_synth_noteon(synth, 0, (int)(index + 21), 100);
-        keys[index] = true;
+        keyOn(note + octave * 12, 100);
     }
     
     if (event.type == sf::Event::KeyReleased) {
         int note = getNoteFromKeyCode(event.key.code);
         if(note < 0) return;
-        size_t index = note + octave * 12;
-        if(index >= keys.size() || !keys[index]) return;
-        fluid_synth_noteoff(synth, 0, (int)(index + 21));
-        keys[index] = false;
+        keyOff(note + octave * 12);
     }
 }
 

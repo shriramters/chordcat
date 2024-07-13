@@ -47,20 +47,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
         return nullptr;
     }
 
-    // Audio
-    MidiAudioStream mas;
-    fluid_synth_t* synth = mas.getSynth();
-    std::string assets_path = APP_ASSETS_PATH;
-    std::string sound_font_path = assets_path + "/soundfonts/TimGM6mb.sf2";
-    fluid_synth_sfload(synth, sound_font_path.c_str(), 1);
-    fluid_synth_set_gain(synth, preferences.piano.gain);
-
     // ImGui
     if (!ImGui::SFML::Init(window))
         return nullptr;
     sf::Clock deltaClock;
 
-    // TODO: Remember choice from config.ini
     sf::Font font;
     if (!font.loadFromFile(preferences.ui.font.path)) {
         std::cerr << "Error loading font" << std::endl;
@@ -73,12 +64,14 @@ std::shared_ptr<AppState> MainScreen::Run() {
     title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2, 50);
 
     // Piano
-    Piano piano(preferences.piano.pressed_note_colors);
-    mas.play();
+    std::string sound_font_path = std::string(APP_ASSETS_PATH) + "/soundfonts/TimGM6mb.sf2";
+    Piano piano(window, preferences.piano.pressed_note_colors);
+    fluid_synth_sfload(piano.getSynth(), sound_font_path.c_str(), 1);
+    fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
     // Images
     sf::Texture logo;
-    if (!logo.loadFromFile(assets_path + "/images/chordcat.png")) {
+    if (!logo.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/chordcat.png")) {
         std::cerr << "Error loading logo" << std::endl;
     }
 
@@ -93,13 +86,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     switch (message[0] >> 4) {
                         case 9:
                             if ((int)message[2] > 0) {
-                                piano.setKeyPressed((int)message[1], true);
-                                fluid_synth_noteon(synth, 0, (int)message[1], (int)message[2]);
+                                piano.keyOn((int)message[1], (int)message[2]);
                                 break;
                             }
                         case 8:
-                            piano.setKeyPressed((int)message[1], false);
-                            fluid_synth_noteoff(synth, 0, (int)message[1]);
+                            piano.keyOff((int)message[1]);
                             break;
                         default:
                             break;
@@ -150,7 +141,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     window.getSize().x / 2.f - portinfo_text.getGlobalBounds().width / 2, 100);
             }
             ImGui::SFML::ProcessEvent(event);
-            piano.processEvent(event, window, synth);
+            piano.processEvent(event);
         }
         std::vector<sf::String> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
         sf::String current_msg = "";
@@ -170,7 +161,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         chord_notes_text.setPosition(window.getSize().x / 3.f, 150);
 
         // Fluid Synth Stuff
-        fluid_synth_set_gain(synth, preferences.piano.gain);
+        fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
