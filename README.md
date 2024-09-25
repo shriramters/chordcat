@@ -7,7 +7,7 @@ Chord Naming App with MIDI Support
 Chordcat is a desktop app that helps you identify and name chords based on inputted notes. 
 
 - [Documentation](https://shriramters.github.io/chordcat/)
-- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.1.0)
+- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.2.0)
 
 ## Features
 
