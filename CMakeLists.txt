@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(chordcat LANGUAGES CXX VERSION 0.2.0)
+project(chordcat LANGUAGES CXX VERSION 0.2.1)
 
 message(STATUS "Configuring chordcat ${CMAKE_PROJECT_VERSION} - ${CMAKE_BUILD_TYPE}")
 
@@ -93,7 +93,7 @@ endif()
 
 # Install Desktop Files for Linux (Unix but not Apple)
 if( UNIX AND NOT APPLE )
-  install(FILES desktop/chordcat.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications COMPONENT Application)
+  install(FILES desktop/dev.ters.Chordcat.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications COMPONENT Application)
   install(FILES desktop/16x16/chordcat.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/16x16/apps COMPONENT Application)
   install(FILES desktop/22x22/chordcat.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/22x22/apps COMPONENT Application)
   install(FILES desktop/24x24/chordcat.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/24x24/apps COMPONENT Application)
@@ -109,6 +109,7 @@ if( UNIX AND NOT APPLE )
   install(FILES desktop/192x192/chordcat.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/192x192/apps COMPONENT Application)
   install(FILES desktop/256x256/chordcat.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps COMPONENT Application)
   install(FILES desktop/310x310/chordcat.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/310x310/apps COMPONENT Application)
+  install(FILES desktop/dev.ters.Chordcat.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo COMPONENT Application)
 endif()
 
 # Define components (Development component is a placeholder for future)

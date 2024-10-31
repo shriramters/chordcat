@@ -2,6 +2,7 @@
 #include "piano.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <fluidsynth/synth.h>
+#include <cstdint>
 
 inline int getNoteFromKeyCode(sf::Keyboard::Key keycode) {
     int index = 21 + 3; // 21 is A0, 21 + 3 is C1
