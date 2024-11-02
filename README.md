@@ -8,6 +8,10 @@ Chordcat is a desktop app that helps you identify and name chords based on input
 
 - [Documentation](https://shriramters.github.io/chordcat/)
 - Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.2.1)
+  
+<a href='https://flathub.org/apps/dev.ters.Chordcat'>
+  <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+</a>
 
 ## Features
 
