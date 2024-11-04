@@ -26,11 +26,11 @@ Chordcat is a desktop app that helps you identify and name chords based on input
 
 ## Screenshots
 
-<img src="https://github.com/user-attachments/assets/fce29f4a-9113-47ff-9a61-bc16081508e0" height="400px">
-<img src="https://github.com/shriramters/chordcat/assets/127589779/697dc8d9-b8d6-412e-be2d-fea71f324311" height="400px">
+<img src="https://github.com/user-attachments/assets/fce29f4a-9113-47ff-9a61-bc16081508e0" width="600px">
+<img src="https://github.com/shriramters/chordcat/assets/127589779/697dc8d9-b8d6-412e-be2d-fea71f324311" width="600px">
 
 ## Keybindings
-<img src="https://github.com/user-attachments/assets/3c664e05-fee9-46aa-9c26-79f4e57f4e91" height="300px">
+<img src="https://github.com/user-attachments/assets/3c664e05-fee9-46aa-9c26-79f4e57f4e91" width="600px">
 
 ## Installing From Binaries
 
