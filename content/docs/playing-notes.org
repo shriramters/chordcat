@@ -1,0 +1,42 @@
+#+TITLE: Playing Notes
+#+DATE: 2024-11-04T03:14:01Z
+#+WEIGHT: 40
+
+@@html:<h1>@@Playing Notes@@html:</h1>@@
+
+There are three ways of playing notes on Chordcat.
+
+- Using PC Keyboard
+- Clicking the piano keys with a mouse
+- Using a Midi Device
+
+
+* Using PC Keyboard
+
+You can use your regular keyboard to play the piano on chordcat.
+
+Keybindings are similar to [[https://vmpk.sourceforge.io/][VMPK]]
+
+i.e; ~QWERTYUIO~ will play the notes ~CDEFGABC~. The key above ~Q~ and ~W~ on the PC keyboard (num 2) will play the black key between ~C~ and ~D~ which is ~C#~.
+
+Similarly, you can use ~ZXCVBNM~ to play the notes which are an octave below, just like VMPK.
+
+Additionally, You can use the ~+~ and ~-~ keys to shift the current octave up and down respectively.
+
+[[/chordcat/keyboard-layout.png]]
+
+* Using Mouse
+
+You can use the mouse to click the piano keys on the screen to toggle notes. These notes stay pressed until you toggle them again.
+
+You can also use the ~Clear All~ button on the top left of the screen to toggle all notes off.
+
+* Using a MIDI Device
+
+Connect any number of MIDI devices and close and re-open chordcat. The MIDI device should appear in the device selector at
+
+~Preferences~ -> ~Configuration~ -> ~MIDI Device~
+
+[[/chordcat/choose-midi.png]]
+
+Select your MIDI device and the notes played on that device should appear on chordcat.
