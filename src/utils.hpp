@@ -4,6 +4,7 @@
 #include "chord_db.hpp"
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <set>
 #include <string>

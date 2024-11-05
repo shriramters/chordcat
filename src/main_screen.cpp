@@ -1,25 +1,27 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "main_screen.hpp"
 #include "config.h"
-#include "libremidi/config.hpp"
-#include "midi_audio_stream.hpp"
 #include "piano.hpp"
 #include "preferences.hpp"
 #include "utils.hpp"
 #include <SFML/Audio.hpp>
+#include <SFML/Config.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System.hpp>
-#include <SFML/Config.hpp>
 #include <boost/version.hpp>
 #include <fluidsynth.h>
 #include <fluidsynth/version.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <iostream>
+#include <libremidi/config.hpp>
 #include <libremidi/libremidi.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
+
+#define SETTINGS_FILE_NAME "settings.json"
 
 MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
@@ -30,18 +32,18 @@ std::shared_ptr<AppState> MainScreen::Run() {
     std::optional<std::string> appdata_path = get_appdata_path();
     if (appdata_path.has_value()) {
         try {
-            preferences.load(*appdata_path + "/settings.xml");
-        } catch (boost::wrapexcept<boost::property_tree::xml_parser::xml_parser_error> e) {
+            preferences.load(*appdata_path + "/" + SETTINGS_FILE_NAME);
+        } catch (SettingsFileDoesntExistException) {
             std::error_code err;
             if (!CreateDirectoryRecursive(*appdata_path, err)) {
                 std::cout << "CreateDirectoryRecursive FAILED, err: " << err.message() << std::endl;
                 return nullptr;
             }
-            preferences.save(*appdata_path + "/settings.xml");
-        } catch (boost::wrapexcept<boost::property_tree::ptree_bad_path>) {
+            preferences.save(*appdata_path + "/" + SETTINGS_FILE_NAME);
+        } catch (nlohmann::json::parse_error) {
             // if a node is missing / settings file was tampered improperly
             // reset the settings file with sensible defaults
-            preferences.save(*appdata_path + "/settings.xml");
+            preferences.save(*appdata_path + "/" + SETTINGS_FILE_NAME);
         }
     } else {
         return nullptr;
@@ -79,21 +81,21 @@ std::shared_ptr<AppState> MainScreen::Run() {
         // Set our callback function.
         .on_message =
             [&](const libremidi::message& message) {
-                // 0th byte: status byte containing message type and channel. we only care for the first nibble, see if it is noteOn or noteOff while ignoring the channel
-                // 1st byte: note number (for noteOn and noteOff)
-                // 2nd byte: velocity (for noteOn and noteOff)
+                // 0th byte: status byte containing message type and channel. we only care for the
+                // first nibble, see if it is noteOn or noteOff while ignoring the channel 1st byte:
+                // note number (for noteOn and noteOff) 2nd byte: velocity (for noteOn and noteOff)
                 if (message.size() == 3) {
                     switch (message[0] >> 4) {
-                        case 9:
-                            if ((int)message[2] > 0) {
-                                piano.keyOn((int)message[1], (int)message[2]);
-                                break;
-                            }
-                        case 8:
-                            piano.keyOff((int)message[1]);
+                    case 9:
+                        if ((int)message[2] > 0) {
+                            piano.keyOn((int)message[1], (int)message[2]);
                             break;
-                        default:
-                            break;
+                        }
+                    case 8:
+                        piano.keyOff((int)message[1]);
+                        break;
+                    default:
+                        break;
                     }
                 }
             },
@@ -238,25 +240,20 @@ std::shared_ptr<AppState> MainScreen::Run() {
         }
 
         if (show_about) {
-            #define STRINGIZE(s) #s
-            #define STRINGCEPTION(s) STRINGIZE(s)
+#define STRINGIZE(s) #s
+#define STRINGCEPTION(s) STRINGIZE(s)
 
-            const std::vector<const char *> about_lines = {
-                "Chordcat v" CHORDCAT_VERSION,
-                "Chord Naming Application",
-                "© 2024 Shriram Ravindranathan",
-                "",
-                // MACRO integers 2.X.X defined in SFML/Config.hpp 
-                "SFML Version: " STRINGCEPTION(SFML_VERSION_MAJOR)
-                "." STRINGCEPTION(SFML_VERSION_MINOR)
-                "." STRINGCEPTION(SFML_VERSION_PATCH),
-                "FluidSynth Version: " FLUIDSYNTH_VERSION,
-                "Libremidi Version: " LIBREMIDI_VERSION,
-                "Boost Version: " BOOST_LIB_VERSION
-            };
-            
+            const std::vector<const char*> about_lines = {
+                "Chordcat v" CHORDCAT_VERSION, "Chord Naming Application",
+                "© 2024 Shriram Ravindranathan", "",
+                // MACRO integers 2.X.X defined in SFML/Config.hpp
+                "SFML Version: " STRINGCEPTION(SFML_VERSION_MAJOR) "." STRINGCEPTION(
+                    SFML_VERSION_MINOR) "." STRINGCEPTION(SFML_VERSION_PATCH),
+                "FluidSynth Version: " FLUIDSYNTH_VERSION, "Libremidi Version: " LIBREMIDI_VERSION,
+                "Boost Version: " BOOST_LIB_VERSION};
+
             ImGui::Begin("About", nullptr);
-            ImGui::SetWindowSize({0,0});
+            ImGui::SetWindowSize({0, 0});
 
             sf::Sprite logoSprite;
             logoSprite.setTexture(logo);
@@ -264,8 +261,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::SameLine((ImGui::GetWindowWidth() - logoSprite.getGlobalBounds().width) / 2);
             ImGui::Image(logoSprite);
             ImGui::NewLine();
-            
-            for(auto line : about_lines) {
+
+            for (auto line : about_lines) {
                 ImGui::SameLine((ImGui::GetWindowWidth() - ImGui::CalcTextSize(line).x) / 2);
                 ImGui::Text("%s", line);
                 ImGui::NewLine();
@@ -273,7 +270,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::End();
         }
 
-        // The entire top bar with the buttons:(Clear All, Preferences, <-->, About) 
+        // The entire top bar with the buttons:(Clear All, Preferences, <-->, About)
         ImGui::Begin("MENUWINDOW", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
         ImGui::SetWindowPos({0, 0});
@@ -284,10 +281,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
         if (ImGui::Button("Preferences"))
             show_preferences = !show_preferences;
         // Align to the right of screen (screenwidth - button size)
-        ImGui::SameLine(ImGui::GetWindowWidth()
-                        - ImGui::GetStyle().WindowPadding.x
-                        - ImGui::CalcTextSize("About").x
-                        - (ImGui::GetStyle().FramePadding.x * 2.f));
+        ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x -
+                        ImGui::CalcTextSize("About").x - (ImGui::GetStyle().FramePadding.x * 2.f));
         if (ImGui::Button("About"))
             show_about = !show_about;
         ImGui::End();
@@ -305,6 +300,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
     }
     ImGui::SFML::Shutdown();
     midiin.close_port();
-    preferences.save(*appdata_path + "/settings.xml");
+    preferences.save(*appdata_path + "/" + SETTINGS_FILE_NAME);
     return nullptr;
 }

@@ -1,26 +1,35 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "preferences.hpp"
-
-namespace pt = boost::property_tree;
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 void Preferences::load(const std::string& filename) {
-    pt::read_xml(filename, tree);
-    this->piano.gain = tree.get<float>("piano.gain");
-    this->ui.font.name = tree.get<std::string>("ui.font.name");
-    this->ui.font.path = tree.get<std::string>("ui.font.path");
-    this->piano.pressed_note_colors[0] = tree.get<float>("piano.pressed_note_colors.r");
-    this->piano.pressed_note_colors[1] = tree.get<float>("piano.pressed_note_colors.g");
-    this->piano.pressed_note_colors[2] = tree.get<float>("piano.pressed_note_colors.b");
-    this->piano.pressed_note_colors[3] = tree.get<float>("piano.pressed_note_colors.a");
+    std::ifstream ifs(filename);
+    if (!ifs.is_open()) {
+        throw SettingsFileDoesntExistException();
+    }
+
+    nlohmann::json settingsJson = nlohmann::json::parse(ifs);
+    this->piano.gain = settingsJson["piano"]["gain"];
+    this->piano.pressed_note_colors[0] = settingsJson["piano"]["pressed_note_colors"]["r"];
+    this->piano.pressed_note_colors[1] = settingsJson["piano"]["pressed_note_colors"]["g"];
+    this->piano.pressed_note_colors[2] = settingsJson["piano"]["pressed_note_colors"]["b"];
+    this->piano.pressed_note_colors[3] = settingsJson["piano"]["pressed_note_colors"]["a"];
+    this->ui.font.name = settingsJson["ui"]["font"]["name"];
+    this->ui.font.path = settingsJson["ui"]["font"]["path"];
 }
 
 void Preferences::save(const std::string& filename) {
-    tree.put("piano.gain", piano.gain);
-    tree.put("ui.font.name", ui.font.name);
-    tree.put("ui.font.path", ui.font.path);
-    tree.put("piano.pressed_note_colors.r", piano.pressed_note_colors[0]);
-    tree.put("piano.pressed_note_colors.g", piano.pressed_note_colors[1]);
-    tree.put("piano.pressed_note_colors.b", piano.pressed_note_colors[2]);
-    tree.put("piano.pressed_note_colors.a", piano.pressed_note_colors[3]);
-    pt::write_xml(filename, tree);
+    nlohmann::json settingsJson;
+
+    settingsJson["piano"]["gain"] = this->piano.gain;
+    settingsJson["piano"]["pressed_note_colors"]["r"] = this->piano.pressed_note_colors[0];
+    settingsJson["piano"]["pressed_note_colors"]["g"] = this->piano.pressed_note_colors[1];
+    settingsJson["piano"]["pressed_note_colors"]["b"] = this->piano.pressed_note_colors[2];
+    settingsJson["piano"]["pressed_note_colors"]["a"] = this->piano.pressed_note_colors[3];
+    settingsJson["ui"]["font"]["name"] = this->ui.font.name;
+    settingsJson["ui"]["font"]["path"] = this->ui.font.path;
+
+    std::ofstream ofs(filename);
+    ofs << settingsJson.dump(4);
 }

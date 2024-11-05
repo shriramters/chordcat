@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "config.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include <array>
+#include <exception>
 #include <string>
+#include <vector>
 
 // TODO: std::filesystem Path
 const std::vector<std::pair<std::string, std::string>> available_fonts = {
     {"DejaVu Sans", std::string(APP_ASSETS_PATH) + "/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
     {"FirstTimeWriting!",
      std::string(APP_ASSETS_PATH) + "/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
-    {"Petaluma", std::string(APP_ASSETS_PATH) + "/fonts/Petaluma/otf/PetalumaScript.otf"} };
-
-namespace pt = boost::property_tree;
+    {"Petaluma", std::string(APP_ASSETS_PATH) + "/fonts/Petaluma/otf/PetalumaScript.otf"}};
 
 struct Preferences {
     struct Piano {
@@ -20,7 +19,7 @@ struct Preferences {
         std::array<float, 4> pressed_note_colors;
         Piano() {
             gain = 2.f;
-            pressed_note_colors = { 0.9f, 0.7f, 0.f, 1.f };
+            pressed_note_colors = {0.9f, 0.7f, 0.f, 1.f};
         }
     };
     struct UI {
@@ -38,7 +37,16 @@ struct Preferences {
 
     UI ui;
     Piano piano;
-    pt::ptree tree;
     void load(const std::string& filename);
     void save(const std::string& filename);
+};
+
+class SettingsFileDoesntExistException : public std::exception {
+  private:
+    std::string message;
+
+  public:
+    SettingsFileDoesntExistException() : message("Settings file doesn't exist at the given path") {}
+
+    const char* what() const throw() { return message.c_str(); }
 };
