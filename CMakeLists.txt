@@ -48,13 +48,6 @@ FetchContent_MakeAvailable(ImGui-SFML)
 # nlohmann/json
 find_package(nlohmann_json REQUIRED)
 
-# Boost Property Tree
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.74.0)
-include_directories(${Boost_INCLUDE_DIRS})
-
 include(GNUInstallDirs)
 
 # Set paths for assets
@@ -87,7 +80,7 @@ endif()
 add_executable(${PROJECT_NAME} ${src_files} ${desktop_files})
 target_link_libraries(
   ${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system fluidsynth
-                          ImGui-SFML::ImGui-SFML Boost::boost)
+                          ImGui-SFML::ImGui-SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 

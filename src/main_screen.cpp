@@ -9,7 +9,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System.hpp>
-#include <boost/version.hpp>
 #include <fluidsynth.h>
 #include <fluidsynth/version.h>
 #include <imgui-SFML.h>
@@ -244,13 +243,16 @@ std::shared_ptr<AppState> MainScreen::Run() {
 #define STRINGCEPTION(s) STRINGIZE(s)
 
             const std::vector<const char*> about_lines = {
-                "Chordcat v" CHORDCAT_VERSION, "Chord Naming Application",
-                "© 2024 Shriram Ravindranathan", "",
+                "Chordcat v" CHORDCAT_VERSION,
+                "Chord Naming Application",
+                "© 2024 Shriram Ravindranathan",
+                "",
                 // MACRO integers 2.X.X defined in SFML/Config.hpp
                 "SFML Version: " STRINGCEPTION(SFML_VERSION_MAJOR) "." STRINGCEPTION(
                     SFML_VERSION_MINOR) "." STRINGCEPTION(SFML_VERSION_PATCH),
-                "FluidSynth Version: " FLUIDSYNTH_VERSION, "Libremidi Version: " LIBREMIDI_VERSION,
-                "Boost Version: " BOOST_LIB_VERSION};
+                "FluidSynth Version: " FLUIDSYNTH_VERSION,
+                "Libremidi Version: " LIBREMIDI_VERSION,
+            };
 
             ImGui::Begin("About", nullptr);
             ImGui::SetWindowSize({0, 0});
