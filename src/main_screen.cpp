@@ -20,31 +20,13 @@
 #include <string>
 #include <vector>
 
-#define SETTINGS_FILE_NAME "settings.json"
-
 MainScreen::MainScreen(sf::RenderWindow& window) : AppState(window) {}
 
 std::shared_ptr<AppState> MainScreen::Run() {
 
     // Setup Preferences
     Preferences preferences;
-    std::optional<std::string> appdata_path = get_appdata_path();
-    if (appdata_path.has_value()) {
-        try {
-            preferences.load(*appdata_path + "/" + SETTINGS_FILE_NAME);
-        } catch (SettingsFileDoesntExistException) {
-            std::error_code err;
-            if (!CreateDirectoryRecursive(*appdata_path, err)) {
-                std::cout << "CreateDirectoryRecursive FAILED, err: " << err.message() << std::endl;
-                return nullptr;
-            }
-            preferences.save(*appdata_path + "/" + SETTINGS_FILE_NAME);
-        } catch (nlohmann::json::parse_error) {
-            // if a node is missing / settings file was tampered improperly
-            // reset the settings file with sensible defaults
-            preferences.save(*appdata_path + "/" + SETTINGS_FILE_NAME);
-        }
-    } else {
+    if (!preferences.setup()) {
         return nullptr;
     }
 
@@ -302,6 +284,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     }
     ImGui::SFML::Shutdown();
     midiin.close_port();
-    preferences.save(*appdata_path + "/" + SETTINGS_FILE_NAME);
+    if (!preferences.save())
+        return nullptr;
     return nullptr;
 }

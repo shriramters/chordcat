@@ -2,7 +2,6 @@
 #pragma once
 #include "config.h"
 #include <array>
-#include <exception>
 #include <string>
 #include <vector>
 
@@ -37,16 +36,7 @@ struct Preferences {
 
     UI ui;
     Piano piano;
+    bool setup();
     void load(const std::string& filename);
-    void save(const std::string& filename);
-};
-
-class SettingsFileDoesntExistException : public std::exception {
-  private:
-    std::string message;
-
-  public:
-    SettingsFileDoesntExistException() : message("Settings file doesn't exist at the given path") {}
-
-    const char* what() const throw() { return message.c_str(); }
+    bool save();
 };
