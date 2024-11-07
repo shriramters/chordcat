@@ -1,43 +1,102 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "piano.hpp"
 #include <SFML/Window/Keyboard.hpp>
-#include <fluidsynth/synth.h>
 #include <cstdint>
+#include <fluidsynth/synth.h>
 
 inline int getNoteFromKeyCode(sf::Keyboard::Key keycode) {
     int index = 21 + 3; // 21 is A0, 21 + 3 is C1
-    
-    switch(keycode) {
-    case sf::Keyboard::Z:    index+=0; break;
-    case sf::Keyboard::S:    index+=1; break;
-    case sf::Keyboard::X:    index+=2; break;
-    case sf::Keyboard::D:    index+=3; break;
-    case sf::Keyboard::C:    index+=4; break;
-    case sf::Keyboard::V:    index+=5; break;
-    case sf::Keyboard::G:    index+=6; break;
-    case sf::Keyboard::B:    index+=7; break;
-    case sf::Keyboard::H:    index+=8; break;
-    case sf::Keyboard::N:    index+=9; break;
-    case sf::Keyboard::J:    index+=10; break;
-    case sf::Keyboard::M:    index+=11; break;         
-    case sf::Keyboard::Q:    index+=12; break;
-    case sf::Keyboard::Num2: index+=13; break;
-    case sf::Keyboard::W:    index+=14; break;
-    case sf::Keyboard::Num3: index+=15; break;
-    case sf::Keyboard::E:    index+=16; break;
-    case sf::Keyboard::R:    index+=17; break;
-    case sf::Keyboard::Num5: index+=18; break;
-    case sf::Keyboard::T:    index+=19; break;
-    case sf::Keyboard::Num6: index+=20; break;
-    case sf::Keyboard::Y:    index+=21; break;
-    case sf::Keyboard::Num7: index+=22; break;
-    case sf::Keyboard::U:    index+=23; break;        
-    case sf::Keyboard::I:    index+=24; break;
-    case sf::Keyboard::Num9: index+=25; break;
-    case sf::Keyboard::O:    index+=26; break;
-    case sf::Keyboard::Num0: index+=27; break;
-    case sf::Keyboard::P:    index+=28; break;
-    default: return -1;
+
+    switch (keycode) {
+    case sf::Keyboard::Z:
+        index += 0;
+        break;
+    case sf::Keyboard::S:
+        index += 1;
+        break;
+    case sf::Keyboard::X:
+        index += 2;
+        break;
+    case sf::Keyboard::D:
+        index += 3;
+        break;
+    case sf::Keyboard::C:
+        index += 4;
+        break;
+    case sf::Keyboard::V:
+        index += 5;
+        break;
+    case sf::Keyboard::G:
+        index += 6;
+        break;
+    case sf::Keyboard::B:
+        index += 7;
+        break;
+    case sf::Keyboard::H:
+        index += 8;
+        break;
+    case sf::Keyboard::N:
+        index += 9;
+        break;
+    case sf::Keyboard::J:
+        index += 10;
+        break;
+    case sf::Keyboard::M:
+        index += 11;
+        break;
+    case sf::Keyboard::Q:
+        index += 12;
+        break;
+    case sf::Keyboard::Num2:
+        index += 13;
+        break;
+    case sf::Keyboard::W:
+        index += 14;
+        break;
+    case sf::Keyboard::Num3:
+        index += 15;
+        break;
+    case sf::Keyboard::E:
+        index += 16;
+        break;
+    case sf::Keyboard::R:
+        index += 17;
+        break;
+    case sf::Keyboard::Num5:
+        index += 18;
+        break;
+    case sf::Keyboard::T:
+        index += 19;
+        break;
+    case sf::Keyboard::Num6:
+        index += 20;
+        break;
+    case sf::Keyboard::Y:
+        index += 21;
+        break;
+    case sf::Keyboard::Num7:
+        index += 22;
+        break;
+    case sf::Keyboard::U:
+        index += 23;
+        break;
+    case sf::Keyboard::I:
+        index += 24;
+        break;
+    case sf::Keyboard::Num9:
+        index += 25;
+        break;
+    case sf::Keyboard::O:
+        index += 26;
+        break;
+    case sf::Keyboard::Num0:
+        index += 27;
+        break;
+    case sf::Keyboard::P:
+        index += 28;
+        break;
+    default:
+        return -1;
     }
     return index;
 }
@@ -55,15 +114,13 @@ inline bool isBlackKey(size_t index) {
     }
 }
 
-Piano::Piano(sf::RenderWindow &window, std::array<float, 4> &pressed_note_colors)
+Piano::Piano(sf::RenderWindow& window, std::array<float, 4>& pressed_note_colors)
     : window(window), note_colors(pressed_note_colors) {
     synth = mas.getSynth();
     mas.play();
 }
 
-fluid_synth_t* Piano::getSynth() {
-    return synth;
-}
+fluid_synth_t* Piano::getSynth() { return synth; }
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
@@ -138,9 +195,8 @@ void Piano::keyOff(int midi_note) {
 void Piano::keyToggle(int midi_note) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0) {
-        keys[index] ?
-            fluid_synth_noteoff(synth, 0, midi_note):
-            fluid_synth_noteon(synth, 0, midi_note, 100);
+        keys[index] ? fluid_synth_noteoff(synth, 0, midi_note)
+                    : fluid_synth_noteon(synth, 0, midi_note, 100);
         keys[index] = !keys[index];
     }
 }
@@ -154,9 +210,9 @@ std::vector<size_t> Piano::getPressedNotes() {
     return pressed_notes;
 }
 
-void Piano::processEvent(sf::Event &event) {
+void Piano::processEvent(sf::Event& event) {
     this->mouseEvent(event);
-    this->keyboardEvent(event);    
+    this->keyboardEvent(event);
 }
 
 void Piano::mouseEvent(sf::Event& event) {
@@ -184,24 +240,26 @@ void Piano::mouseEvent(sf::Event& event) {
 
 void Piano::keyboardEvent(sf::Event& event) {
     static int octave = 1;
-    
+
     if (event.type == sf::Event::KeyPressed) {
-        if(event.key.code == sf::Keyboard::Hyphen) {
-            if(octave >= 0)
+        if (event.key.code == sf::Keyboard::Hyphen) {
+            if (octave >= 0)
                 octave--;
         }
-        if(event.key.code == sf::Keyboard::Equal) {
-            if(octave <= 6)
+        if (event.key.code == sf::Keyboard::Equal) {
+            if (octave <= 6)
                 octave++;
         }
         int note = getNoteFromKeyCode(event.key.code);
-        if(note < 0) return;
+        if (note < 0)
+            return;
         keyOn(note + octave * 12, 100);
     }
-    
+
     if (event.type == sf::Event::KeyReleased) {
         int note = getNoteFromKeyCode(event.key.code);
-        if(note < 0) return;
+        if (note < 0)
+            return;
         keyOff(note + octave * 12);
     }
 }

@@ -2,6 +2,7 @@
 #pragma once
 #include "chord.hpp"
 #include "chord_db.hpp"
+#include "config.h"
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -87,7 +88,7 @@ inline bool CreateDirectoryRecursive(std::string const& dirName, std::error_code
 }
 
 inline std::optional<std::string> get_appdata_path() {
-    char* app_data_root;
+    char* app_data_root = nullptr;
 
 #ifdef _WIN32
     app_data_root = std::getenv("APPDATA");

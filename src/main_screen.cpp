@@ -3,12 +3,14 @@
 #include "config.h"
 #include "piano.hpp"
 #include "preferences.hpp"
+#include "sound_font_manager.hpp"
 #include "utils.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Config.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System.hpp>
+#include <filesystem>
 #include <fluidsynth.h>
 #include <fluidsynth/synth.h>
 #include <fluidsynth/version.h>
@@ -48,9 +50,17 @@ std::shared_ptr<AppState> MainScreen::Run() {
     title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2, 50);
 
     // Piano
-    std::string sound_font_path = std::string(APP_ASSETS_PATH) + "/soundfonts/TimGM6mb.sf2";
     Piano piano(window, preferences.piano.pressed_note_colors);
-    fluid_synth_sfload(piano.getSynth(), sound_font_path.c_str(), 1);
+
+    SoundFontManager soundFontManager;
+    auto soundfonts = soundFontManager.getAvailableSoundFonts();
+    if (soundfonts.empty()) {
+        std::cerr << "No soundfonts found. Did you delete the default soundfont?" << std::endl;
+        return nullptr;
+    }
+    std::pair<std::string, std::filesystem::path> current_soundfont = soundfonts[0];
+    int current_soundfont_id =
+        fluid_synth_sfload(piano.getSynth(), current_soundfont.second.c_str(), 1);
     fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
     // Images
@@ -193,6 +203,30 @@ std::shared_ptr<AppState> MainScreen::Run() {
                                 midiin.close_port();
                                 midiin.open_port(ports[n]);
                                 portinfo_text.setString(portName);
+                            }
+                            if (is_selected) {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+
+                if (ImGui::TreeNode("SoundFont")) {
+                    if (ImGui::BeginCombo("##combo", current_soundfont.first.c_str())) {
+                        for (const auto& soundfont : soundfonts) {
+                            bool is_selected = (current_soundfont == soundfont);
+                            if (ImGui::Selectable(soundfont.first.c_str(), is_selected)) {
+                                current_soundfont = soundfont;
+                                // Unload previous soundfont
+                                if (current_soundfont_id != -1) {
+                                    fluid_synth_sfunload(piano.getSynth(), current_soundfont_id,
+                                                         1); // 1 = reset
+                                }
+                                current_soundfont_id = fluid_synth_sfload(
+                                    piano.getSynth(), soundfont.second.c_str(), 1);
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
