@@ -10,6 +10,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System.hpp>
 #include <fluidsynth.h>
+#include <fluidsynth/synth.h>
 #include <fluidsynth/version.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
@@ -75,6 +76,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     case 8:
                         piano.keyOff((int)message[1]);
                         break;
+                    case 11: {
+                        // control codes such as sustain pedal
+                        fluid_synth_cc(piano.getSynth(), 0, (int)message[1], (int)message[2]);
+                        break;
+                    }
                     default:
                         break;
                     }
