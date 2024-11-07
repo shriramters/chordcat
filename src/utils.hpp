@@ -3,7 +3,9 @@
 #include "chord.hpp"
 #include "chord_db.hpp"
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
+#include <optional>
 #include <ranges>
 #include <set>
 #include <string>
@@ -12,7 +14,7 @@
 const std::array<sf::String, 12> note_names = {"A",   L"B♭", "B", "C",   L"C♯", "D",
                                                L"E♭", "E",   "F", L"F♯", "G",   L"A♭"};
 
-std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices) {
+inline std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices) {
     std::vector<sf::String> result = {};
     for (auto index : indices) {
         result.push_back(note_names[index % note_names.size()]);
@@ -27,8 +29,8 @@ inline unsigned short get_note_distance(unsigned short root, unsigned short othe
     return other - root;
 }
 
-void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals,
-                   std::multiset<Chord>& res) {
+inline void insert_chords(const unsigned short root, const std::set<unsigned short>& intervals,
+                          std::multiset<Chord>& res) {
     std::set<Chord> temp;
     for (auto& [name, notes] : chord_db) {
         Chord chord = {};
@@ -50,7 +52,7 @@ void insert_chords(const unsigned short root, const std::set<unsigned short>& in
         res.insert(*temp.begin());
 }
 
-std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices) {
+inline std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices) {
     std::set<unsigned short> notes = {};
     for (auto index : indices) {
         notes.insert(index % 12);
@@ -68,12 +70,10 @@ std::multiset<Chord> name_that_chord(const std::vector<size_t>& indices) {
     return result;
 }
 
-#include <filesystem>
-
 // Returns:
 //   true upon success.
 //   false upon failure, and set the std::error_code & err accordingly.
-bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err) {
+inline bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err) {
     err.clear();
     if (!std::filesystem::create_directories(dirName, err)) {
         if (std::filesystem::exists(dirName)) {
@@ -86,7 +86,7 @@ bool CreateDirectoryRecursive(std::string const& dirName, std::error_code& err) 
     return true;
 }
 
-std::optional<std::string> get_appdata_path() {
+inline std::optional<std::string> get_appdata_path() {
     char* app_data_root;
 
 #ifdef _WIN32
