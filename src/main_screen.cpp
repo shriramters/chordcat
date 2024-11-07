@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "main_screen.hpp"
 #include "config.h"
+#include "metronome.hpp"
 #include "piano.hpp"
 #include "preferences.hpp"
 #include "sound_font_manager.hpp"
@@ -62,6 +63,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
     int current_soundfont_id =
         fluid_synth_sfload(piano.getSynth(), current_soundfont.second.c_str(), 1);
     fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
+
+    int bpm = 120;
+    Metronome metronome(piano.getSynth(), bpm); // Initialize with 120 bpm
 
     // Images
     sf::Texture logo;
@@ -257,6 +261,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     ImGui::Spacing();
                 }
             }
+            ImGui::Text("Metronome Tempo");
+            if (ImGui::InputInt("BPM", &bpm, 1, 5)) {
+                bpm = std::clamp(bpm, 30, 300);
+                metronome.setBpm(bpm);
+            }
             ImGui::End();
         }
 
@@ -304,6 +313,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
         ImGui::SameLine();
         if (ImGui::Button("Preferences"))
             show_preferences = !show_preferences;
+        ImGui::SameLine();
+        if (ImGui::Button("Metronome")) {
+            metronome.toggle();
+        }
         // Align to the right of screen (screenwidth - button size)
         ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x -
                         ImGui::CalcTextSize("About").x - (ImGui::GetStyle().FramePadding.x * 2.f));
