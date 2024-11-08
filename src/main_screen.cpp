@@ -65,7 +65,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
     int bpm = 120;
-    Metronome metronome(piano.getSynth(), bpm); // Initialize with 120 bpm
+    Metronome metronome(piano.getSynth(), bpm, current_soundfont_id); // Initialize with 120 bpm
 
     // Images
     sf::Texture logo;
@@ -79,7 +79,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
             [&](const libremidi::message& message) {
                 // 0th byte: status byte containing message type and channel. we only care for the
                 // first nibble, see if it is noteOn or noteOff while ignoring the channel 1st byte:
-                // note number (for noteOn and noteOff) 2nd byte: velocity (for noteOn and noteOff)
+                // note number (for noteOn and noteOff) 2nd byte: velocity (for noteOn and
                 if (message.size() == 3) {
                     switch (message[0] >> 4) {
                     case 9:
@@ -224,11 +224,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
                             bool is_selected = (current_soundfont == soundfont);
                             if (ImGui::Selectable(soundfont.first.c_str(), is_selected)) {
                                 current_soundfont = soundfont;
-                                // Unload previous soundfont
-                                if (current_soundfont_id != -1) {
-                                    fluid_synth_sfunload(piano.getSynth(), current_soundfont_id,
-                                                         1); // 1 = reset
-                                }
                                 current_soundfont_id = fluid_synth_sfload(
                                     piano.getSynth(), soundfont.second.c_str(), 1);
                             }
@@ -317,6 +312,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         if (ImGui::Button("Metronome")) {
             metronome.toggle();
         }
+
         // Align to the right of screen (screenwidth - button size)
         ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetStyle().WindowPadding.x -
                         ImGui::CalcTextSize("About").x - (ImGui::GetStyle().FramePadding.x * 2.f));

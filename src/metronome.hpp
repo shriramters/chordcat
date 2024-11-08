@@ -2,13 +2,16 @@
 
 #include <chrono>
 #include <fluidsynth.h>
+#include <fluidsynth/synth.h>
 #include <thread>
 
 // looks like fluid_synth api is thread safe by default, so not using a mutex
 
 class Metronome {
   public:
-    Metronome(fluid_synth_t* synth, int bpm) : synth(synth), bpm(bpm), isRunning(false), beat(0) {}
+    Metronome(fluid_synth_t* synth, int bpm, int default_soundfont_id)
+        : synth(synth), bpm(bpm), isRunning(false), beat(0),
+          default_soundfont_id(default_soundfont_id) {}
 
     void start() {
         isRunning = true;
@@ -39,6 +42,7 @@ class Metronome {
     bool isRunning;
     int beat;
     std::thread metronomeThread;
+    int default_soundfont_id = -1;
 
     void run() {
         while (isRunning) {
