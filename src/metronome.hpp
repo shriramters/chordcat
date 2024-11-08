@@ -15,6 +15,7 @@ class Metronome {
 
     void start() {
         beat = 0;
+        stop();
         isRunning = true;
         metronomeThread = std::thread(&Metronome::run, this);
     }

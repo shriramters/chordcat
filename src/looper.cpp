@@ -57,15 +57,17 @@ void Looper::update() {
         static std::set<MidiEvent> played{};
         auto currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - startTime);
+        if (currentTime >= loopLength) {
+            startTime = std::chrono::steady_clock::now();
+            played.clear();
+            currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - startTime);
+        }
         for (const auto& event : events) {
             if (currentTime >= event.timestamp && !played.contains(event)) {
                 played.insert(event);
                 piano.midiEvent(event);
             }
-        }
-        if (currentTime > loopLength) {
-            startTime = std::chrono::steady_clock::now();
-            played.clear();
         }
     }
 }
