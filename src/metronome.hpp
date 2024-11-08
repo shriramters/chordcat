@@ -14,6 +14,7 @@ class Metronome {
           default_soundfont_id(default_soundfont_id) {}
 
     void start() {
+        beat = 0;
         isRunning = true;
         metronomeThread = std::thread(&Metronome::run, this);
     }
@@ -34,13 +35,15 @@ class Metronome {
 
     void setBpm(int newBpm) { bpm = newBpm; }
 
+    unsigned long long getBeat() { return beat; }
+
     ~Metronome() { stop(); }
 
   private:
     fluid_synth_t* synth;
     int bpm;
     bool isRunning;
-    int beat;
+    unsigned long long beat = 0;
     std::thread metronomeThread;
     int default_soundfont_id = -1;
 
@@ -53,8 +56,8 @@ class Metronome {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             fluid_synth_noteoff(synth, 9, note);
 
-            beat++;
             std::this_thread::sleep_for(std::chrono::milliseconds(interval - 50));
+            beat++;
         }
     }
 };
