@@ -64,7 +64,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     }
     std::pair<std::string, std::filesystem::path> current_soundfont = soundfonts[0];
     int current_soundfont_id =
-        fluid_synth_sfload(piano.getSynth(), current_soundfont.second.c_str(), 1);
+        fluid_synth_sfload(piano.getSynth(), current_soundfont.second.string().c_str(), 1);
     fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
     int bpm = 120;
@@ -216,7 +216,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                             if (ImGui::Selectable(soundfont.first.c_str(), is_selected)) {
                                 current_soundfont = soundfont;
                                 current_soundfont_id = fluid_synth_sfload(
-                                    piano.getSynth(), soundfont.second.c_str(), 1);
+                                    piano.getSynth(), soundfont.second.string().c_str(), 1);
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
