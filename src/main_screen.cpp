@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "main_screen.hpp"
 #include "config.h"
+#include "gm_instrument_table.hpp"
 #include "libremidi/defaults.hpp"
 #include "looper.hpp"
 #include "metronome.hpp"
@@ -110,6 +111,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     bool show_preferences = false;
     bool show_about = false;
     bool show_looper = false;
+    bool show_instrument_table = false;
 
     int program_channel = 0;
     std::array<int, 16> channel_programs;
@@ -246,6 +248,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
                         fluid_synth_program_change(piano.getSynth(), program_channel,
                                                    channel_programs[program_channel]);
                     }
+                    if (ImGui::Button("Show Instrument Table")) {
+                        show_instrument_table = !show_instrument_table;
+                    }
                     ImGui::TreePop();
                     ImGui::Spacing();
                 }
@@ -359,6 +364,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 ImGui::Text("%s", "Looper kaputt");
             }
             }
+            ImGui::End();
+        }
+        if (show_instrument_table) {
+            ImGui::Begin("Instrument Table", nullptr);
+            ImGui::SetWindowSize({0, 0});
+            showGMInstrumentTable();
             ImGui::End();
         }
 
