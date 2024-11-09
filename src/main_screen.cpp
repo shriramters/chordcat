@@ -165,6 +165,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         if (show_preferences) {
             ImGui::Begin("Preferences", nullptr);
+            ImGui::SetWindowSize({0, 0});
             if (ImGui::CollapsingHeader("User Interface")) {
                 if (ImGui::TreeNode("Font Face")) {
                     if (ImGui::BeginCombo("##combo", font.getInfo().family.c_str())) {
@@ -233,11 +234,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 }
             }
             if (ImGui::CollapsingHeader("Piano")) {
-                int channel = piano.getChannel();
-                if (ImGui::InputInt("Channel", &channel, 1, 5)) {
-                    channel = std::clamp(channel, 0, 15);
-                    piano.setChannel(channel);
-                }
                 if (ImGui::TreeNode("Program Change")) {
                     if (ImGui::InputInt("Channel", &program_channel, 1, 5)) {
                         program_channel = std::clamp(program_channel, 0, 15);
@@ -276,6 +272,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
             if (ImGui::InputInt("BPM", &bpm, 1, 5)) {
                 bpm = std::clamp(bpm, 30, 300);
                 metronome.setBpm(bpm);
+            }
+            int channel = piano.getChannel();
+            ImGui::Text("PC Keyboard MIDI Channel");
+            if (ImGui::InputInt("MIDI Channel", &channel, 1, 5)) {
+                channel = std::clamp(channel, 0, 15);
+                piano.setChannel(channel);
             }
             ImGui::End();
         }
