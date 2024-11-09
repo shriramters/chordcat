@@ -14,9 +14,9 @@ class Metronome {
           default_soundfont_id(default_soundfont_id) {}
 
     void start() {
-        beat = 0;
         stop();
         isRunning = true;
+        beat = 0;
         metronomeThread = std::thread(&Metronome::run, this);
     }
 
