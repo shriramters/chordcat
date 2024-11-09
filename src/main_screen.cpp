@@ -111,6 +111,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
     bool show_about = false;
     bool show_looper = false;
 
+    int program_channel = 0;
+    std::array<int, 16> channel_programs;
+    channel_programs.fill(0);
+
     while (window.isOpen()) {
         auto event = sf::Event{};
         while (window.pollEvent(event)) {
@@ -231,6 +235,19 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 if (ImGui::InputInt("Channel", &channel, 1, 5)) {
                     channel = std::clamp(channel, 0, 15);
                     piano.setChannel(channel);
+                }
+                if (ImGui::TreeNode("Program Change")) {
+                    if (ImGui::InputInt("Channel", &program_channel, 1, 5)) {
+                        program_channel = std::clamp(program_channel, 0, 15);
+                    }
+                    if (ImGui::InputInt("Instrument", &channel_programs[program_channel], 1, 5)) {
+                        channel_programs[program_channel] =
+                            std::clamp(channel_programs[program_channel], 0, 127);
+                        fluid_synth_program_change(piano.getSynth(), program_channel,
+                                                   channel_programs[program_channel]);
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
                 }
                 if (ImGui::TreeNode("Aspect Ratio")) {
                     ImGui::SliderFloat("KeyH/KeyW", &piano.key_aspect_ratio, 0.0f, 20.0f,
