@@ -7,6 +7,7 @@
 
 // TODO: std::filesystem Path
 const std::vector<std::pair<std::string, std::string>> available_fonts = {
+    {"Metropolis", std::string(APP_ASSETS_PATH) + "/fonts/Metropolis/Metropolis-Regular.otf"},
     {"DejaVu Sans", std::string(APP_ASSETS_PATH) + "/fonts/DejaVuSans/ttf/DejaVuSans.ttf"},
     {"FirstTimeWriting!",
      std::string(APP_ASSETS_PATH) + "/fonts/FirstTimeWriting/FirstTimeWriting!.ttf"},
@@ -18,7 +19,7 @@ struct Preferences {
         std::array<float, 4> pressed_note_colors;
         Piano() {
             gain = 2.f;
-            pressed_note_colors = {0.9f, 0.7f, 0.f, 1.f};
+            pressed_note_colors = {0.945f, 0.275f, 0.275f, 1.f};
         }
     };
     struct UI {

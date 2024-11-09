@@ -47,7 +47,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading font" << std::endl;
     }
 
-    auto title = sf::Text{L"c♯ordcat", font, 50u};
+    auto title = sf::Text{"chordcat", font, 50u};
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
