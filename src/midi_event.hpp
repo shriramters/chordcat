@@ -2,7 +2,16 @@
 #include "libremidi/message.hpp"
 #include <chrono>
 
-enum class MidiMessageType { NoteOn = 9, NoteOff = 8, CC = 11 };
+enum class MidiMessageType {
+    NoteOff = 0x8,
+    NoteOn = 0x9,
+    AfterTouch = 0xA,
+    CC = 0xB,
+    ProgramChange = 0xC,
+    ChanPressure = 0xD,
+    PitchWheel = 0xE,
+    System = 0xF
+};
 
 struct MidiEvent {
     MidiMessageType messageType;

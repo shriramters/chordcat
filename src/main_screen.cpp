@@ -291,6 +291,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         if (show_looper) {
             ImGui::Begin("Looper", nullptr);
+            ImGui::SetWindowSize({0, 0});
             ImGui::Text("Set number of bars to record");
             int bars = looper.getBars();
             if (ImGui::InputInt("bars", &bars, 1, 5)) {
@@ -306,7 +307,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 break;
             };
             case LooperState::CountingIn: {
-                ImGui::Text("%s %lld", "Counting In, ", 4ULL - metronome.getBeat());
+                ImGui::Text("%s %lld", "Counting In, ", metronome.getBeat() - 4);
                 ImGui::NewLine();
                 if (ImGui::Button("Stop Recording"))
                     looper.stopRecording();
@@ -314,6 +315,14 @@ std::shared_ptr<AppState> MainScreen::Run() {
             }
             case LooperState::Recording: {
                 ImGui::Text("%s %lld", "Recording, beat ", metronome.getBeat() - 4);
+                ImGui::Text("%s %d", "Will stop recording at beat ", looper.getBars() * 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Recording"))
+                    looper.stopRecording();
+                break;
+            }
+            case LooperState::CountingOut: {
+                ImGui::Text("%s %lld", "Stopping at end of bar, beat ", metronome.getBeat() - 4);
                 ImGui::NewLine();
                 if (ImGui::Button("Stop Recording"))
                     looper.stopRecording();
@@ -326,7 +335,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
                     looper.stopPlayback();
                 break;
             }
-
             default: {
                 ImGui::Text("%s", "Looper kaputt");
             }
@@ -350,7 +358,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         }
         ImGui::SameLine();
         if (ImGui::Button("Looper")) {
-            show_looper = true;
+            show_looper = !show_looper;
         }
 
         // Align to the right of screen (screenwidth - button size)
