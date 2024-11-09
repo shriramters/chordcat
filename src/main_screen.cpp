@@ -358,6 +358,23 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 ImGui::NewLine();
                 if (ImGui::Button("Stop Playback"))
                     looper.stopPlayback();
+                if (ImGui::Button("Overdub"))
+                    looper.startOverdub();
+                break;
+            }
+            case LooperState::CountingInToOverdub: {
+                ImGui::Text("%s %lld", "Begin overdub at the start of next loop. beat ",
+                            metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Cancel"))
+                    looper.stopOverdub();
+                break;
+            }
+            case LooperState::Overdubbing: {
+                ImGui::Text("%s %lld", "Overdubbing, beat ", metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Overdub"))
+                    looper.stopOverdub();
                 break;
             }
             default: {

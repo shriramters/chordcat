@@ -7,7 +7,15 @@
 #include <libremidi/libremidi.hpp>
 #include <vector>
 
-enum class LooperState { Idle, CountingIn, Recording, CountingOut, PlayingBack };
+enum class LooperState {
+    Idle,
+    CountingIn,
+    Recording,
+    CountingOut,
+    PlayingBack,
+    CountingInToOverdub,
+    Overdubbing
+};
 
 class Looper {
   public:
@@ -15,6 +23,8 @@ class Looper {
     void stopRecording();
     void startPlayback();
     void stopPlayback();
+    void startOverdub();
+    void stopOverdub();
     void setBars(unsigned int numBars);
     int getBars();
     void recordEvent(MidiEvent me);
@@ -29,6 +39,7 @@ class Looper {
     unsigned int numBars = 4;
 
     std::vector<MidiEvent> events;
+    std::vector<MidiEvent> overdubEvents;
     std::chrono::steady_clock::time_point startTime;
     std::chrono::milliseconds loopLength;
 };

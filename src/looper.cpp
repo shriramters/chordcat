@@ -21,10 +21,10 @@ void Looper::stopRecording() {
 }
 
 void Looper::recordEvent(MidiEvent me) {
-    if (state == LooperState::Recording) {
+    if (state == LooperState::Recording || state == LooperState::Overdubbing) {
         me.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - startTime);
-        events.push_back(me);
+        state == LooperState::Recording ? events.push_back(me) : overdubEvents.push_back(me);
     }
 }
 
@@ -32,6 +32,10 @@ void Looper::startPlayback() {
     state = LooperState::PlayingBack;
     startTime = std::chrono::steady_clock::now();
 }
+
+void Looper::startOverdub() { state = LooperState::CountingInToOverdub; }
+
+void Looper::stopOverdub() { state = LooperState::PlayingBack; }
 
 void Looper::stopPlayback() { state = LooperState::Idle; }
 
@@ -53,13 +57,21 @@ void Looper::update() {
             loopLength = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - startTime);
         }
-    } else if (state == LooperState::PlayingBack) {
+    } else if (state == LooperState::PlayingBack || state == LooperState::CountingInToOverdub ||
+               state == LooperState::Overdubbing) {
         static std::set<MidiEvent> played{};
         auto currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - startTime);
         if (currentTime >= loopLength) {
             startTime = std::chrono::steady_clock::now();
             played.clear();
+            if (state == LooperState::CountingInToOverdub)
+                state = LooperState::Overdubbing;
+            else if (state == LooperState::Overdubbing) {
+                state = LooperState::PlayingBack;
+                events.insert(events.end(), overdubEvents.begin(), overdubEvents.end());
+                overdubEvents.clear();
+            }
             currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - startTime);
         }
