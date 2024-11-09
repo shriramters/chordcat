@@ -77,21 +77,19 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading logo" << std::endl;
     }
 
-    libremidi::midi_in midiin{
-        {
-            // Set our callback function.
-            .on_message =
-                [&](const libremidi::message& message) {
-                    if (message.size() == 3) {
-                        looper.recordEvent(message);
-                        piano.midiEvent(message);
-                    }
-                },
-            .ignore_sysex = false,
-            .ignore_timing = false,
-            .ignore_sensing = false,
-        },
-    };
+    libremidi::midi_in midiin{{
+        // Set our callback function.
+        .on_message =
+            [&](const libremidi::message& message) {
+                if (message.size() == 3) {
+                    looper.recordEvent(message);
+                    piano.midiEvent(message);
+                }
+            },
+        .ignore_sysex = false,
+        .ignore_timing = false,
+        .ignore_sensing = false,
+    }};
 
     std::string portName;
     auto ports = libremidi::observer{{}, observer_configuration_for(midiin.get_current_api())}
@@ -229,6 +227,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 }
             }
             if (ImGui::CollapsingHeader("Piano")) {
+                int channel = piano.getChannel();
+                if (ImGui::InputInt("Channel", &channel, 1, 5)) {
+                    channel = std::clamp(channel, 0, 15);
+                    piano.setChannel(channel);
+                }
                 if (ImGui::TreeNode("Aspect Ratio")) {
                     ImGui::SliderFloat("KeyH/KeyW", &piano.key_aspect_ratio, 0.0f, 20.0f,
                                        "ratio = %.2f");

@@ -12,8 +12,8 @@ class Piano : public sf::Drawable {
   public:
     using MidiEventCallback = std::function<void(const MidiEvent&)>;
     Piano(sf::RenderWindow& window, std::array<float, 4>& pressed_note_colors);
-    void keyOn(int midi_note_number, int velocity);
-    void keyOff(int midi_note_number);
+    void keyOn(int midi_note_number, int chan, int velocity);
+    void keyOff(int midi_note_number, int chan);
     void keyToggle(int midi_note_number);
     void clearAllKeys();
     std::vector<size_t> getPressedNotes();
@@ -22,6 +22,8 @@ class Piano : public sf::Drawable {
     void midiEvent(const MidiEvent& me);
     void setMidiEventCallback(MidiEventCallback callback);
     float key_aspect_ratio = 4.f;
+    int getChannel();
+    void setChannel(int chan);
 
   private:
     MidiEventCallback midiEventCallback;
@@ -34,4 +36,5 @@ class Piano : public sf::Drawable {
     MidiAudioStream mas{};
     fluid_synth_t* synth = nullptr;
     std::array<float, 4>& note_colors;
+    int channel = 0;
 };

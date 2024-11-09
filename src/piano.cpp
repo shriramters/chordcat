@@ -177,18 +177,18 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     }
 }
 
-void Piano::keyOn(int midi_note, int velocity) {
+void Piano::keyOn(int midi_note, int chan, int velocity) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0 && !keys[index]) {
-        fluid_synth_noteon(synth, 0, midi_note, velocity);
+        fluid_synth_noteon(synth, chan, midi_note, velocity);
         keys[index] = true;
     }
 }
 
-void Piano::keyOff(int midi_note) {
+void Piano::keyOff(int midi_note, int chan) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0 && keys[index]) {
-        fluid_synth_noteoff(synth, 0, midi_note);
+        fluid_synth_noteoff(synth, chan, midi_note);
         keys[index] = false;
     }
 }
@@ -196,10 +196,8 @@ void Piano::keyOff(int midi_note) {
 void Piano::keyToggle(int midi_note) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0) {
-        keys[index] ? midiEvent({MidiMessageType::NoteOn, 0, midi_note, 100})
-                    : midiEvent({MidiMessageType::NoteOff, 0, midi_note, 0});
-
-        keys[index] = !keys[index];
+        keys[index] ? midiEvent({MidiMessageType::NoteOff, channel, midi_note, 100})
+                    : midiEvent({MidiMessageType::NoteOn, channel, midi_note, 100});
     }
 }
 
@@ -255,14 +253,14 @@ void Piano::keyboardEvent(sf::Event& event) {
         int note = getNoteFromKeyCode(event.key.code);
         if (note < 0)
             return;
-        midiEvent({MidiMessageType::NoteOn, 0, note + octave * 12, 100});
+        midiEvent({MidiMessageType::NoteOn, channel, note + octave * 12, 100});
     }
 
     if (event.type == sf::Event::KeyReleased) {
         int note = getNoteFromKeyCode(event.key.code);
         if (note < 0)
             return;
-        midiEvent({MidiMessageType::NoteOff, 0, note + octave * 12, 0});
+        midiEvent({MidiMessageType::NoteOff, channel, note + octave * 12, 0});
     }
 }
 
@@ -277,15 +275,15 @@ void Piano::midiEvent(const MidiEvent& me) {
     switch (me.messageType) {
     case MidiMessageType::NoteOn:
         if (me.data1 > 0) {
-            keyOn(me.data0, me.data1);
+            keyOn(me.data0, me.chan, me.data1);
             break;
         }
     case MidiMessageType::NoteOff:
-        keyOff(me.data0);
+        keyOff(me.data0, me.chan);
         break;
     case MidiMessageType::CC: {
         // control codes such as sustain pedal
-        fluid_synth_cc(getSynth(), 0, me.data0, me.data1);
+        fluid_synth_cc(getSynth(), me.chan, me.data0, me.data1);
         break;
     }
     default:
@@ -295,3 +293,7 @@ void Piano::midiEvent(const MidiEvent& me) {
 }
 
 void Piano::setMidiEventCallback(MidiEventCallback callback) { midiEventCallback = callback; }
+
+int Piano::getChannel() { return channel; }
+
+void Piano::setChannel(int chan) { channel = chan; }

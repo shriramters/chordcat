@@ -51,8 +51,7 @@ class Metronome {
     void run() {
         while (isRunning) {
             int interval = 60000 / bpm;
-            int note = (beat % 4 == 0) ? 76 : 77; // E5 for downbeat, F5 for others
-
+            int note = (beat % 4 == 0) ? 76 : 77;    // E5 for downbeat, F5 for others
             fluid_synth_noteon(synth, 9, note, 100); // Channel 9, GM Percussion
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             fluid_synth_noteoff(synth, 9, note);
