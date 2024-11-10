@@ -121,7 +121,7 @@ Piano::Piano(sf::RenderWindow& window, std::array<float, 4>& pressed_note_colors
     mas.play();
 }
 
-fluid_synth_t* Piano::getSynth() { return synth; }
+fluid_synth_t* Piano::getSynth() const { return synth; }
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
@@ -201,7 +201,7 @@ void Piano::keyToggle(int midi_note) {
     }
 }
 
-std::vector<size_t> Piano::getPressedNotes() {
+std::vector<size_t> Piano::getPressedNotes() const {
     std::vector<size_t> pressed_notes = {};
     for (int i = 0; i < keys.size(); i++) {
         if (keys[i])
@@ -302,6 +302,6 @@ void Piano::midiEvent(const MidiEvent& me) {
 
 void Piano::setMidiEventCallback(MidiEventCallback callback) { midiEventCallback = callback; }
 
-int Piano::getChannel() { return channel; }
+int Piano::getChannel() const { return channel; }
 
 void Piano::setChannel(int chan) { channel = chan; }

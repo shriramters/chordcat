@@ -16,13 +16,13 @@ class Piano : public sf::Drawable {
     void keyOff(int midi_note_number, int chan);
     void keyToggle(int midi_note_number);
     void clearAllKeys();
-    std::vector<size_t> getPressedNotes();
-    fluid_synth_t* getSynth();
+    std::vector<size_t> getPressedNotes() const;
+    fluid_synth_t* getSynth() const;
     void processEvent(sf::Event& event);
     void midiEvent(const MidiEvent& me);
     void setMidiEventCallback(MidiEventCallback callback);
     float key_aspect_ratio = 4.f;
-    int getChannel();
+    int getChannel() const;
     void setChannel(int chan);
 
   private:
