@@ -14,7 +14,7 @@ Chordcat depends on the following libraries:
 - [[https://www.fluidsynth.org/][fluidsynth]]
 - [[https://github.com/ocornut/imgui][Dear ImGui]]
 - [[https://github.com/SFML/imgui-sfml][ImGui-SFML]]
-- [[https://www.boost.org/doc/libs/1_84_0/doc/html/property_tree.html][Boost.PropertyTree]]
+- [[https://github.com/nlohmann/json][nlohmann-json]]
  
 You will also need CMake and a modern C++ compiler that supports C++20
 (gcc, clang, etc.)
@@ -43,7 +43,7 @@ sudo apt install \
     libsfml-dev \
     fluidsynth \
     libfluidsynth-dev \
-    libboost-all-dev 
+    nlohmann-json3-dev 
 #+end_example
 
 The midi functionality of chordcat is provided by libremidi. libremidi
@@ -126,7 +126,7 @@ You can then download chordcat's dependencies with:
 brew install cmake \
     sfml \
     fluid-synth \
-    boost
+    nlohmann-json
 #+end_example
 
 Build and run chordcat with:
@@ -175,7 +175,7 @@ pacman -S mingw-w64-ucrt-x86_64-gcc \
     mingw-w64-ucrt-x86_64-cmake \
     mingw-w64-ucrt-x86_64-sfml \
     mingw-w64-ucrt-x86_64-fluidsynth \
-    mingw-w64-ucrt-x86_64-boost
+    mingw-w64-ucrt-x86_64-nlohmann-json
 #+end_example
 
 You can also install ~mingw-w64-ucrt-x86_64-nsis~ if you wish to

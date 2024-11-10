@@ -1,0 +1,39 @@
+#+TITLE: Using the Looper
+#+DATE: 2024-11-10T15:50:18+0530
+#+WEIGHT: 60
+
+@@html:<h1>@@ Using the Looper @@html:</h1>@@
+
+You can use the looper to record your playing and then play it back in a loop.
+You can also add overdubs.
+
+Firstly, you need to select a tempo.
+
+you can do this in ~Preferences~ -> ~Metronome Tempo~
+
+[[/chordcat/metronome-tempo.png]]
+
+Then you can select the number of bars you want to record. The looper will automatically stop recording after the said number of bars and start playing back.
+
+[[/chordcat/looper-idle.png]]
+
+Once you hit record, there will be a count-in of 4 beats before recording starts.
+
+You can then play any notes, or midi signals and they will be recorded for the said number of bars.
+
+once the recording is stopped, the playback will start immediately. you can then choose to overdub or stop playback.
+
+Stop playback will clear the looper.
+
+[[/chordcat/looper-playback.png]]
+
+If you click overdub, the looper will wait until the current loop is completed before starting recording.
+
+Once overdubbing starts, all your keyboard/midi events will be recorded. You can choose to stop overdub (saves overdub to the loop) or Cancel (does not save to the loop). 
+
+[[/chordcat/looper-overdubbing.png]]
+
+You can use different channels to record different instuments in the looper. It's completely wack tho so you mostly won't be able to get anything that sounds good out of this xD.
+
+See the [[/chordcat/docs/changing-instruments][Changing Instruments]] page for more information about this.
+

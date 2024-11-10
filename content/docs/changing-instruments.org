@@ -1,0 +1,119 @@
+#+TITLE: Changing Instruments
+#+DATE: 2024-11-10T14:28:09+0530
+#+WEIGHT: 50
+
+@@html:<h1>@@ Changing Instruments @@html:</h1>@@
+
+
+* Program Change
+
+Chordcat comes with 128 default instruments (a.k.a programs) as
+prescribed in the [[https://en.wikipedia.org/wiki/General_MIDI][General MIDI spec]].
+
+You can also play all 16 MIDI channels simultaneously with 16 MIDI
+devices. You can bind any instrument to any channel.
+
+To bind an instrument to a channel, say you want to bind the electric
+bass to the default channel, channel 0.
+
+You can go to ~Preferences~ -> ~Piano~ -> ~Program Change~ and bind
+instrument ~33~ to channel 0 like so:
+
+[[/chordcat/program-change.png]]
+
+The instrument numbers are from the General MIDI spec. You can view
+all the instruments and their codes by clicking on ~Show Instrument
+Table~ in the app.
+
+Here is the instrument table for your reference:
+
+** Instrument Table
+
+| *Piano*                          | *Chromatic Percussion*       | *Organ*                 |
+|----------------------------------+------------------------------+-------------------------|
+| 0   Acoustic Grand Piano         | 8   Celesta                  | 16  Drawbar Organ       |
+| 1   Bright Acoustic Piano        | 9   Glockenspiel             | 17  Percussive Organ    |
+| 2   Electric Grand Piano         | 10  Music Box                | 18  Rock Organ          |
+| 3   Honky-tonk Piano             | 11  Vibraphone               | 19  Church Organ        |
+| 4   Electric Piano 1             | 12  Marimba                  | 20  Reed Organ          |
+| 5   Electric Piano 2             | 13  Xylophone                | 21  Accordion           |
+| 6   Harpsichord                  | 14  Tubular Bells            | 22  Harmonica           |
+| 7   Clavinet                     | 15  Dulcimer                 | 23  Bandoneon           |
+|----------------------------------+------------------------------+-------------------------|
+| *Guitar*                         | *Bass*                       | *Strings*               |
+|----------------------------------+------------------------------+-------------------------|
+| 24  Acoustic Guitar (nylon)      | 32  Acoustic Bass            | 40  Violin              |
+| 25  Acoustic Guitar (steel)      | 33  Electric Bass (finger)   | 41  Viola               |
+| 26  Electric Guitar (jazz)       | 34  Electric Bass (picked)   | 42  Cello               |
+| 27  Electric Guitar (clean)      | 35  Electric Bass (fretless) | 43  Contrabass          |
+| 28  Electric Guitar (muted)      | 36  Slap Bass 1              | 44  Tremolo Strings     |
+| 29  Electric Guitar (overdrive)  | 37 Slap Bass 2               | 45  Pizzicato Strings   |
+| 30  Electric Guitar (distortion) | 38 Synth Bass 1              | 46  Orchestral Harp     |
+| 31  Electric Guitar (harmonics)  | 39 Synth Bass 2              | 47  Timpani             |
+|----------------------------------+------------------------------+-------------------------|
+| *Ensemble*                       | *Brass*                      | *Reed*                  |
+|----------------------------------+------------------------------+-------------------------|
+| 48  String Ensemble 1            | 56  Trumpet                  | 64  Soprano Sax         |
+| 49  String Ensemble 2            | 57  Trombone                 | 65  Alto Sax            |
+| 50  Synth Strings 1              | 58  Tuba                     | 66  Tenor Sax           |
+| 51  Synth Strings 2              | 59  Muted Trumpet            | 67  Baritone Sax        |
+| 52  Choir Aahs                   | 60  French Horn              | 68  Oboe                |
+| 53  Voice Oohs                   | 61  Brass Section            | 69  English Horn        |
+| 54  Synth Voice                  | 62  Synth Brass 1            | 70  Bassoon             |
+| 55  Orchestra Hit                | 63  Synth Brass 2            | 71  Clarinet            |
+|----------------------------------+------------------------------+-------------------------|
+| *Pipe*                           | *Synth Lead*                 | *Synth Pad*             |
+|----------------------------------+------------------------------+-------------------------|
+| 72  Piccolo                      | 80  Lead 1 (square)          | 88  Pad 1 (new age)     |
+| 73  Flute                        | 81  Lead 2 (sawtooth)        | 89  Pad 2 (warm)        |
+| 74  Recorder                     | 82  Lead 3 (calliope)        | 90  Pad 3 (polysynth)   |
+| 75  Pan Flute                    | 83  Lead 4 (chiff)           | 91  Pad 4 (choir)       |
+| 76  Blown Bottle                 | 84  Lead 5 (charang)         | 92  Pad 5 (bowed glass) |
+| 77  Shakuhachi                   | 85  Lead 6 (voice)           | 93  Pad 6 (metallic)    |
+| 78  Whistle                      | 86  Lead 7 (fifths)          | 94  Pad 7 (halo)        |
+| 79  Ocarina                      | 87  Lead 8 (bass and lead)   | 95  Pad 8 (sweep)       |
+|----------------------------------+------------------------------+-------------------------|
+| *Synth Effects*                  | *Ethnic*                     | *Percussive*            |
+|----------------------------------+------------------------------+-------------------------|
+| 96  FX 1 (rain)                  | 104 Sitar                    | 112 Tinkle Bell         |
+| 97  FX 2 (soundtrack)            | 105 Banjo                    | 113 Cowbell             |
+| 98  FX 3 (crystal)               | 106 Shamisen                 | 114 Steel Drums         |
+| 99  FX 4 (atmosphere)            | 107 Koto                     | 115 Woodblock           |
+| 100 FX 5 (brightness)            | 108 Kalimba                  | 116 Taiko Drum          |
+| 101 FX 6 (goblins)               | 109 Bag pipe                 | 117 Melodic Tom         |
+| 102 FX 7 (echoes)                | 110 Fiddle                   | 118 Synth Drum          |
+| 103 FX 8 (sci-fi)                | 111 Shanai                   | 119 Reverse Cymbal      |
+|----------------------------------+------------------------------+-------------------------|
+| *Sound Effects*                  |                              |                         |
+|----------------------------------+------------------------------+-------------------------|
+| 120 Guitar Fret Noise            |                              |                         |
+| 121 Breath Noise                 |                              |                         |
+| 122 Seashore                     |                              |                         |
+| 123 Bird Tweet                   |                              |                         |
+| 124 Telephone Ring               |                              |                         |
+| 125 Helicopter                   |                              |                         |
+| 126 Applause                     |                              |                         |
+| 127 Gunshot                      |                              |                         |
+
+* Loading Soundfonts
+
+If you want to use a different soundfont to the default one, you can
+download any ~.sf2~ soundfont (extension must be lowercase) and paste
+it in the soundfonts folder.
+
+The soundfont folder is different depending on your OS.
+
+- Linux and MacOS : ~~/.local/share/chordcat/soundfonts/~
+- Michaelsoft Binbows :  ~%AppData%\chordcat\soundfonts\~
+
+Once you have pasted your soundfonts, restart chordcat. You can then
+select your soundfont in ~Preferences~ -> ~Configuration~ ->
+~Soundfont~.
+
+When a new soundfont is loaded, the corresponding instrument out of
+the 128 default instruments, is replaced with the new soundfont. The
+remaining instruments are unchanged.
+
+[[/chordcat/soundfont-selector.png]]
+
+

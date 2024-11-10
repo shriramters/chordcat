@@ -89,7 +89,7 @@ cmake --build .
 cpack -C Release
 #+end_example
 
-you should find an installer called ~chordcat-0.1.0-win64.exe~ in the build directory.
+you should find an installer called ~chordcat-0.3.0-win64.exe~ in the build directory.
 
 * MacOS
 
