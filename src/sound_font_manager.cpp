@@ -1,5 +1,6 @@
 #include "sound_font_manager.hpp"
 #include "config.h"
+#include <iostream>
 
 SoundFontManager::SoundFontManager() {
     systemDir = std::filesystem::path(std::string(APP_ASSETS_PATH) + "/soundfonts/");
