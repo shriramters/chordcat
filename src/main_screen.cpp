@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "main_screen.hpp"
 #include "config.h"
+#include "gm_instrument_table.hpp"
+#include "libremidi/api.hpp"
+#include "libremidi/defaults.hpp"
+#include "looper.hpp"
 #include "metronome.hpp"
+#include "midi_event.hpp"
 #include "piano.hpp"
 #include "preferences.hpp"
 #include "sound_font_manager.hpp"
@@ -44,7 +49,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading font" << std::endl;
     }
 
-    auto title = sf::Text{L"c♯ordcat", font, 50u};
+    auto title = sf::Text{"chordcat", font, 50u};
     auto chord_notes_text = sf::Text("", font, 30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
@@ -61,11 +66,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
     }
     std::pair<std::string, std::filesystem::path> current_soundfont = soundfonts[0];
     int current_soundfont_id =
-        fluid_synth_sfload(piano.getSynth(), current_soundfont.second.c_str(), 1);
+        fluid_synth_sfload(piano.getSynth(), current_soundfont.second.string().c_str(), 1);
     fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
     int bpm = 120;
     Metronome metronome(piano.getSynth(), bpm, current_soundfont_id); // Initialize with 120 bpm
+    Looper looper(piano, metronome);
 
     // Images
     sf::Texture logo;
@@ -73,37 +79,23 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading logo" << std::endl;
     }
 
+    std::function<void(const libremidi::message&)> onMidiMessage =
+        [&](const libremidi::message& message) {
+            if (message.size() == 3) {
+                looper.recordEvent(message);
+                piano.midiEvent(message);
+            }
+        };
+
     libremidi::midi_in midiin{{
         // Set our callback function.
-        .on_message =
-            [&](const libremidi::message& message) {
-                // 0th byte: status byte containing message type and channel. we only care for the
-                // first nibble, see if it is noteOn or noteOff while ignoring the channel 1st byte:
-                // note number (for noteOn and noteOff) 2nd byte: velocity (for noteOn and
-                if (message.size() == 3) {
-                    switch (message[0] >> 4) {
-                    case 9:
-                        if ((int)message[2] > 0) {
-                            piano.keyOn((int)message[1], (int)message[2]);
-                            break;
-                        }
-                    case 8:
-                        piano.keyOff((int)message[1]);
-                        break;
-                    case 11: {
-                        // control codes such as sustain pedal
-                        fluid_synth_cc(piano.getSynth(), 0, (int)message[1], (int)message[2]);
-                        break;
-                    }
-                    default:
-                        break;
-                    }
-                }
-            },
+        .on_message = onMidiMessage,
         .ignore_sysex = false,
         .ignore_timing = false,
         .ignore_sensing = false,
     }};
+
+    libremidi::API current_api = midiin.get_current_api();
 
     std::string portName;
     auto ports = libremidi::observer{{}, observer_configuration_for(midiin.get_current_api())}
@@ -123,6 +115,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
     // TODO: Move these to a state object
     bool show_preferences = false;
     bool show_about = false;
+    bool show_looper = false;
+    bool show_instrument_table = false;
+
+    int program_channel = 0;
+    std::array<int, 16> channel_programs;
+    channel_programs.fill(0);
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -146,6 +144,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::SFML::ProcessEvent(event);
             piano.processEvent(event);
         }
+
         std::vector<sf::String> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
         sf::String current_msg = "";
         for (auto& note : pressed_notes) {
@@ -166,10 +165,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
         // Fluid Synth Stuff
         fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
 
+        looper.update();
         ImGui::SFML::Update(window, deltaClock.restart());
 
         if (show_preferences) {
             ImGui::Begin("Preferences", nullptr);
+            ImGui::SetWindowSize({0, 0});
             if (ImGui::CollapsingHeader("User Interface")) {
                 if (ImGui::TreeNode("Font Face")) {
                     if (ImGui::BeginCombo("##combo", font.getInfo().family.c_str())) {
@@ -225,7 +226,45 @@ std::shared_ptr<AppState> MainScreen::Run() {
                             if (ImGui::Selectable(soundfont.first.c_str(), is_selected)) {
                                 current_soundfont = soundfont;
                                 current_soundfont_id = fluid_synth_sfload(
-                                    piano.getSynth(), soundfont.second.c_str(), 1);
+                                    piano.getSynth(), soundfont.second.string().c_str(), 1);
+                            }
+                            if (is_selected) {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+
+                if (ImGui::TreeNode("Backend")) {
+                    if (ImGui::BeginCombo("##combo", to_string_view(current_api).data())) {
+                        for (const auto& api : libremidi::available_apis()) {
+                            bool is_selected = (current_api == api);
+                            if (ImGui::Selectable(to_string_view(api).data(), is_selected)) {
+                                current_api = api;
+                                midiin.close_port();
+                                midiin = libremidi::midi_in{
+                                    {
+                                        // Set our callback function.
+                                        .on_message = onMidiMessage,
+                                        .ignore_sysex = false,
+                                        .ignore_timing = false,
+                                        .ignore_sensing = false,
+                                    },
+                                    libremidi::midi_in_configuration_for(current_api)};
+                                ports =
+                                    libremidi::observer{{}, observer_configuration_for(current_api)}
+                                        .get_input_ports();
+                                nPorts = ports.size();
+                                if (nPorts >= 1) {
+                                    midiin.open_port(ports[0]);
+                                    portName = ports[0].display_name;
+                                }
+                                if (portName.empty())
+                                    portName = "No MIDI Devices Found";
+                                portinfo_text.setString(portName);
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
@@ -238,6 +277,22 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 }
             }
             if (ImGui::CollapsingHeader("Piano")) {
+                if (ImGui::TreeNode("Program Change")) {
+                    if (ImGui::InputInt("Channel", &program_channel, 1, 5)) {
+                        program_channel = std::clamp(program_channel, 0, 15);
+                    }
+                    if (ImGui::InputInt("Instrument", &channel_programs[program_channel], 1, 5)) {
+                        channel_programs[program_channel] =
+                            std::clamp(channel_programs[program_channel], 0, 127);
+                        fluid_synth_program_change(piano.getSynth(), program_channel,
+                                                   channel_programs[program_channel]);
+                    }
+                    if (ImGui::Button("Show Instrument Table")) {
+                        show_instrument_table = !show_instrument_table;
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
                 if (ImGui::TreeNode("Aspect Ratio")) {
                     ImGui::SliderFloat("KeyH/KeyW", &piano.key_aspect_ratio, 0.0f, 20.0f,
                                        "ratio = %.2f");
@@ -260,6 +315,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
             if (ImGui::InputInt("BPM", &bpm, 1, 5)) {
                 bpm = std::clamp(bpm, 30, 300);
                 metronome.setBpm(bpm);
+            }
+            int channel = piano.getChannel();
+            ImGui::Text("PC Keyboard MIDI Channel");
+            if (ImGui::InputInt("MIDI Channel", &channel, 1, 5)) {
+                channel = std::clamp(channel, 0, 15);
+                piano.setChannel(channel);
             }
             ImGui::End();
         }
@@ -298,6 +359,84 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::End();
         }
 
+        if (show_looper) {
+            ImGui::Begin("Looper", nullptr);
+            ImGui::SetWindowSize({0, 0});
+            ImGui::Text("Set number of bars to record");
+            int bars = looper.getBars();
+            if (ImGui::InputInt("bars", &bars, 1, 5)) {
+                bpm = std::clamp(bars, 1, 256);
+                looper.setBars(bars);
+            }
+            switch (looper.getState()) {
+            case LooperState::Idle: {
+                ImGui::Text("%s", "There will be a count in of 4 beats");
+                ImGui::NewLine();
+                if (ImGui::Button("Start Recording"))
+                    looper.startRecording();
+                break;
+            };
+            case LooperState::CountingIn: {
+                ImGui::Text("%s %lld", "Counting In, ", metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Recording"))
+                    looper.stopRecording();
+                break;
+            }
+            case LooperState::Recording: {
+                ImGui::Text("%s %lld", "Recording, beat ", metronome.getBeat() - 4);
+                ImGui::Text("%s %d", "Will stop recording at beat ", looper.getBars() * 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Recording"))
+                    looper.stopRecording();
+                break;
+            }
+            case LooperState::CountingOut: {
+                ImGui::Text("%s %lld", "Stopping at end of bar, beat ", metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Recording"))
+                    looper.stopRecording();
+                break;
+            }
+            case LooperState::PlayingBack: {
+                ImGui::Text("%s %lld", "Playing Back, beat ", metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Playback"))
+                    looper.stopPlayback();
+                if (ImGui::Button("Overdub"))
+                    looper.startOverdub();
+                break;
+            }
+            case LooperState::CountingInToOverdub: {
+                ImGui::Text("%s %lld", "Begin overdub at the start of next loop. beat ",
+                            metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Cancel"))
+                    looper.stopOverdub();
+                break;
+            }
+            case LooperState::Overdubbing: {
+                ImGui::Text("%s %lld", "Overdubbing, beat ", metronome.getBeat() - 4);
+                ImGui::NewLine();
+                if (ImGui::Button("Stop Overdub"))
+                    looper.stopOverdub();
+                if (ImGui::Button("Cancel Overdub"))
+                    looper.cancelOverdub();
+                break;
+            }
+            default: {
+                ImGui::Text("%s", "Looper kaputt");
+            }
+            }
+            ImGui::End();
+        }
+        if (show_instrument_table) {
+            ImGui::Begin("Instrument Table", nullptr);
+            ImGui::SetWindowSize({0, 0});
+            showGMInstrumentTable();
+            ImGui::End();
+        }
+
         // The entire top bar with the buttons:(Clear All, Preferences, <-->, About)
         ImGui::Begin("MENUWINDOW", nullptr,
                      ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
@@ -311,6 +450,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
         ImGui::SameLine();
         if (ImGui::Button("Metronome")) {
             metronome.toggle();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Looper")) {
+            show_looper = !show_looper;
         }
 
         // Align to the right of screen (screenwidth - button size)

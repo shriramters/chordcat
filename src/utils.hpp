@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <libremidi/libremidi.hpp>
 #include <optional>
 #include <ranges>
 #include <set>
@@ -114,4 +115,39 @@ inline std::optional<std::string> get_appdata_path() {
     return std::string(app_data_root) + "/chordcat";
 #endif
     return std::nullopt;
+}
+
+inline constexpr std::string_view to_string_view(libremidi::API api) {
+    switch (api) {
+    case libremidi::API::UNSPECIFIED:
+        return "UNSPECIFIED";
+    case libremidi::API::COREMIDI:
+        return "COREMIDI";
+    case libremidi::API::ALSA_SEQ:
+        return "ALSA_SEQ";
+    case libremidi::API::ALSA_RAW:
+        return "ALSA_RAW";
+    case libremidi::API::JACK_MIDI:
+        return "JACK_MIDI";
+    case libremidi::API::WINDOWS_MM:
+        return "WINDOWS_MM";
+    case libremidi::API::WINDOWS_UWP:
+        return "WINDOWS_UWP";
+    case libremidi::API::WEBMIDI:
+        return "WEBMIDI";
+    case libremidi::API::PIPEWIRE:
+        return "PIPEWIRE";
+    case libremidi::API::ALSA_RAW_UMP:
+        return "ALSA_RAW_UMP";
+    case libremidi::API::ALSA_SEQ_UMP:
+        return "ALSA_SEQ_UMP";
+    case libremidi::API::COREMIDI_UMP:
+        return "COREMIDI_UMP";
+    case libremidi::API::WINDOWS_MIDI_SERVICES:
+        return "WINDOWS_MIDI_SERVICES";
+    case libremidi::API::DUMMY:
+        return "DUMMY";
+    default:
+        return "UNKNOWN";
+    }
 }

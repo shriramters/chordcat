@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "piano.hpp"
+#include "midi_event.hpp"
 #include <SFML/Window/Keyboard.hpp>
 #include <cstdint>
 #include <fluidsynth/synth.h>
@@ -120,7 +121,7 @@ Piano::Piano(sf::RenderWindow& window, std::array<float, 4>& pressed_note_colors
     mas.play();
 }
 
-fluid_synth_t* Piano::getSynth() { return synth; }
+fluid_synth_t* Piano::getSynth() const { return synth; }
 
 void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     float key_width_white = target.getView().getSize().x / 52;
@@ -176,18 +177,18 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     }
 }
 
-void Piano::keyOn(int midi_note, int velocity) {
+void Piano::keyOn(int midi_note, int chan, int velocity) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0 && !keys[index]) {
-        fluid_synth_noteon(synth, 0, midi_note, velocity);
+        fluid_synth_noteon(synth, chan, midi_note, velocity);
         keys[index] = true;
     }
 }
 
-void Piano::keyOff(int midi_note) {
+void Piano::keyOff(int midi_note, int chan) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0 && keys[index]) {
-        fluid_synth_noteoff(synth, 0, midi_note);
+        fluid_synth_noteoff(synth, chan, midi_note);
         keys[index] = false;
     }
 }
@@ -195,13 +196,12 @@ void Piano::keyOff(int midi_note) {
 void Piano::keyToggle(int midi_note) {
     size_t index = midi_note - 21; // 21 is A0;
     if (index < keys.size() && index >= 0) {
-        keys[index] ? fluid_synth_noteoff(synth, 0, midi_note)
-                    : fluid_synth_noteon(synth, 0, midi_note, 100);
-        keys[index] = !keys[index];
+        keys[index] ? midiEvent({MidiMessageType::NoteOff, channel, midi_note, 100})
+                    : midiEvent({MidiMessageType::NoteOn, channel, midi_note, 100});
     }
 }
 
-std::vector<size_t> Piano::getPressedNotes() {
+std::vector<size_t> Piano::getPressedNotes() const {
     std::vector<size_t> pressed_notes = {};
     for (int i = 0; i < keys.size(); i++) {
         if (keys[i])
@@ -253,15 +253,55 @@ void Piano::keyboardEvent(sf::Event& event) {
         int note = getNoteFromKeyCode(event.key.code);
         if (note < 0)
             return;
-        keyOn(note + octave * 12, 100);
+        midiEvent({MidiMessageType::NoteOn, channel, note + octave * 12, 100});
     }
 
     if (event.type == sf::Event::KeyReleased) {
         int note = getNoteFromKeyCode(event.key.code);
         if (note < 0)
             return;
-        keyOff(note + octave * 12);
+        midiEvent({MidiMessageType::NoteOff, channel, note + octave * 12, 0});
     }
 }
 
 void Piano::clearAllKeys() { keys.fill(false); }
+
+void Piano::midiEvent(const MidiEvent& me) {
+    // 0th byte: status byte containing message type and
+    // channel. we only care for the first nibble, see if it
+    // is noteOn or noteOff while ignoring the channel 1st
+    // byte: note number (for noteOn and noteOff) 2nd byte:
+    // velocity (for noteOn and
+    switch (me.messageType) {
+    case MidiMessageType::NoteOn:
+        if (me.data1 > 0) {
+            keyOn(me.data0, me.chan, me.data1);
+            break;
+        }
+    case MidiMessageType::NoteOff:
+        keyOff(me.data0, me.chan);
+        break;
+    case MidiMessageType::CC: {
+        // control codes such as sustain pedal
+        fluid_synth_cc(this->synth, me.chan, me.data0, me.data1);
+        break;
+    }
+    case MidiMessageType::ProgramChange: {
+        fluid_synth_program_change(this->synth, me.chan, me.data0);
+        break;
+    }
+    case MidiMessageType::PitchWheel: {
+        fluid_synth_pitch_bend(this->synth, me.chan, me.data0);
+        break;
+    }
+    default:
+        break;
+    }
+    midiEventCallback(me);
+}
+
+void Piano::setMidiEventCallback(MidiEventCallback callback) { midiEventCallback = callback; }
+
+int Piano::getChannel() const { return channel; }
+
+void Piano::setChannel(int chan) { channel = chan; }
