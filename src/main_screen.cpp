@@ -2,6 +2,7 @@
 #include "main_screen.hpp"
 #include "config.h"
 #include "gm_instrument_table.hpp"
+#include "libremidi/api.hpp"
 #include "libremidi/defaults.hpp"
 #include "looper.hpp"
 #include "metronome.hpp"
@@ -78,19 +79,23 @@ std::shared_ptr<AppState> MainScreen::Run() {
         std::cerr << "Error loading logo" << std::endl;
     }
 
+    std::function<void(const libremidi::message&)> onMidiMessage =
+        [&](const libremidi::message& message) {
+            if (message.size() == 3) {
+                looper.recordEvent(message);
+                piano.midiEvent(message);
+            }
+        };
+
     libremidi::midi_in midiin{{
         // Set our callback function.
-        .on_message =
-            [&](const libremidi::message& message) {
-                if (message.size() == 3) {
-                    looper.recordEvent(message);
-                    piano.midiEvent(message);
-                }
-            },
+        .on_message = onMidiMessage,
         .ignore_sysex = false,
         .ignore_timing = false,
         .ignore_sensing = false,
     }};
+
+    libremidi::API current_api = midiin.get_current_api();
 
     std::string portName;
     auto ports = libremidi::observer{{}, observer_configuration_for(midiin.get_current_api())}
@@ -222,6 +227,45 @@ std::shared_ptr<AppState> MainScreen::Run() {
                                 current_soundfont = soundfont;
                                 current_soundfont_id = fluid_synth_sfload(
                                     piano.getSynth(), soundfont.second.string().c_str(), 1);
+                            }
+                            if (is_selected) {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                    ImGui::TreePop();
+                    ImGui::Spacing();
+                }
+
+                if (ImGui::TreeNode("Backend")) {
+                    if (ImGui::BeginCombo("##combo", to_string_view(current_api).data())) {
+                        for (const auto& api : libremidi::available_apis()) {
+                            bool is_selected = (current_api == api);
+                            if (ImGui::Selectable(to_string_view(api).data(), is_selected)) {
+                                std::cout << "called " << std::endl;
+                                current_api = api;
+                                midiin.close_port();
+                                midiin = libremidi::midi_in{
+                                    {
+                                        // Set our callback function.
+                                        .on_message = onMidiMessage,
+                                        .ignore_sysex = false,
+                                        .ignore_timing = false,
+                                        .ignore_sensing = false,
+                                    },
+                                    libremidi::midi_in_configuration_for(current_api)};
+                                ports =
+                                    libremidi::observer{{}, observer_configuration_for(current_api)}
+                                        .get_input_ports();
+                                nPorts = ports.size();
+                                if (nPorts >= 1) {
+                                    midiin.open_port(ports[0]);
+                                    portName = ports[0].display_name;
+                                }
+                                if (portName.empty())
+                                    portName = "No MIDI Devices Found";
+                                portinfo_text.setString(portName);
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
