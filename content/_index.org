@@ -10,7 +10,8 @@ Read about how the chordcat chord naming algorithm works in [[https://blog.s20n.
 
 ** Screenshots
 
-[[screenshot-macos-1.png]]
+[[/chordcat/chordcat-0.3.0-kde-with-midi.png]]
 
-[[screenshot-windows-1.png]]
+[[/chordcat/chordcat-0.3.0-kde.png]]
 
+[[/chordcat/chordcat-0.3.0-kde-2.png]]
