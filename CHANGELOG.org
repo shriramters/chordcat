@@ -1,3 +1,21 @@
+* v0.3.0
+  - Add Metronome
+  - Add looper with Recording and Overdubbing
+  - Add support for loading custom .sf2 soundfonts
+  - Add support for Control Change, Program Change, Pitch Wheel midi messages
+  - Add General MIDI 1 Instrument selection (aka program change)
+  - Add new font "Metropolis"
+  - Add backend switcher
+
+  -- Shriram Ravindranathan <s20n@ters.dev> <2024-07-13 Sat>
+
+* v0.2.1
+  - Add appstream xml 
+  - Fixup for flathub release
+
+  -- Shriram Ravindranathan <s20n@ters.dev> <2024-10-31 Thu>
+
+
 * v0.2.0
   - Add "about" window
   - Add PC keyboard support to piano

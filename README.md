@@ -7,7 +7,7 @@ Chord Naming App with MIDI Support
 Chordcat is a desktop app that helps you identify and name chords based on inputted notes. 
 
 - [Documentation](https://shriramters.github.io/chordcat/)
-- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.2.1)
+- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.3.0)
   
 <a href='https://flathub.org/apps/dev.ters.Chordcat'>
   <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
@@ -18,11 +18,13 @@ Chordcat is a desktop app that helps you identify and name chords based on input
 - Displays chord names when:
   - MIDI devices are connected and you play a chord
   - Piano keys are clicked using the mouse
-  - The corresponding PC Keyboard keys are pressed 
-- Select MIDI device
-- Inbuilt piano sounds
-- Supports fullscreen mode and resizable window mode.
-- Includes 3 fun fonts (DejaVu Sans, Petaluma and FirstTimeWriting).
+  - The corresponding PC Keyboard keys are pressed
+- MIDI device support
+- Metronome
+- Looper
+- 128 Inbuilt instruments (General MIDI)
+- Custom `.sf2` soundfonts support
+- 4 cool fonts
 
 ## Screenshots
 
@@ -73,4 +75,4 @@ To build and run chordcat from source, follow these steps:
 - [FluidSynth](https://www.fluidsynth.org/)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [ImGui-SFML](https://github.com/SFML/imgui-sfml)
-- [Boost.PropertyTree](https://www.boost.org/doc/libs/release/doc/html/property_tree.html)
+- [nlohmann-json](https://github.com/nlohmann/json)
