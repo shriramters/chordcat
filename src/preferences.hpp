@@ -18,7 +18,7 @@ struct Preferences {
         float gain;
         std::array<float, 4> pressed_note_colors;
         Piano() {
-            gain = 2.f;
+            gain = 1.f;
             pressed_note_colors = {0.945f, 0.275f, 0.275f, 1.f};
         }
     };
