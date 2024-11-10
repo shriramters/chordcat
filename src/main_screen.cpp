@@ -243,7 +243,6 @@ std::shared_ptr<AppState> MainScreen::Run() {
                         for (const auto& api : libremidi::available_apis()) {
                             bool is_selected = (current_api == api);
                             if (ImGui::Selectable(to_string_view(api).data(), is_selected)) {
-                                std::cout << "called " << std::endl;
                                 current_api = api;
                                 midiin.close_port();
                                 midiin = libremidi::midi_in{

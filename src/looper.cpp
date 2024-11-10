@@ -1,6 +1,5 @@
 #include "looper.hpp"
 #include "midi_event.hpp"
-#include <iostream>
 #include <set>
 
 Looper::Looper(Piano& piano, Metronome& metronome) : metronome(metronome), piano(piano) {

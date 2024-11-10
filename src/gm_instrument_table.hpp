@@ -12,7 +12,7 @@ inline void showGMInstrumentTable() {
 
     struct Category {
         const char* name;
-        Instrument instruments[16];
+        Instrument instruments[8];
         int instrument_count;
     };
 
