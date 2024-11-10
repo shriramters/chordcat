@@ -3,7 +3,7 @@
   <id>dev.ters.Chordcat</id>
   
   <name>Chordcat</name>
-  <summary>Chord Naming App with MIDI Support </summary>
+  <summary>Chord naming app with midi support</summary>
   <developer id="dev.ters">
     <name>Shriram Ravindranathan</name>
   </developer>
@@ -27,10 +27,11 @@
       <li>
         Displays chord names when notes are played using PC Keyboard, mouse or a MIDI device
       </li>
-      <li>Select MIDI device</li>
-      <li>Inbuilt piano sounds</li>
-      <li>Supports fullscreen mode and resizable window mode</li>
-      <li>Includes 3 fun fonts (DejaVu Sans, Petaluma and FirstTimeWriting)</li>
+      <li>MIDI device support</li>
+      <li>Metronome</li>
+      <li>Looper</li>
+      <li>128 inbuilt instruments (General MIDI)</li>
+      <li>Custom .sf2 soundfonts support</li>
     </ul>
   </description>
 
@@ -44,20 +45,44 @@
     <keyword>Music</keyword>
     <keyword>Chord</keyword>
   </keywords>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#f18ea4</color>
+    <color type="primary" scheme_preference="dark">#cf3557</color>
+  </branding>
   
   <launchable type="desktop-id">dev.ters.Chordcat.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/user-attachments/assets/fce29f4a-9113-47ff-9a61-bc16081508e0</image>
-      <caption>Main screen showing chord names with no midi devices connected and FirstTimeWriting! font</caption>
+      <image>https://shriramters.github.io/chordcat/chordcat-0.3.0-kde-with-midi.png</image>
+      <caption>MIDI device connected and preferences window open</caption>
     </screenshot>
     <screenshot>
-      <image>https://github.com/shriramters/chordcat/assets/127589779/697dc8d9-b8d6-412e-be2d-fea71f324311</image>
-      <caption>About window and main screen with midi keyboard connected and default font</caption>
+      <image>https://shriramters.github.io/chordcat/chordcat-0.3.0-kde.png</image>
+      <caption>No MIDI device connected and looper window open</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://shriramters.github.io/chordcat/chordcat-0.3.0-kde-2.png</image>
+      <caption>Using the FirstTimeWriting! font</caption>
     </screenshot>
   </screenshots>
   <releases>
-    <release version="0.2.1" date="2024-10-30"/>
+    <release version="0.3.0" date="2023-11-10">
+      <url type="details">https://github.com/shriramters/chordcat/blob/9d6dee96ee3db7473fdb1cac1ea00820df3f7129/CHANGELOG.org</url>
+      <description>
+        <p>Changes</p>
+        <ul>
+          <li>Add Metronome</li>
+          <li>Add looper with Recording and Overdubbing</li>
+          <li>Add support for loading custom .sf2 soundfonts</li>
+          <li>Add support for Control Change, Program Change, Pitch Wheel midi messages</li>
+          <li>Add General MIDI 1 Instrument selection (aka program change)</li>
+          <li>Add new font “Metropolis”</li>
+          <li>Add backend switcher (ALSA, Pipewire, JACK etc)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.2.1" date="2024-10-31"/>
     <release version="0.2.0" date="2024-09-25"/>
     <release version="0.1.0" date="2024-07-07"/>
   </releases>
