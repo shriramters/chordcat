@@ -25,6 +25,7 @@ class Looper {
     void stopPlayback();
     void startOverdub();
     void stopOverdub();
+    void cancelOverdub();
     void setBars(unsigned int numBars);
     int getBars();
     void recordEvent(MidiEvent me);

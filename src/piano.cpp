@@ -283,7 +283,15 @@ void Piano::midiEvent(const MidiEvent& me) {
         break;
     case MidiMessageType::CC: {
         // control codes such as sustain pedal
-        fluid_synth_cc(getSynth(), me.chan, me.data0, me.data1);
+        fluid_synth_cc(this->synth, me.chan, me.data0, me.data1);
+        break;
+    }
+    case MidiMessageType::ProgramChange: {
+        fluid_synth_program_change(this->synth, me.chan, me.data0);
+        break;
+    }
+    case MidiMessageType::PitchWheel: {
+        fluid_synth_pitch_bend(this->synth, me.chan, me.data0);
         break;
     }
     default:

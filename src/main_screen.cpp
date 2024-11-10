@@ -377,6 +377,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 ImGui::NewLine();
                 if (ImGui::Button("Stop Overdub"))
                     looper.stopOverdub();
+                if (ImGui::Button("Cancel Overdub"))
+                    looper.cancelOverdub();
                 break;
             }
             default: {

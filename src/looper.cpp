@@ -89,3 +89,8 @@ LooperState Looper::getState() { return this->state; }
 void Looper::setBars(unsigned int _numBars) { numBars = _numBars; };
 
 int Looper::getBars() { return numBars; }
+
+void Looper::cancelOverdub() {
+    overdubEvents.clear();
+    state = LooperState::PlayingBack;
+}
