@@ -103,8 +103,9 @@ it in the soundfonts folder.
 
 The soundfont folder is different depending on your OS.
 
-- Linux and MacOS : ~~/.local/share/chordcat/soundfonts/~
-- Michaelsoft Binbows :  ~%AppData%\chordcat\soundfonts\~
++ Linux and MacOS : ~$XDG_DATA_DIR/chordcat/soundfonts~ which is ~~/.local/share/chordcat/soundfonts/~ on most systems.
++ Linux Flatpak: ~~/.var/app/dev.ters.Chordcat/data/chordcat/soundfonts/~
++ Michaelsoft Binbows :  ~%AppData%\chordcat\soundfonts\~
 
 Once you have pasted your soundfonts, restart chordcat. You can then
 select your soundfont in ~Preferences~ -> ~Configuration~ ->
