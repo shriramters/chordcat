@@ -80,7 +80,7 @@ void GrandStaff::drawStaff(sf::RenderTarget& target) const {
         line.setPosition(staffLeftX, y);
         target.draw(line);
     }
-    sf::RectangleShape brace(sf::Vector2f(2.f, bassTop - staffTopY + 4 * staffSpacing));
+    sf::RectangleShape brace(sf::Vector2f(5.f, bassTop - staffTopY + 4 * staffSpacing));
     brace.setFillColor(c);
     brace.setPosition(staffLeftX - 5.f, staffTopY);
     target.draw(brace);
@@ -185,14 +185,15 @@ void GrandStaff::drawNotes(sf::RenderTarget& target) const {
 
         sf::CircleShape noteHead(noteRadius);
         noteHead.setFillColor(sf::Color::White);
-        noteHead.setPosition(x - noteRadius, y - noteRadius);
+        noteHead.setPosition(x - noteRadius, y - noteRadius * 0.75f);
+        noteHead.setScale(1.f, 0.75f); // ovalize
         target.draw(noteHead);
 
         sf::String acc = getAccidentalGlyph(midiNote);
         if (!acc.isEmpty()) {
             sf::Text accidental(acc, font, static_cast<unsigned>(staffSpacing * 1.5f));
             accidental.setFillColor(sf::Color::White);
-            accidental.setPosition(x - (staffSpacing * 2.f), y - (staffSpacing));
+            accidental.setPosition(x - (staffSpacing * 1.5f), y - (staffSpacing));
             target.draw(accidental);
         }
     }
