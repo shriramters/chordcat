@@ -13,8 +13,12 @@ std::map<Key, int> gKeySharpsFlats = {
     {Key::GSharpMajor, 8}, {Key::ASharpMajor, 10},
 };
 
+#include <iostream>
+
 void GrandStaff::midiToLetterOctave(int midiNote, int& letter, int& octave) const {
-    int h = (midiNote - 60 + 12) % 12;
+    int h = (midiNote - 60) % 12;
+    if (h < 0)
+        h += 12;
 
     static int mapSharps[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
 
@@ -27,6 +31,7 @@ void GrandStaff::midiToLetterOctave(int midiNote, int& letter, int& octave) cons
 
     octave = (midiNote / 12) - 1;
 }
+
 int GrandStaff::stepsFromRef(int midiNote, int ref) const {
     int l1, o1, l2, o2;
     midiToLetterOctave(midiNote, l1, o1);
@@ -207,6 +212,7 @@ float GrandStaff::noteYPosition(int midiNote) const {
     float trebleBottom = staffTopY + 4 * staffSpacing;
     float bassBottom = bassTop + 4 * staffSpacing;
     float dy = s * (staffSpacing / 2.f);
+
     return bass ? (bassBottom - dy) : (trebleBottom - dy);
 }
 
