@@ -13,13 +13,11 @@
 #include <string>
 #include <vector>
 
-const std::array<sf::String, 12> note_names = {"A",   L"B♭", "B", "C",   L"C♯", "D",
-                                               L"E♭", "E",   "F", L"F♯", "G",   L"A♭"};
-
-inline std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices) {
+inline std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices,
+                                                         Key key) {
     std::vector<sf::String> result = {};
     for (auto index : indices) {
-        result.push_back(note_names[index % note_names.size()]);
+        result.push_back(key_number_to_note_name(index, key));
     }
     return result;
 }
