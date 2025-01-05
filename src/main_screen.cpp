@@ -3,6 +3,7 @@
 #include "chord.hpp"
 #include "config.h"
 #include "gm_instrument_table.hpp"
+#include "grand_staff.hpp"
 #include "libremidi/api.hpp"
 #include "libremidi/defaults.hpp"
 #include "looper.hpp"
@@ -58,6 +59,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     // Piano
     Piano piano(window, preferences.piano.pressed_note_colors);
+    GrandStaff staves(window, font);
 
     SoundFontManager soundFontManager;
     auto soundfonts = soundFontManager.getAvailableSoundFonts();
@@ -119,6 +121,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
     bool show_looper = false;
     bool show_instrument_table = false;
     Key key = Key::CMajor;
+    staves.setKey(key);
 
     int program_channel = 0;
     std::array<int, 16> channel_programs;
@@ -149,6 +152,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         std::vector<sf::String> pressed_notes =
             key_numbers_to_note_names(piano.getPressedNotes(), key);
+        staves.updateNotes(piano.getPressedNotes());
         sf::String current_msg = "";
         for (auto& note : pressed_notes) {
             current_msg += note + " ";
@@ -337,6 +341,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
             ImGui::Text("Key");
             if (ImGui::Combo("Key", &currentKey, keyNames, IM_ARRAYSIZE(keyNames))) {
                 key = static_cast<Key>(currentKey);
+                staves.setKey(key);
             }
             ImGui::End();
         }
@@ -481,6 +486,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         window.clear();
         window.draw(piano);
+        window.draw(staves);
         for (auto chordname : chord_name_list) {
             window.draw(chordname);
         }
