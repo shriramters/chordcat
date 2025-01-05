@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-only
 #pragma once
-#include "chord.hpp"
+#include "key.hpp"
 #include <SFML/Graphics.hpp>
 
 class GrandStaff : public sf::Drawable {

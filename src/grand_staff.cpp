@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-only
 #include "grand_staff.hpp"
 #include "chord.hpp"
 #include "config.h"
@@ -45,10 +46,10 @@ void GrandStaff::setKey(Key key) { currentKey = key; }
 
 void GrandStaff::updateNotes(const std::vector<size_t>& pressedMidiNotes) {
     staffLeftX = window.getSize().x / 10.f;
-    staffTopY = window.getSize().y / 3.f;
+    staffTopY = window.getSize().y / 4.f;
     noteRadius = window.getSize().x / 200.f;
     staffSpacing = 2 * noteRadius;
-    gapBetweenStaves = 3 * staffSpacing;
+    gapBetweenStaves = 2 * staffSpacing;
 
     std::vector<int> notes;
     notes.reserve(pressedMidiNotes.size());
