@@ -205,72 +205,91 @@ void GrandStaff::drawNotes(sf::RenderTarget& target) const {
 }
 
 float GrandStaff::noteYPosition(int midiNote) const {
-    bool bass = (midiNote < 60);
-    int ref = bass ? 43 : 64;
-    int s = stepsFromRef(midiNote, ref);
-    float bassTop = staffTopY + 5 * staffSpacing + gapBetweenStaves;
-    float trebleBottom = staffTopY + 4 * staffSpacing;
-    float bassBottom = bassTop + 4 * staffSpacing;
-    float dy = s * (staffSpacing / 2.f);
+    bool isBassClef = (midiNote < 60);
+    int referenceNote = isBassClef ? 43 : 64;
+    int stepCount = stepsFromRef(midiNote, referenceNote);
 
-    return bass ? (bassBottom - dy) : (trebleBottom - dy);
+    float bassStaffTop = staffTopY + 5 * staffSpacing + gapBetweenStaves;
+    float trebleStaffBottom = staffTopY + 4 * staffSpacing;
+    float bassStaffBottom = bassStaffTop + 4 * staffSpacing;
+    float verticalOffset = stepCount * (staffSpacing / 2.f);
+
+    return isBassClef ? (bassStaffBottom - verticalOffset) : (trebleStaffBottom - verticalOffset);
 }
 
-bool GrandStaff::isNatural(int m) const {
-    static int map[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
-    static int sL[7] = {3, 0, 4, 1, 5, 2, 6};
-    static int fL[7] = {6, 2, 5, 1, 4, 0, 3};
-    static int base[7] = {0, 2, 4, 5, 7, 9, 11};
-    int k = gKeySharpsFlats.at(currentKey), L = map[(m % 12 + 12) % 12], a = 0;
-    if (k > 0) {
-        int n = (k > 7 ? 7 : k);
-        for (int i = 0; i < n; i++)
-            if (sL[i] == L) {
-                a = 1;
+bool GrandStaff::isNatural(int midiNote) const {
+    static int letterMap[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
+    static int sharpLetters[7] = {3, 0, 4, 1, 5, 2, 6};
+    static int flatLetters[7] = {6, 2, 5, 1, 4, 0, 3};
+    static int baseSemitones[7] = {0, 2, 4, 5, 7, 9, 11};
+
+    int keySignature = gKeySharpsFlats.at(currentKey);
+    int letterIndex = letterMap[(midiNote % 12 + 12) % 12];
+    int acc = 0;
+
+    if (keySignature > 0) {
+        int numAccidentals = (keySignature > 7 ? 7 : keySignature);
+        for (int i = 0; i < numAccidentals; i++) {
+            if (sharpLetters[i] == letterIndex) {
+                acc = 1;
                 break;
             }
-    } else if (k < 0) {
-        int n = (-k > 7 ? 7 : -k);
-        for (int i = 0; i < n; i++)
-            if (fL[i] == L) {
-                a = -1;
+        }
+    } else if (keySignature < 0) {
+        int numAccidentals = (-keySignature > 7 ? 7 : -keySignature);
+        for (int i = 0; i < numAccidentals; i++) {
+            if (flatLetters[i] == letterIndex) {
+                acc = -1;
                 break;
             }
+        }
     }
-    int sp = (base[L] + a + 12) % 12;
-    int np = (m - 60 + 12 * 999) % 12;
-    int diff = (np - sp + 12) % 12;
-    if ((a == 1 && diff == 11) || (a == -1 && diff == 1) || (a == 0 && diff == 0))
+
+    int staffPitch = (baseSemitones[letterIndex] + acc + 12) % 12;
+    int notePitch = (midiNote - 60 + 12 * 999) % 12;
+    int diff = (notePitch - staffPitch + 12) % 12;
+
+    if ((acc == 1 && diff == 11) || (acc == -1 && diff == 1) || (acc == 0 && diff == 0))
         return true;
+
     return false;
 }
 
-sf::String GrandStaff::getAccidentalGlyph(int m) const {
-    static int map[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
-    static int sL[7] = {3, 0, 4, 1, 5, 2, 6};
-    static int fL[7] = {6, 2, 5, 1, 4, 0, 3};
-    static int base[7] = {0, 2, 4, 5, 7, 9, 11};
-    int k = gKeySharpsFlats.at(currentKey), L = map[(m % 12 + 12) % 12], a = 0;
-    if (k > 0) {
-        int n = (k > 7 ? 7 : k);
-        for (int i = 0; i < n; i++)
-            if (sL[i] == L) {
-                a = 1;
+sf::String GrandStaff::getAccidentalGlyph(int midiNote) const {
+    static int letterMap[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
+    static int sharpLetters[7] = {3, 0, 4, 1, 5, 2, 6};
+    static int flatLetters[7] = {6, 2, 5, 1, 4, 0, 3};
+    static int baseSemitones[7] = {0, 2, 4, 5, 7, 9, 11};
+
+    int keySignature = gKeySharpsFlats.at(currentKey);
+    int letterIndex = letterMap[(midiNote % 12 + 12) % 12];
+    int acc = 0;
+
+    if (keySignature > 0) {
+        int numAccidentals = (keySignature > 7 ? 7 : keySignature);
+        for (int i = 0; i < numAccidentals; i++) {
+            if (sharpLetters[i] == letterIndex) {
+                acc = 1;
                 break;
             }
-    } else if (k < 0) {
-        int n = (-k > 7 ? 7 : -k);
-        for (int i = 0; i < n; i++)
-            if (fL[i] == L) {
-                a = -1;
+        }
+    } else if (keySignature < 0) {
+        int numAccidentals = (-keySignature > 7 ? 7 : -keySignature);
+        for (int i = 0; i < numAccidentals; i++) {
+            if (flatLetters[i] == letterIndex) {
+                acc = -1;
                 break;
             }
+        }
     }
-    int sp = (base[L] + a + 12) % 12;
-    int np = (m - 60 + 12 * 999) % 12;
-    if (sp == np)
+
+    int staffPitch = (baseSemitones[letterIndex] + acc + 12) % 12;
+    int notePitch = (midiNote - 60 + 12 * 999) % 12;
+
+    if (staffPitch == notePitch)
         return sf::String();
-    if (isNatural(m))
+
+    if (isNatural(midiNote))
         return L"♮";
     else {
         if (is_sharp_key(currentKey))
@@ -278,5 +297,4 @@ sf::String GrandStaff::getAccidentalGlyph(int m) const {
         else
             return L"♭";
     }
-    return sf::String();
 }
