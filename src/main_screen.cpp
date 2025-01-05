@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "main_screen.hpp"
+#include "chord.hpp"
 #include "config.h"
 #include "gm_instrument_table.hpp"
+#include "grand_staff.hpp"
 #include "libremidi/api.hpp"
 #include "libremidi/defaults.hpp"
 #include "looper.hpp"
@@ -57,6 +59,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
     // Piano
     Piano piano(window, preferences.piano.pressed_note_colors);
+    GrandStaff staves(window, font);
 
     SoundFontManager soundFontManager;
     auto soundfonts = soundFontManager.getAvailableSoundFonts();
@@ -117,6 +120,8 @@ std::shared_ptr<AppState> MainScreen::Run() {
     bool show_about = false;
     bool show_looper = false;
     bool show_instrument_table = false;
+    Key key = Key::CMajor;
+    staves.setKey(key);
 
     int program_channel = 0;
     std::array<int, 16> channel_programs;
@@ -145,7 +150,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
             piano.processEvent(event);
         }
 
-        std::vector<sf::String> pressed_notes = key_numbers_to_note_names(piano.getPressedNotes());
+        std::vector<sf::String> pressed_notes =
+            key_numbers_to_note_names(piano.getPressedNotes(), key);
+        staves.updateNotes(piano.getPressedNotes());
         sf::String current_msg = "";
         for (auto& note : pressed_notes) {
             current_msg += note + " ";
@@ -155,7 +162,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         auto chordset = name_that_chord(piano.getPressedNotes());
         chord_name_list = {};
         for (auto chord : chordset) {
-            chord_name_list.push_back(sf::Text(chord.to_sf_string(), font, 30u));
+            chord_name_list.push_back(sf::Text(chord.to_sf_string(key), font, 30u));
             chord_name_list.back().setPosition(window.getSize().x / 3.f,
                                                200 + 50 * chord_name_list.size());
         }
@@ -322,6 +329,20 @@ std::shared_ptr<AppState> MainScreen::Run() {
                 channel = std::clamp(channel, 0, 15);
                 piano.setChannel(channel);
             }
+            const char* keyNames[] = {
+                "C Major / A Minor",   "G Major / E Minor",   "D Major / B Minor",
+                "A Major / F# Minor",  "E Major / C# Minor",  "B Major / G# Minor",
+                "F# Major / D# Minor", "C# Major / A# Minor", "F Major / D Minor",
+                "Bb Major / G Minor",  "Eb Major / C Minor",  "Ab Major / F Minor",
+                "Db Major / Bb Minor", "Gb Major / Eb Minor", "Cb Major / Ab Minor",
+                "D# Major / B# Minor", "G# Major / E# Minor", "A# Major / Fx Minor"};
+
+            int currentKey = static_cast<int>(key);
+            ImGui::Text("Key");
+            if (ImGui::Combo("Key", &currentKey, keyNames, IM_ARRAYSIZE(keyNames))) {
+                key = static_cast<Key>(currentKey);
+                staves.setKey(key);
+            }
             ImGui::End();
         }
 
@@ -465,6 +486,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
         window.clear();
         window.draw(piano);
+        window.draw(staves);
         for (auto chordname : chord_name_list) {
             window.draw(chordname);
         }
