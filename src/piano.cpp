@@ -131,15 +131,16 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     unsigned ypos = target.getView().getSize().y;
 
     auto getKeyColor = [this](size_t index) {
-        if (this->keys[index])
-            return sf::Color(static_cast<uint8_t>(note_colors[0] * 255),
-                             static_cast<uint8_t>(note_colors[1] * 255),
-                             static_cast<uint8_t>(note_colors[2] * 255),
-                             static_cast<uint8_t>(note_colors[3] * 255));
-        else if (isBlackKey(index))
-            return sf::Color::Black;
-        else
-            return sf::Color::White;
+        for (int c = 0; c < 16; c++) {
+            if (this->keys[channel][index])
+                return sf::Color(static_cast<uint8_t>(note_colors[0] * 255),
+                                 static_cast<uint8_t>(note_colors[1] * 255),
+                                 static_cast<uint8_t>(note_colors[2] * 255),
+                                 static_cast<uint8_t>(note_colors[3] * 255));
+            else if (isBlackKey(index))
+                return sf::Color::Black;
+        }
+        return sf::Color::White;
     };
 
     key_sprites[0] = sf::RectangleShape(sf::Vector2f(key_width_white, key_height_white));
@@ -176,36 +177,38 @@ void Piano::draw(sf::RenderTarget& target, sf::RenderStates states) const {
             target.draw(*it, states);
     }
 }
-
+#include <iostream>
 void Piano::keyOn(int midi_note, int chan, int velocity) {
     size_t index = midi_note - 21; // 21 is A0;
-    if (index < keys.size() && index >= 0 && !keys[index]) {
+    if (index < keys[0].size() && index >= 0 && chan < 16 && !keys[chan][index]) {
         fluid_synth_noteon(synth, chan, midi_note, velocity);
-        keys[index] = true;
+        keys[chan][index] = true;
     }
 }
 
 void Piano::keyOff(int midi_note, int chan) {
     size_t index = midi_note - 21; // 21 is A0;
-    if (index < keys.size() && index >= 0 && keys[index]) {
+    if (index < keys[0].size() && chan < 16 && index >= 0 && keys[chan][index]) {
         fluid_synth_noteoff(synth, chan, midi_note);
-        keys[index] = false;
+        keys[chan][index] = false;
     }
 }
 
 void Piano::keyToggle(int midi_note) {
     size_t index = midi_note - 21; // 21 is A0;
-    if (index < keys.size() && index >= 0) {
-        keys[index] ? midiEvent({MidiMessageType::NoteOff, channel, midi_note, 100})
-                    : midiEvent({MidiMessageType::NoteOn, channel, midi_note, 100});
+    if (index < keys.size() && index >= 0 && channel < 16) {
+        keys[channel][index] ? midiEvent({MidiMessageType::NoteOff, channel, midi_note, 100})
+                             : midiEvent({MidiMessageType::NoteOn, channel, midi_note, 100});
     }
 }
 
 std::vector<size_t> Piano::getPressedNotes() const {
     std::vector<size_t> pressed_notes = {};
     for (int i = 0; i < keys.size(); i++) {
-        if (keys[i])
-            pressed_notes.push_back(i);
+        for (int c = 0; c < 16; c++) {
+            if (keys[c][i])
+                pressed_notes.push_back(i);
+        }
     }
     return pressed_notes;
 }
@@ -264,7 +267,10 @@ void Piano::keyboardEvent(sf::Event& event) {
     }
 }
 
-void Piano::clearAllKeys() { keys.fill(false); }
+void Piano::clearAllKeys() {
+    for (int c = 0; c < 16; c++)
+        keys[c].fill(false);
+}
 
 void Piano::midiEvent(const MidiEvent& me) {
     // 0th byte: status byte containing message type and

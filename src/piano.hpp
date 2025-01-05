@@ -30,7 +30,7 @@ class Piano : public sf::Drawable {
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     void mouseEvent(sf::Event& event);
     void keyboardEvent(sf::Event& event);
-    std::array<bool, 88> keys = {};
+    std::array<std::array<bool, 88>, 16> keys = {};
     mutable std::array<sf::RectangleShape, 88> key_sprites;
     sf::RenderWindow& window;
     MidiAudioStream mas{};
