@@ -128,26 +128,22 @@ std::shared_ptr<AppState> MainScreen::Run() {
     channel_programs.fill(0);
 
     while (window.isOpen()) {
-        auto event = sf::Event{};
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Key::Escape) {
+        while (const std::optional event = window.pollEvent()){
+                ImGui::SFML::ProcessEvent(window,*event);
+                if (event->is<sf::Event::Closed>()){
                     window.close();
+                }else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()){
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
+                        window.close();
+                }else if (const auto* resized = event->getIf<sf::Event::Resized>()){
+                    // resize my view
+                    sf::FloatRect visibleArea({0, 0}, sf::Vector2f(resized->size));
+                    window.setView(sf::View(visibleArea));
+                    title.setPosition({window.getSize().x / 2.f - title.getGlobalBounds().size.x / 2, 50});
+                    portinfo_text.setPosition({
+                        window.getSize().x / 2.f - portinfo_text.getGlobalBounds().size.x / 2, 100});
                 }
-            }
-            if (event.type == sf::Event::Resized) {
-                // resize my view
-                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-                window.setView(sf::View(visibleArea));
-                title.setPosition({window.getSize().x / 2.f - title.getGlobalBounds().size.x / 2, 50});
-                portinfo_text.setPosition({
-                    window.getSize().x / 2.f - portinfo_text.getGlobalBounds().size.x / 2, 100});
-            }
-            ImGui::SFML::ProcessEvent(event);
-            piano.processEvent(event);
+                piano.processEvent(*event);
         }
 
         std::vector<sf::String> pressed_notes =
@@ -164,7 +160,7 @@ std::shared_ptr<AppState> MainScreen::Run() {
         for (auto chord : chordset) {
             chord_name_list.push_back(sf::Text(font, chord.to_sf_string(key), 30u));
             chord_name_list.back().setPosition({window.getSize().x / 3.f,
-                                               200 + 50 * chord_name_list.size()});
+                                               200.0f + 50.0f * chord_name_list.size()});
         }
         chord_notes_text = sf::Text(font, current_msg, 50u);
         chord_notes_text.setPosition({window.getSize().x / 3.f, 150});
@@ -190,7 +186,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
                             if (ImGui::Selectable(available_fonts[n].first.c_str(), is_selected)) {
                                 preferences.ui.font.name = available_fonts[n].first;
                                 preferences.ui.font.path = available_fonts[n].second;
-                                font.openFromFile(preferences.ui.font.path);
+                                if (!font.openFromFile(preferences.ui.font.path)) {
+                                    // load failed
+                                    std::cerr << "Failed to load font: " << preferences.ui.font.path << std::endl;
+                                }
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();

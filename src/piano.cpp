@@ -210,14 +210,14 @@ std::vector<size_t> Piano::getPressedNotes() const {
     return pressed_notes;
 }
 
-void Piano::processEvent(sf::Event& event) {
+void Piano::processEvent(const sf::Event& event) {
     this->mouseEvent(event);
     this->keyboardEvent(event);
 }
 
-void Piano::mouseEvent(sf::Event& event) {
-    if (event.type == sf::Event::MouseButtonReleased) {
-        if (event.mouseButton.button == sf::Mouse::Left) {
+void Piano::mouseEvent(const sf::Event& event) {
+    if (const auto* mouseButtonReleased = event.getIf<sf::Event::MouseButtonReleased>()){
+        if (mouseButtonReleased->button == sf::Mouse::Button::Left) {
             sf::Vector2f worldPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
             for (auto it = key_sprites.begin(); it != key_sprites.end(); it++) {
                 if (isBlackKey(std::distance(key_sprites.begin(), it)))
@@ -238,26 +238,23 @@ void Piano::mouseEvent(sf::Event& event) {
     }
 }
 
-void Piano::keyboardEvent(sf::Event& event) {
+void Piano::keyboardEvent(const sf::Event& event) {
     static int octave = 1;
-
-    if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Key::Hyphen) {
+    if (const auto* keyPressed = event.getIf<sf::Event::KeyPressed>()){
+        if (keyPressed->code == sf::Keyboard::Key::Hyphen) {
             if (octave >= 0)
                 octave--;
         }
-        if (event.key.code == sf::Keyboard::Key::Equal) {
+        if(keyPressed->code == sf::Keyboard::Key::Equal){
             if (octave <= 6)
                 octave++;
         }
-        int note = getNoteFromKeyCode(event.key.code);
+        int note = getNoteFromKeyCode(keyPressed->code);
         if (note < 0)
             return;
         midiEvent({MidiMessageType::NoteOn, channel, note + octave * 12, 100});
-    }
-
-    if (event.type == sf::Event::KeyReleased) {
-        int note = getNoteFromKeyCode(event.key.code);
+    }else if (const auto* keyReleased = event.getIf<sf::Event::KeyReleased>()){
+        int note = getNoteFromKeyCode(keyReleased->code);
         if (note < 0)
             return;
         midiEvent({MidiMessageType::NoteOff, channel, note + octave * 12, 0});
