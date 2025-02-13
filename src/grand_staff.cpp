@@ -74,7 +74,7 @@ void GrandStaff::drawStaff(sf::RenderTarget& target) const {
         line.setSize(sf::Vector2f(lineLength, 1.f));
         line.setFillColor(c);
         float y = staffTopY + i * staffSpacing;
-        line.setPosition(staffLeftX, y);
+        line.setPosition({staffLeftX, y});
         target.draw(line);
     }
     float bassTop = staffTopY + 5 * staffSpacing + gapBetweenStaves;
@@ -83,19 +83,19 @@ void GrandStaff::drawStaff(sf::RenderTarget& target) const {
         line.setSize(sf::Vector2f(lineLength, 1.f));
         line.setFillColor(c);
         float y = bassTop + i * staffSpacing;
-        line.setPosition(staffLeftX, y);
+        line.setPosition({staffLeftX, y});
         target.draw(line);
     }
     sf::RectangleShape brace(sf::Vector2f(5.f, bassTop - staffTopY + 4 * staffSpacing));
     brace.setFillColor(c);
-    brace.setPosition(staffLeftX - 5.f, staffTopY);
+    brace.setPosition({staffLeftX - 5.f, staffTopY});
     target.draw(brace);
 
     static bool loaded = false;
     static sf::Texture trebleTex;
     static sf::Texture bassTex;
-    static sf::Sprite trebleSprite;
-    static sf::Sprite bassSprite;
+    static sf::Sprite trebleSprite(trebleTex);
+    static sf::Sprite bassSprite(bassTex);
 
     if (!loaded) {
         trebleTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/treble_clef.png");
@@ -104,16 +104,16 @@ void GrandStaff::drawStaff(sf::RenderTarget& target) const {
         bassSprite.setTexture(bassTex);
 
         float scaleFactor = (5 * staffSpacing) / trebleTex.getSize().y;
-        trebleSprite.setScale(scaleFactor, scaleFactor);
-        bassSprite.setScale(scaleFactor, scaleFactor);
+        trebleSprite.setScale({scaleFactor, scaleFactor});
+        bassSprite.setScale({scaleFactor, scaleFactor});
 
         loaded = true;
     }
 
-    trebleSprite.setPosition(staffLeftX - 10.f - trebleSprite.getGlobalBounds().width, staffTopY);
+    trebleSprite.setPosition({staffLeftX - 10.f - trebleSprite.getGlobalBounds().size.x, staffTopY});
     target.draw(trebleSprite);
 
-    bassSprite.setPosition(staffLeftX - 10.f - bassSprite.getGlobalBounds().width, bassTop);
+    bassSprite.setPosition({staffLeftX - 10.f - bassSprite.getGlobalBounds().size.x, bassTop});
     target.draw(bassSprite);
 }
 
@@ -123,9 +123,7 @@ void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
         return;
 
     unsigned fontSize = static_cast<unsigned>(staffSpacing * 1.5f);
-    sf::Text text;
-    text.setFont(font);
-    text.setCharacterSize(fontSize);
+    auto text = sf::Text(font, "", fontSize);
     text.setFillColor(sf::Color::White);
 
     static float trebleSharpY[7] = {
@@ -161,11 +159,11 @@ void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
             text.setString(sharps);
             // Treble staff
             float ty = trebleBase + trebleSharpY[i] * 0.5 * staffSpacing;
-            text.setPosition(trebleX + i * fontSize * 0.25, ty);
+            text.setPosition({trebleX + i * fontSize * 0.25, ty});
             target.draw(text);
             // Bass staff
             float by = bassBase + (trebleSharpY[i] + 2) * 0.5 * staffSpacing;
-            text.setPosition(bassX + i * fontSize * 0.25, by);
+            text.setPosition({bassX + i * fontSize * 0.25, by});
             target.draw(text);
         }
     } else {
@@ -174,11 +172,11 @@ void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
             text.setString(flats);
             // Treble staff
             float ty = trebleBase + trebleFlatY[i] * 0.5 * staffSpacing;
-            text.setPosition(trebleX + i * fontSize * 0.25, ty);
+            text.setPosition({trebleX + i * fontSize * 0.25, ty});
             target.draw(text);
             // Bass staff
             float by = bassBase + trebleFlatY[i] * 0.5 * staffSpacing;
-            text.setPosition(bassX + i * fontSize * 0.25, by);
+            text.setPosition({bassX + i * fontSize * 0.25, by});
             target.draw(text);
         }
     }
@@ -191,15 +189,15 @@ void GrandStaff::drawNotes(sf::RenderTarget& target) const {
 
         sf::CircleShape noteHead(noteRadius);
         noteHead.setFillColor(sf::Color::White);
-        noteHead.setPosition(x - noteRadius, y - noteRadius * 0.75f);
-        noteHead.setScale(1.f, 0.75f); // ovalize
+        noteHead.setPosition({x - noteRadius, y - noteRadius * 0.75f});
+        noteHead.setScale({1.f, 0.75f}); // ovalize
         target.draw(noteHead);
 
         sf::String acc = getAccidentalGlyph(midiNote);
         if (!acc.isEmpty()) {
-            sf::Text accidental(acc, font, static_cast<unsigned>(staffSpacing * 1.5f));
+            sf::Text accidental(font,acc, static_cast<unsigned>(staffSpacing * 1.5f));
             accidental.setFillColor(sf::Color::White);
-            accidental.setPosition(x - (staffSpacing * 1.5f), y - (staffSpacing));
+            accidental.setPosition({x - (staffSpacing * 1.5f), y - (staffSpacing * 0.75f)});
             target.draw(accidental);
         }
     }
