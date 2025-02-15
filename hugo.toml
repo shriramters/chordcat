@@ -1,6 +1,6 @@
 baseURL = 'https://shriramters.github.io/chordcat/'
 languageCode = 'en-us'
-title = "Chordcat User's Manual"
+title = "Chordcat User Manual"
 theme = "hugo-book"
 
 # (Optional) Set this to true to enable 'Last Modified by' date and git author

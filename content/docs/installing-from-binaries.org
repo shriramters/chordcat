@@ -8,7 +8,7 @@
 
 ** Installation
 
-Download the file named ~chordcat-0.3.0-win64.exe~ from the [[https://github.com/shriramters/chordcat/releases/tag/v0.3.0][releases page]].
+Download the file named ~chordcat-0.4.0-win64.exe~ from the [[https://github.com/shriramters/chordcat/releases/tag/v0.4.0][releases page]].
 
 You may be greeted with the Windows Defender SmartScreen warning. This
 is because I haven't codesigned the installer binary with a microsoft
@@ -34,14 +34,14 @@ control panel (search for "Add or Remove Programs" in the start menu).
 [[/chordcat/control-panel-uninstall.png]]
 
 * Debian
-Download the file named ~chordcat_0.3.0_amd64.deb~ from the [[https://github.com/shriramters/chordcat/releases/tag/v0.2.1][releases page]].
+Download the file named ~chordcat_0.4.0_amd64.deb~ from the [[https://github.com/shriramters/chordcat/releases/tag/v0.4.0][releases page]].
 
 If you use GNOME or KDE, you can double click the file to install it.
 
 You can also install it from the command line like so:
 #+begin_example bash
 cd ~/Downloads
-sudo apt install ./chordcat_0.3.0_amd64.deb
+sudo apt install ./chordcat_0.4.0_amd64.deb
 #+end_example
 
 If you are unable to double click it, you can install the graphical installer

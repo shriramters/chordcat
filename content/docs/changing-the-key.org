@@ -1,0 +1,62 @@
+#+TITLE: Changing the Key
+#+DATE: 2025-02-15T14:44:21+0530
+#+WEIGHT: 70
+
+@@html:<h1>@@ Changing the Key @@html:</h1>@@
+
+[[/chordcat/key-select.png]]
+
+The Key selection dropdown in Chordcat allows you to choose the musical key for your chord names. This selection affects:
+
+- **Note Naming Convention:** Depending on the chosen key, note names will adjust to use either sharps or flats.
+- **Key Signature Display:** The appropriate key signature is automatically rendered on the Grand Staff.
+
+[[/chordcat/c-major-in-key-of-e-major.png]]
+
+* Available Keys
+
+You can select any of these keys in Chordcat. They include both Standard and Enharmonic keys. Enharmonic keys are musically identical but with different notation, so you can choose the representation you prefer.
+
+** Standard Keys
+- **C Major**
+- **G Major**
+- **D Major**
+- **A Major**
+- **E Major**
+- **B Major**
+- **F♯ Major** (enharmonic with G♭ Major)
+- **C♯ Major** (enharmonic with D♭ Major)
+- **F Major**
+- **B♭ Major** (enharmonic with A♯ Major)
+- **E♭ Major** (enharmonic with D♯ Major)
+- **A♭ Major** (enharmonic with G♯ Major)
+
+** Enharmonic Keys
+- **D♭ Major** (enharmonic with C♯ Major)
+- **G♭ Major** (enharmonic with F♯ Major)
+- **C♭ Major** (enharmonic with B Major)
+- **D♯ Major** (enharmonic with E♭ Major)
+- **G♯ Major** (enharmonic with A♭ Major)
+- **A♯ Major** (enharmonic with B♭ Major)
+
+* Sharp vs. Flat Keys
+
+Chordcat automatically determines the notation style based on your selected key:
+
+- **Sharp keys:** Note names will display sharps.
+- **Flat keys:** Note names will display flats.
+
+This distinction ensures that the musical notation and key signature are consistent with the selected key.
+
+Flat keys in chordcat are:
+
+    - C Major
+    - F Major
+    - B♭ Major
+    - E♭ Major
+    - A♭ Major
+    - D♭ Major
+    - G♭ Major
+    - C♭ Major
+
+All other keys are treated as sharp keys.
