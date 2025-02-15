@@ -28,6 +28,7 @@
         Displays chord names when notes are played using PC Keyboard, mouse or a MIDI device
       </li>
       <li>MIDI device support</li>
+      <li>Staff notation</li>
       <li>Metronome</li>
       <li>Looper</li>
       <li>128 inbuilt instruments (General MIDI)</li>
@@ -54,8 +55,8 @@
   <launchable type="desktop-id">dev.ters.Chordcat.desktop</launchable>
   <screenshots>
     <screenshot type="default">
-      <image>https://shriramters.github.io/chordcat/chordcat-0.3.0-kde-with-midi.png</image>
-      <caption>MIDI device connected and preferences window open</caption>
+      <image>https://shriramters.github.io/chordcat/chordcat-0.4.0-staff</image>
+      <caption>Playing the A7 chord with the key set to A Major</caption>
     </screenshot>
     <screenshot>
       <image>https://shriramters.github.io/chordcat/chordcat-0.3.0-kde.png</image>
@@ -67,6 +68,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="0.4.0" date="2025-02-15">
+      <url type="details">https://github.com/shriramters/chordcat/blob/5b87a1684b1e55c95e0473985c9e535233cf3765/CHANGELOG.org</url>
+      <description>
+        <p>Changes</p>
+        <ul>
+          <li>Add Staff Notation</li>
+          <li>Add Key selection and note names based on Key</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.0" date="2024-11-10">
       <url type="details">https://github.com/shriramters/chordcat/blob/9d6dee96ee3db7473fdb1cac1ea00820df3f7129/CHANGELOG.org</url>
       <description>

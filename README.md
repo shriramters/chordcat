@@ -7,7 +7,7 @@ Chord Naming App with MIDI Support
 Chordcat is a desktop app that helps you identify and name chords based on inputted notes. 
 
 - [Documentation](https://shriramters.github.io/chordcat/)
-- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.3.0)
+- Download the latest release [here](https://github.com/shriramters/chordcat/releases/tag/v0.4.0)
   
 <a href='https://flathub.org/apps/dev.ters.Chordcat'>
   <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
@@ -20,6 +20,7 @@ Chordcat is a desktop app that helps you identify and name chords based on input
   - Piano keys are clicked using the mouse
   - The corresponding PC Keyboard keys are pressed
 - MIDI device support
+- Staff notation
 - Metronome
 - Looper
 - 128 Inbuilt instruments (General MIDI)
@@ -28,8 +29,7 @@ Chordcat is a desktop app that helps you identify and name chords based on input
 
 ## Screenshots
 
-<img src="https://shriramters.github.io/chordcat/chordcat-0.3.0-kde-with-midi.png" width="600px">
-<img src="https://shriramters.github.io/chordcat/chordcat-0.3.0-kde-2.png" width="600px">
+<img src="https://shriramters.github.io/chordcat/chordcat-0.4.0-staff.png" width="600px">
 
 ## Keybindings
 <img src="https://github.com/user-attachments/assets/3c664e05-fee9-46aa-9c26-79f4e57f4e91" width="600px">
