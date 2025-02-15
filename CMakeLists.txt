@@ -16,7 +16,7 @@ include(FetchContent)
 # SFML
 find_package(
   SFML
-  COMPONENTS graphics audio system
+  COMPONENTS Graphics Audio System
   REQUIRED)
 
 # REMIDI
@@ -33,7 +33,7 @@ find_package(FluidSynth REQUIRED)
 FetchContent_Declare(
   ImGui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG v1.90.1)
+  GIT_TAG v1.91.8)
 FetchContent_MakeAvailable(ImGui)
 
 # ImGui-SFML
@@ -42,7 +42,7 @@ set(IMGUI_SFML_FIND_SFML OFF)
 FetchContent_Declare(
   ImGui-SFML
   GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
-  GIT_TAG v2.6)
+  GIT_TAG v3.0)
 FetchContent_MakeAvailable(ImGui-SFML)
 
 # nlohmann/json

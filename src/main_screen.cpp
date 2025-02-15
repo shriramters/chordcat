@@ -47,15 +47,15 @@ std::shared_ptr<AppState> MainScreen::Run() {
     sf::Clock deltaClock;
 
     sf::Font font;
-    if (!font.loadFromFile(preferences.ui.font.path)) {
+    if (!font.openFromFile(preferences.ui.font.path)) {
         std::cerr << "Error loading font" << std::endl;
     }
 
-    auto title = sf::Text{"chordcat", font, 50u};
-    auto chord_notes_text = sf::Text("", font, 30u);
+    auto title = sf::Text(font,"chordcat", 50u);
+    auto chord_notes_text = sf::Text(font,"",  30u);
     std::vector<sf::Text> chord_name_list = {};
     // center the title
-    title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2, 50);
+    title.setPosition({window.getSize().x / 2.f - title.getGlobalBounds().size.x / 2, 50});
 
     // Piano
     Piano piano(window, preferences.piano.pressed_note_colors);
@@ -111,9 +111,9 @@ std::shared_ptr<AppState> MainScreen::Run() {
     if (portName.empty())
         portName = "No MIDI Devices Found";
 
-    auto portinfo_text = sf::Text(portName, font, 30u);
-    portinfo_text.setPosition(window.getSize().x / 2.f - portinfo_text.getGlobalBounds().width / 2,
-                              100);
+    auto portinfo_text = sf::Text(font, portName, 30u);
+    portinfo_text.setPosition({window.getSize().x / 2.f - portinfo_text.getGlobalBounds().size.x / 2,
+                              100});
 
     // TODO: Move these to a state object
     bool show_preferences = false;
@@ -128,26 +128,22 @@ std::shared_ptr<AppState> MainScreen::Run() {
     channel_programs.fill(0);
 
     while (window.isOpen()) {
-        auto event = sf::Event{};
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Escape) {
+        while (const std::optional event = window.pollEvent()){
+                ImGui::SFML::ProcessEvent(window,*event);
+                if (event->is<sf::Event::Closed>()){
                     window.close();
+                }else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()){
+                    if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
+                        window.close();
+                }else if (const auto* resized = event->getIf<sf::Event::Resized>()){
+                    // resize my view
+                    sf::FloatRect visibleArea({0, 0}, sf::Vector2f(resized->size));
+                    window.setView(sf::View(visibleArea));
+                    title.setPosition({window.getSize().x / 2.f - title.getGlobalBounds().size.x / 2, 50});
+                    portinfo_text.setPosition({
+                        window.getSize().x / 2.f - portinfo_text.getGlobalBounds().size.x / 2, 100});
                 }
-            }
-            if (event.type == sf::Event::Resized) {
-                // resize my view
-                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
-                window.setView(sf::View(visibleArea));
-                title.setPosition(window.getSize().x / 2.f - title.getGlobalBounds().width / 2, 50);
-                portinfo_text.setPosition(
-                    window.getSize().x / 2.f - portinfo_text.getGlobalBounds().width / 2, 100);
-            }
-            ImGui::SFML::ProcessEvent(event);
-            piano.processEvent(event);
+                piano.processEvent(*event);
         }
 
         std::vector<sf::String> pressed_notes =
@@ -162,12 +158,12 @@ std::shared_ptr<AppState> MainScreen::Run() {
         auto chordset = name_that_chord(piano.getPressedNotes());
         chord_name_list = {};
         for (auto chord : chordset) {
-            chord_name_list.push_back(sf::Text(chord.to_sf_string(key), font, 30u));
-            chord_name_list.back().setPosition(window.getSize().x / 3.f,
-                                               200 + 50 * chord_name_list.size());
+            chord_name_list.push_back(sf::Text(font, chord.to_sf_string(key), 30u));
+            chord_name_list.back().setPosition({window.getSize().x / 3.f,
+                                               200.0f + 50.0f * chord_name_list.size()});
         }
-        chord_notes_text = sf::Text(current_msg, font, 50u);
-        chord_notes_text.setPosition(window.getSize().x / 3.f, 150);
+        chord_notes_text = sf::Text(font, current_msg, 50u);
+        chord_notes_text.setPosition({window.getSize().x / 3.f, 150});
 
         // Fluid Synth Stuff
         fluid_synth_set_gain(piano.getSynth(), preferences.piano.gain);
@@ -190,7 +186,10 @@ std::shared_ptr<AppState> MainScreen::Run() {
                             if (ImGui::Selectable(available_fonts[n].first.c_str(), is_selected)) {
                                 preferences.ui.font.name = available_fonts[n].first;
                                 preferences.ui.font.path = available_fonts[n].second;
-                                font.loadFromFile(preferences.ui.font.path);
+                                if (!font.openFromFile(preferences.ui.font.path)) {
+                                    // load failed
+                                    std::cerr << "Failed to load font: " << preferences.ui.font.path << std::endl;
+                                }
                             }
                             if (is_selected) {
                                 ImGui::SetItemDefaultFocus();
@@ -364,11 +363,11 @@ std::shared_ptr<AppState> MainScreen::Run() {
 
             ImGui::Begin("About", nullptr);
             ImGui::SetWindowSize({0, 0});
+            
+            sf::Sprite logoSprite(logo);
+            logoSprite.setScale({0.2, 0.2});
 
-            sf::Sprite logoSprite;
-            logoSprite.setTexture(logo);
-            logoSprite.setScale(0.2, 0.2);
-            ImGui::SameLine((ImGui::GetWindowWidth() - logoSprite.getGlobalBounds().width) / 2);
+            ImGui::SameLine((ImGui::GetWindowWidth() - logoSprite.getGlobalBounds().size.x) / 2);
             ImGui::Image(logoSprite);
             ImGui::NewLine();
 

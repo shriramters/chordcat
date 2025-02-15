@@ -4,8 +4,8 @@
 #include <SFML/Graphics.hpp>
 
 int main() {
-    auto window = sf::RenderWindow{{1114u, 642u}, "chordcat"};
-    window.setIcon(chordcat_icon.width, chordcat_icon.height, chordcat_icon.pixel_data);
+    auto window = sf::RenderWindow(sf::VideoMode({1114u, 642u}), "chordcat");
+    window.setIcon(sf::Vector2u(chordcat_icon.width, chordcat_icon.height), chordcat_icon.pixel_data);
     window.setFramerateLimit(144);
 
     std::shared_ptr<AppState> state =

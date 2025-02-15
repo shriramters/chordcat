@@ -12,8 +12,12 @@ public:
         m_samples.resize(audioBufferSize);
         // reset the current playing position
         m_currentSample = 0;
+        std::vector<sf::SoundChannel> channelMap = {
+            sf::SoundChannel::SideLeft,   
+            sf::SoundChannel::SideRight
+        };
         // initialize the base class
-        initialize(2, 44100);
+        initialize(2, 44100, channelMap);
     }
     void load(const sf::SoundBuffer& buffer) {
         // extract the audio samples from the sound buffer to our own container
@@ -21,9 +25,12 @@ public:
 
         // reset the current playing position
         m_currentSample = 0;
-
+         std::vector<sf::SoundChannel> channelMap = {
+            sf::SoundChannel::SideLeft,   
+            sf::SoundChannel::SideRight
+        };
         // initialize the base class
-        initialize(2, 44100);
+        initialize(2, 44100, channelMap);
     }
 
     fluid_synth_t* getSynth() { return synth; }
@@ -52,7 +59,7 @@ private:
 
     fluid_settings_t* settings;
     fluid_synth_t* synth;
-    std::vector<sf::Int16> m_samples;
+    std::vector<std::int16_t> m_samples;
     std::size_t m_currentSample;
     static const unsigned int samplesToStream = 512;
     static const unsigned int audioBufferSize = samplesToStream * 2;

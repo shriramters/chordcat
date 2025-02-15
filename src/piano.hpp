@@ -18,7 +18,7 @@ class Piano : public sf::Drawable {
     void clearAllKeys();
     std::vector<size_t> getPressedNotes() const;
     fluid_synth_t* getSynth() const;
-    void processEvent(sf::Event& event);
+    void processEvent(const sf::Event& event);
     void midiEvent(const MidiEvent& me);
     void setMidiEventCallback(MidiEventCallback callback);
     float key_aspect_ratio = 4.f;
@@ -28,8 +28,8 @@ class Piano : public sf::Drawable {
   private:
     MidiEventCallback midiEventCallback;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-    void mouseEvent(sf::Event& event);
-    void keyboardEvent(sf::Event& event);
+    void mouseEvent(const sf::Event& event);
+    void keyboardEvent(const sf::Event& event);
     std::array<bool, 88> keys = {};
     mutable std::array<sf::RectangleShape, 88> key_sprites;
     sf::RenderWindow& window;
