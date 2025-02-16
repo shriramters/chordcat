@@ -79,7 +79,7 @@ endif()
 
 add_executable(${PROJECT_NAME} ${src_files} ${desktop_files})
 target_link_libraries(
-  ${PROJECT_NAME} PRIVATE sfml-graphics sfml-audio sfml-system fluidsynth
+  ${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio SFML::System fluidsynth
                           ImGui-SFML::ImGui-SFML)
 target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
