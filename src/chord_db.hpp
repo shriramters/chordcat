@@ -6,12 +6,12 @@
 
 // TODO: constexpr in future
 const std::vector<std::pair<const sf::String, std::set<unsigned short>>> chord_db = {
-    {"major", {4, 7}},
+    {"maj", {4, 7}},
     {"7", {4, 7, 10}},
     {"9", {4, 7, 10, 2}},
     {"11", {4, 7, 10, 2, 5}},
     {"13", {4, 7, 10, 2, 5, 9}},
-    {"minor", {3, 7}},
+    {"min", {3, 7}},
     {"m7", {3, 7, 10}},
     {"m9", {3, 7, 10, 2}},
     {"m11", {3, 7, 10, 2, 5}},
@@ -47,5 +47,4 @@ const std::vector<std::pair<const sf::String, std::set<unsigned short>>> chord_d
     {"augMaj11", {4, 8, 11, 2, 5}},
     {"augMaj13", {4, 8, 11, 2, 5, 9}},
     {"6", {4, 7, 9}},
-    {"m6", {3, 7, 9}}
-};
+    {"m6", {3, 7, 9}}};
