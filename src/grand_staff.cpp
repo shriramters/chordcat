@@ -176,11 +176,11 @@ void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
         for (int i = 0; i < howMany && i < 7; i++) {
             text.setString(flats);
             // Treble staff
-            float ty = trebleBase + trebleFlatY[i] * 0.5 * staffSpacing;
+            float ty = trebleBase + trebleFlatY[i] * 0.5f * staffSpacing;
             text.setPosition({trebleX + i * fontSize * 0.25f, ty});
             target.draw(text);
             // Bass staff
-            float by = bassBase + trebleFlatY[i] * 0.5 * staffSpacing;
+            float by = bassBase + trebleFlatY[i] * 0.5f * staffSpacing;
             text.setPosition({bassX + i * fontSize * 0.25f, by});
             target.draw(text);
         }
