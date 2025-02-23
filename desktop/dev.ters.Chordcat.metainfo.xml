@@ -3,7 +3,7 @@
   <id>dev.ters.Chordcat</id>
   
   <name>Chordcat</name>
-  <summary>Chord naming app with midi support</summary>
+  <summary>Play and name chords</summary>
   <developer id="dev.ters">
     <name>Shriram Ravindranathan</name>
   </developer>
@@ -69,17 +69,18 @@
   </screenshots>
   <releases>
     <release version="0.5.0" date="2025-02-23">
-      <url type="details">https://github.com/shriramters/chordcat/blob/5b87a1684b1e55c95e0473985c9e535233cf3765/CHANGELOG.org</url>
+      <url type="details">https://github.com/shriramters/chordcat/blob/cee7b70c249244457cf6a68b49f2f3fa7e5fdc02/CHANGELOG.org</url>
       <description>
         <p>Changes</p>
         <ul>
           <li>Migrate to SFML 3</li>
           <li>Use standard notation for major and minor chords</li>
+          <li>Modernize app icon</li>
         </ul>
       </description>
     </release>
     <release version="0.4.0" date="2025-02-15">
-      <url type="details">https://github.com/shriramters/chordcat/blob/5b87a1684b1e55c95e0473985c9e535233cf3765/CHANGELOG.org</url>
+      <url type="details">https://github.com/shriramters/chordcat/blob/55e1e19c4941f1a76482af26eaa9ef637613c62d/CHANGELOG.org</url>
       <description>
         <p>Changes</p>
         <ul>
