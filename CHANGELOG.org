@@ -1,7 +1,14 @@
+* v0.5.0
+  - Migrate to SFML 3 (@NeroBlackstone)
+  - Fix notation for major and minor chords
+  - Update app icon
+
+  -- Shriram Ravindranathan <s20n@ters.dev> <2025-02-23 Sun>
+
 * v0.4.0
   - Add Grand Staff
   - Add Key selection
-  - Add dynamic note names that change based on selected key center.
+  - Add dynamic note names that change based on selected key center
 
   -- Shriram Ravindranathan <s20n@ters.dev> <2025-02-15 Sat>
   

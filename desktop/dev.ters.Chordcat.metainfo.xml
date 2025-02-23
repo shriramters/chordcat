@@ -68,6 +68,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="0.5.0" date="2025-02-23">
+      <url type="details">https://github.com/shriramters/chordcat/blob/5b87a1684b1e55c95e0473985c9e535233cf3765/CHANGELOG.org</url>
+      <description>
+        <p>Changes</p>
+        <ul>
+          <li>Migrate to SFML 3</li>
+          <li>Use standard notation for major and minor chords</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.4.0" date="2025-02-15">
       <url type="details">https://github.com/shriramters/chordcat/blob/5b87a1684b1e55c95e0473985c9e535233cf3765/CHANGELOG.org</url>
       <description>
