@@ -98,10 +98,14 @@ void GrandStaff::drawStaff(sf::RenderTarget& target) const {
     static sf::Sprite bassSprite(bassTex);
 
     if (!loaded) {
-        trebleTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/treble_clef.png");
-        bassTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/bass_clef.png");
-        trebleSprite.setTexture(trebleTex);
-        bassSprite.setTexture(bassTex);
+        if (!trebleTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/treble_clef.png")) {
+            std::cerr << "Failed to load treble_clef.png" << std::endl;
+        }
+        if (!bassTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/bass_clef.png")) {
+            std::cerr << "Failed to load bass_clef.png" << std::endl;
+        }
+        trebleSprite = sf::Sprite(trebleTex);
+        bassSprite = sf::Sprite(bassTex);
 
         float scaleFactor = (5 * staffSpacing) / trebleTex.getSize().y;
         trebleSprite.setScale({scaleFactor, scaleFactor});
@@ -110,7 +114,8 @@ void GrandStaff::drawStaff(sf::RenderTarget& target) const {
         loaded = true;
     }
 
-    trebleSprite.setPosition({staffLeftX - 10.f - trebleSprite.getGlobalBounds().size.x, staffTopY});
+    trebleSprite.setPosition(
+        {staffLeftX - 10.f - trebleSprite.getGlobalBounds().size.x, staffTopY});
     target.draw(trebleSprite);
 
     bassSprite.setPosition({staffLeftX - 10.f - bassSprite.getGlobalBounds().size.x, bassTop});
@@ -158,12 +163,12 @@ void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
         for (int i = 0; i < howMany && i < 7; i++) {
             text.setString(sharps);
             // Treble staff
-            float ty = trebleBase + trebleSharpY[i] * 0.5 * staffSpacing;
-            text.setPosition({trebleX + i * fontSize * 0.25, ty});
+            float ty = trebleBase + trebleSharpY[i] * 0.5f * staffSpacing;
+            text.setPosition({trebleX + i * fontSize * 0.25f, ty});
             target.draw(text);
             // Bass staff
-            float by = bassBase + (trebleSharpY[i] + 2) * 0.5 * staffSpacing;
-            text.setPosition({bassX + i * fontSize * 0.25, by});
+            float by = bassBase + (trebleSharpY[i] + 2) * 0.5f * staffSpacing;
+            text.setPosition({bassX + i * fontSize * 0.25f, by});
             target.draw(text);
         }
     } else {
@@ -172,11 +177,11 @@ void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
             text.setString(flats);
             // Treble staff
             float ty = trebleBase + trebleFlatY[i] * 0.5 * staffSpacing;
-            text.setPosition({trebleX + i * fontSize * 0.25, ty});
+            text.setPosition({trebleX + i * fontSize * 0.25f, ty});
             target.draw(text);
             // Bass staff
             float by = bassBase + trebleFlatY[i] * 0.5 * staffSpacing;
-            text.setPosition({bassX + i * fontSize * 0.25, by});
+            text.setPosition({bassX + i * fontSize * 0.25f, by});
             target.draw(text);
         }
     }
@@ -195,7 +200,7 @@ void GrandStaff::drawNotes(sf::RenderTarget& target) const {
 
         sf::String acc = getAccidentalGlyph(midiNote);
         if (!acc.isEmpty()) {
-            sf::Text accidental(font,acc, static_cast<unsigned>(staffSpacing * 1.5f));
+            sf::Text accidental(font, acc, static_cast<unsigned>(staffSpacing * 1.5f));
             accidental.setFillColor(sf::Color::White);
             accidental.setPosition({x - (staffSpacing * 1.5f), y - (staffSpacing * 0.75f)});
             target.draw(accidental);
