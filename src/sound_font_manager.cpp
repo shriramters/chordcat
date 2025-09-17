@@ -1,58 +1,67 @@
+// SPDX-License-Identifier: GPL-3.0-only
 #include "sound_font_manager.hpp"
-#include "config.h"
-#include <iostream>
+#include <QDirIterator>
+#include <QStandardPaths>
+#include <QDebug>
 
-SoundFontManager::SoundFontManager() {
-    systemDir = std::filesystem::path(std::string(APP_ASSETS_PATH) + "/soundfonts/");
-    userDir = getUserSoundFontDir();
-
-    if (userDir) {
-        std::filesystem::create_directories(*userDir);
-    }
+SoundFontManager::SoundFontManager(QObject* parent) : QObject(parent) {
+    findSoundFonts();
 }
 
-std::vector<std::pair<std::string, std::filesystem::path>>
-SoundFontManager::getAvailableSoundFonts() const {
-    std::vector<std::pair<std::string, std::filesystem::path>> soundfonts;
+QStringList SoundFontManager::availableSoundFonts() const {
+    return m_soundfont_names;
+}
 
-    // search system dir
-    for (const auto& entry : std::filesystem::directory_iterator(systemDir)) {
-        if (entry.path().extension() == ".sf2") {
-            soundfonts.emplace_back(entry.path().filename().string(), entry.path());
-        }
+QString SoundFontManager::getSoundFontPath(const QString& name) const
+{
+    auto it = std::find_if(m_soundfonts.begin(), m_soundfonts.end(),
+                           [&](const auto& pair) {
+                               return QString::fromStdString(pair.first) == name;
+                           });
+    if (it != m_soundfonts.end()) {
+        return QString::fromStdString(it->second.string());
+    }
+    return QString();
+}
+
+void SoundFontManager::findSoundFonts() {
+    m_soundfonts.clear();
+    m_soundfont_names.clear();
+
+    QStringList searchPaths;
+
+    // User-specific writable data location
+    searchPaths.append(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/soundfonts");
+
+    // System-wide read-only data locations
+    for (const QString& dataDir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation)) {
+        searchPaths.append(dataDir + "/chordcat/assets/soundfonts");
+    }
+    searchPaths.append("/usr/share/soundfonts");
+
+    // Ensure user directory exists (only for the writable path)
+    std::filesystem::path userDir = getUserSoundFontDir();
+    if (!std::filesystem::exists(userDir)) {
+        std::filesystem::create_directories(userDir);
     }
 
-    // search user dir if available
-    if (userDir) {
-        for (const auto& entry : std::filesystem::directory_iterator(*userDir)) {
-            if (entry.path().extension() == ".sf2") {
-                soundfonts.emplace_back(entry.path().filename().string(), entry.path());
+    // Iterate through all collected search paths
+    for (const QString& path : searchPaths) {
+        QDirIterator it(path, {"*.sf2"}, QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            QString filePath = it.next();
+            QString name = QFileInfo(filePath).fileName();
+            if (!m_soundfont_names.contains(name)) {
+                m_soundfonts.emplace_back(name.toStdString(), std::filesystem::path(filePath.toStdString()));
+                m_soundfont_names.append(name);
             }
         }
     }
 
-    return soundfonts;
+    emit availableSoundFontsChanged();
 }
-std::optional<std::filesystem::path> SoundFontManager::getUserSoundFontDir() const {
-#ifdef _WIN32
-    char* appDataRoot = std::getenv("APPDATA");
-    if (appDataRoot == nullptr) {
-        std::cerr << "Can't find user data directory, env variable $APPDATA was NULL";
-        return std::nullopt;
-    }
-    return std::filesystem::path(appDataRoot) / "chordcat" / "soundfonts";
-#else
-    char* dataRoot = std::getenv("XDG_DATA_HOME");
-    if (dataRoot == nullptr) {
-        dataRoot = std::getenv("HOME");
-        if (dataRoot != nullptr) {
-            return std::filesystem::path(dataRoot) / ".local" / "share" / "chordcat" / "soundfonts";
-        } else {
-            std::cerr << "Can't find user data directory, env variable $HOME and "
-                         "$XDG_DATA_HOME were NULL";
-            return std::nullopt;
-        }
-    }
-    return std::filesystem::path(dataRoot) / "chordcat" / "soundfonts";
-#endif
+
+std::filesystem::path SoundFontManager::getUserSoundFontDir() const {
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    return std::filesystem::path(dataPath.toStdString()) / "soundfonts";
 }

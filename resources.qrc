@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
+        <file>assets/images/gear.png</file>
+        <file>assets/images/check.png</file>
+        <file>assets/images/treble_clef.png</file>
+        <file>assets/images/bass_clef.png</file>
+        <file>assets/fonts/Koulen/Koulen-Regular.ttf</file>
+    </qresource>
+</RCC>

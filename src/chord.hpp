@@ -1,32 +1,33 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
 #include "key.hpp"
-#include <SFML/System/String.hpp>
+#include <QString>
+#include <string>
 #include <array>
 #include <vector>
 
-const std::array<sf::String, 12> degrees = {"root", L"♭2", "2",   L"♭3", "3",   "4",
-                                            L"♭5",  "5",   L"♭6", "6",   L"♭7", "7"};
-const std::array<sf::String, 12> compound_tones = {"octave", L"♭9", "9",    L"♭10", "10",  "11",
-                                                   L"♯11",   "5",   L"♭13", "13",   L"♭7", "7"};
+const std::array<std::wstring, 12> degrees_w = {L"root", L"♭2", L"2",   L"♭3", L"3",   L"4",
+                                            L"♭5",  L"5",   L"♭6", L"6",   L"♭7", L"7"};
+const std::array<std::wstring, 12> compound_tones_w = {L"octave", L"♭9", L"9",    L"♭10", L"10",  L"11",
+                                                   L"♯11",   L"5",   L"♭13", L"13",   L"♭7", L"7"};
 
-static const std::array<sf::String, 12> sharp_names = {"A",   L"A♯", "B", "C",   L"C♯", "D",
-                                                       L"D♯", "E",   "F", L"F♯", "G",   L"G♯"};
+static const std::array<std::wstring, 12> sharp_names_w = {L"A",   L"A♯", L"B", L"C",   L"C♯", L"D",
+                                                       L"D♯", L"E",   L"F", L"F♯", L"G",   L"G♯"};
 
-static const std::array<sf::String, 12> flat_names = {"A",   L"B♭", "B", "C",   L"D♭", "D",
-                                                      L"E♭", "E",   "F", L"G♭", "G",   L"A♭"};
+static const std::array<std::wstring, 12> flat_names_w = {L"A",   L"B♭", L"B", L"C",   L"D♭", L"D",
+                                                      L"E♭", L"E",   L"F", L"G♭", L"G",   L"A♭"};
 
-inline sf::String key_number_to_note_name(std::size_t index, Key key) {
+inline QString key_number_to_note_name(std::size_t index, Key key) {
     if (is_sharp_key(key)) {
-        return sharp_names[index % 12];
+        return QString::fromStdWString(sharp_names_w[index % 12]);
     } else {
-        return flat_names[index % 12];
+        return QString::fromStdWString(flat_names_w[index % 12]);
     }
 }
 
 struct Chord {
     unsigned short root;
-    sf::String base_name;
+    QString base_name;
     std::vector<unsigned short> extra_tones;
     std::vector<unsigned short> omitted_tones;
     unsigned num_accidentals;
@@ -37,17 +38,26 @@ struct Chord {
     }
 
     // to string
-    sf::String to_sf_string(Key k) {
-        sf::String res = key_number_to_note_name(root, k) + base_name;
-        unsigned accidentals_count = num_accidentals;
-        if (accidentals_count > 0) {
-            res += "(";
+    QString toString(Key k) const {
+        QString res = key_number_to_note_name(root, k) + base_name;
+        if (num_accidentals == 0) {
+            return res;
         }
-
-        for (auto tone : omitted_tones)
-            res += "no" + degrees[tone % 12] + (--num_accidentals == 0 ? ")" : ",");
-        for (auto tone : extra_tones)
-            res += compound_tones[tone % 12] + (--num_accidentals == 0 ? ")" : ",");
+        res += "(";
+        bool first = true;
+        for (auto tone : omitted_tones) {
+            if (!first)
+                res += ",";
+            res += "no" + QString::fromStdWString(degrees_w[tone % 12]);
+            first = false;
+        }
+        for (auto tone : extra_tones) {
+            if (!first)
+                res += ",";
+            res += QString::fromStdWString(compound_tones_w[tone % 12]);
+            first = false;
+        }
+        res += ")";
         return res;
     }
 };

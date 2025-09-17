@@ -2,7 +2,9 @@
 #pragma once
 #include "chord.hpp"
 #include "chord_db.hpp"
-#include "config.h"
+#include <QString>
+#include <string_view>
+
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -13,9 +15,9 @@
 #include <string>
 #include <vector>
 
-inline std::vector<sf::String> key_numbers_to_note_names(const std::vector<size_t>& indices,
+inline std::vector<QString> key_numbers_to_note_names(const std::vector<size_t>& indices,
                                                          Key key) {
-    std::vector<sf::String> result = {};
+    std::vector<QString> result = {};
     for (auto index : indices) {
         result.push_back(key_number_to_note_name(index, key));
     }
@@ -35,7 +37,7 @@ inline void insert_chords(const unsigned short root, const std::set<unsigned sho
     for (auto& [name, notes] : chord_db) {
         Chord chord = {};
         chord.root = root;
-        chord.base_name = name;
+        chord.base_name = QString::fromStdWString(name);
 
         // TODO: Rewite using std::ranges::set_difference
         std::set_difference(notes.begin(), notes.end(), intervals.begin(), intervals.end(),
