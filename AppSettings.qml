@@ -6,7 +6,7 @@ import QtQuick
 
 Settings {
     // Piano settings
-    property real piano_gain: 1.0
+    property real synth_gain: 1.0
     property color piano_pressedNoteColor: "#ed4545"
     property int piano_channel: 0
 
@@ -14,7 +14,9 @@ Settings {
     property string fontName: "Koulen"
     property string fontPath: "qrc:/assets/fonts/Koulen/Koulen-Regular.ttf"
 
-    // MIDI settings
+    // Input settings
+    property int pc_keyboard_program: 0
+    property int pc_keyboard_channel: 0
     property int midi_backendIndex: 0
     property int midi_portIndex: -1
 

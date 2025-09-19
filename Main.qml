@@ -12,7 +12,7 @@ ApplicationWindow {
 
     Component.onCompleted: {
         // Set initial values from settings
-        pianoBackend.setGain(AppSettings.piano_gain)
+        pianoBackend.setGain(AppSettings.synth_gain)
 
         const sfPath = soundFontManager.getSoundFontPath(AppSettings.soundfont_name)
         if (sfPath) {
@@ -31,7 +31,7 @@ ApplicationWindow {
 
     Connections {
         target: AppSettings
-        function onPiano_gainChanged() { pianoBackend.setGain(AppSettings.piano_gain); }
+        function onSynth_gainChanged() { pianoBackend.setGain(AppSettings.synth_gain); }
         function onSoundfont_nameChanged() {
             const path = soundFontManager.getSoundFontPath(AppSettings.soundfont_name);
             if (path) {

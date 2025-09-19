@@ -24,20 +24,20 @@ Pane {
         spacing: 0
 
         Pane {
-            Layout.preferredWidth: 200
+            Layout.preferredWidth: 250
             Layout.fillHeight: true
 
             ListView {
                 id: navigationList
                 anchors.fill: parent
                 clip: true
-                model: ["MIDI", "Audio", "Interface"]
+                model: ["Input", "Audio", "UI"]
                 currentIndex: 0
 
                 delegate: ItemDelegate {
                     width: parent.width
                     text: modelData
-                    font.pixelSize: 24
+                    font.pixelSize: 28
                     topPadding: 12
                     bottomPadding: 12
                     highlighted: ListView.isCurrentItem
@@ -51,91 +51,150 @@ Pane {
             Layout.fillHeight: true
             currentIndex: navigationList.currentIndex
             
-            // MIDI Settings
+            // Input Settings
             Frame {
-                padding: 20
-                GridLayout {
-                    columns: 2
-                    
-                    Label { text: "Backend"; font.bold: true }
-                    ComboBox {
-                        model: midiManager.availableBackends
-                        currentIndex: midiManager.currentBackendIndex
+                padding: 12
+                ColumnLayout {
+                    Label { text: "MIDI Input"; font.pixelSize: 20; topPadding:0; bottomPadding: 12 }
+                    GridLayout {
+                        columns: 2
+                        Label { text: "Backend"; font.bold: true }
+                        ComboBox {
+                            model: midiManager.availableBackends
+                            currentIndex: midiManager.currentBackendIndex
 
-                        onCurrentIndexChanged: {
-                            if (currentIndex !== midiManager.currentBackendIndex) {
-                                // Port MUST be reset before backend is changed.
-                                midiManager.currentPortIndex = -1;
-                                // then, change the backend.
-                                midiManager.currentBackendIndex = currentIndex;
+                            onCurrentIndexChanged: {
+                                if (currentIndex !== midiManager.currentBackendIndex) {
+                                    // Port MUST be reset before backend is changed.
+                                    midiManager.currentPortIndex = -1;
+                                    // then, change the backend.
+                                    midiManager.currentBackendIndex = currentIndex;
+                                }
                             }
+                            Layout.fillWidth: true
                         }
-                        Layout.fillWidth: true
+
+                        Label { text: "Input Port"; font.bold: true }
+                        ComboBox {
+                            model: midiManager.availablePorts
+                            currentIndex: midiManager.currentPortIndex
+                            Layout.fillWidth: true
+                        }
                     }
 
-                    Label { text: "Input Port"; font.bold: true }
-                    ComboBox {
-                        model: midiManager.availablePorts
-                        currentIndex: midiManager.currentPortIndex
-                        Layout.fillWidth: true
+                    MenuSeparator {
+                        padding: 0
+                        topPadding: 12
+                        bottomPadding: 12
+                        contentItem: Rectangle {
+                            implicitWidth: 200
+                            implicitHeight: 1
+                            opacity: 0.5
+                        }
+                    }
+
+                    Label { text: "PC Keyboard Input"; font.pixelSize: 20; topPadding:0; bottomPadding: 12 }
+                    GridLayout {
+                        columns: 2
+                        Label { text: "Channel" }
+                        SpinBox {
+                            from: 0
+                            to: 15
+                            value: AppSettings.pc_keyboard_channel
+                            onValueChanged: {
+                                AppSettings.pc_keyboard_channel = value;
+                                pianoBackend.programChange(value, AppSettings.pc_keyboard_program);
+                            }
+                        }
+
+                        Label { text: "Instrument" }
+                        SpinBox {
+                            from: 0
+                            to: 127
+                            value: AppSettings.pc_keyboard_program
+                            onValueChanged: {
+                                AppSettings.pc_keyboard_program = value;
+                                pianoBackend.programChange(AppSettings.pc_keyboard_channel, value);
+                            }
+                        }
                     }
                 }
             }
 
             // Audio Settings
             Frame {
-                padding: 20
-                GridLayout {
-                    columns: 2
-
-                    Label { text: "Piano Gain"; font.bold: true }
-                    Slider {
-                        from: 0.0
-                        to: 10.0
-                        value: AppSettings.piano_gain
-                        onValueChanged: AppSettings.piano_gain = value
-                        Layout.fillWidth: true
-                    }
-
-                    Label { text: "SoundFont"; font.bold: true }
-                    ComboBox {
-                        model: soundFontManager.availableSoundFonts
-                        currentIndex: model.length > 0 ? (model.indexOf(AppSettings.soundfont_name) > -1 ? model.indexOf(AppSettings.soundfont_name) : 0) : -1
-
-                        onCurrentIndexChanged: {
-                            if (currentIndex > -1) {
-                                AppSettings.soundfont_name = model[currentIndex]
-                            }
+                padding: 12
+                ColumnLayout {
+                    Label { text: "FluidSynth Settings"; font.pixelSize: 20; topPadding:0; bottomPadding: 12 }
+                    GridLayout {
+                        columns: 2
+                        Label { text: "Synth Gain"; font.bold: true }
+                        Slider {
+                            from: 0.0
+                            to: 10.0
+                            value: AppSettings.synth_gain
+                            onValueChanged: AppSettings.synth_gain = value
+                            Layout.fillWidth: true
                         }
-                        Layout.fillWidth: true
+
+                        Label { text: "SoundFont"; font.bold: true }
+                        ComboBox {
+                            model: soundFontManager.availableSoundFonts
+                            currentIndex: model.length > 0 ? (model.indexOf(AppSettings.soundfont_name) > -1 ? model.indexOf(AppSettings.soundfont_name) : 0) : -1
+
+                            onCurrentIndexChanged: {
+                                if (currentIndex > -1) {
+                                    AppSettings.soundfont_name = model[currentIndex]
+                                }
+                            }
+                            Layout.fillWidth: true
+                        }
                     }
                 }
             }
 
-            // Interface Settings
+            // User Interface Settings
             Frame {
-                padding: 20
-                GridLayout {
-                    columns: 2
+                padding: 12
+                ColumnLayout {
+                    Label { text: "Notation"; font.pixelSize: 20; topPadding:0; bottomPadding: 12 }
+                    GridLayout {
+                        columns: 2
 
-                    Label { text: "Key Signature"; font.bold: true }
-                    ComboBox {
-                        model: keySignatureModel
-                        currentIndex: AppSettings.keySignature
-                        onCurrentIndexChanged: AppSettings.keySignature = currentIndex
-                        Layout.fillWidth: true
+                        Label { text: "Key Signature"; font.bold: true }
+                        ComboBox {
+                            model: keySignatureModel
+                            currentIndex: AppSettings.keySignature
+                            onCurrentIndexChanged: AppSettings.keySignature = currentIndex
+                            Layout.fillWidth: true
+                        }
                     }
 
-                    Label { text: "Pressed Note Color"; font.bold: true }
-                    Rectangle {
-                        width: 120
-                        height: 32
-                        color: AppSettings.piano_pressedNoteColor
-                        border.color: "gray"
-                        radius: 4
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: colorDialog.open()
+                    MenuSeparator {
+                        padding: 0
+                        topPadding: 12
+                        bottomPadding: 12
+                        contentItem: Rectangle {
+                            implicitWidth: 200
+                            implicitHeight: 1
+                            opacity: 0.5
+                        }
+                    }
+
+                    Label { text: "Keyboard UI"; font.pixelSize: 20; topPadding:0; bottomPadding: 12 }
+                    GridLayout {
+                        columns: 2
+                        Label { text: "Pressed Note Color"; font.bold: true }
+                        Rectangle {
+                            width: 120
+                            height: 32
+                            color: AppSettings.piano_pressedNoteColor
+                            border.color: "gray"
+                            radius: 4
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: colorDialog.open()
+                            }
                         }
                     }
                 }

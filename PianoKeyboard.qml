@@ -221,7 +221,7 @@ Item {
         } else {
             var noteOffset = getNoteFromKeyCode(event.key)
             if (noteOffset >= 0) {
-                pianoBackend.keyOn(noteOffset + octave * 12, pianoBackend.channel, 100)
+                pianoBackend.keyOn(noteOffset + octave * 12, AppSettings.pc_keyboard_channel, 100)
             }
         }
         event.accepted = true
@@ -231,7 +231,7 @@ Item {
         if (!event.isAutoRepeat) {
             var noteOffset = getNoteFromKeyCode(event.key)
             if (noteOffset >= 0) {
-                pianoBackend.keyOff(noteOffset + octave * 12, pianoBackend.channel)
+                pianoBackend.keyOff(noteOffset + octave * 12, AppSettings.pc_keyboard_channel)
             }
         }
         event.accepted = true

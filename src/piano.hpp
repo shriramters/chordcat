@@ -85,6 +85,8 @@ public:
      */
     Q_INVOKABLE void setChannel(int chan);
 
+    Q_INVOKABLE void programChange(int chan, int program);
+
     Q_INVOKABLE void setGain(qreal gain);
     Q_INVOKABLE void loadSoundFont(const QString& path);
 

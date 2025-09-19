@@ -198,3 +198,10 @@ void Piano::keyOffInternal(int midi_note_number, int chan)
         emit pressedNotesChanged(getPressedNotes());
     }
 }
+
+void Piano::programChange(int chan, int program)
+{
+    if (m_synth) {
+        fluid_synth_program_change(m_synth, chan, program);
+    }
+}
