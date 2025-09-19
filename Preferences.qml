@@ -60,6 +60,7 @@ Pane {
                         columns: 2
                         Label { text: "Backend"; font.bold: true }
                         ComboBox {
+                            focusPolicy: Qt.NoFocus
                             model: midiManager.availableBackends
                             currentIndex: midiManager.currentBackendIndex
 
@@ -76,6 +77,7 @@ Pane {
 
                         Label { text: "Input Port"; font.bold: true }
                         ComboBox {
+                            focusPolicy: Qt.NoFocus
                             model: midiManager.availablePorts
                             currentIndex: midiManager.currentPortIndex
                             Layout.fillWidth: true
@@ -98,6 +100,7 @@ Pane {
                         columns: 2
                         Label { text: "Channel" }
                         SpinBox {
+                            focusPolicy: Qt.NoFocus
                             from: 0
                             to: 15
                             value: AppSettings.pc_keyboard_channel
@@ -109,6 +112,7 @@ Pane {
 
                         Label { text: "Instrument" }
                         SpinBox {
+                            focusPolicy: Qt.NoFocus
                             from: 0
                             to: 127
                             value: AppSettings.pc_keyboard_program
@@ -130,6 +134,7 @@ Pane {
                         columns: 2
                         Label { text: "Synth Gain"; font.bold: true }
                         Slider {
+                            focusPolicy: Qt.NoFocus
                             from: 0.0
                             to: 10.0
                             value: AppSettings.synth_gain
@@ -139,6 +144,7 @@ Pane {
 
                         Label { text: "SoundFont"; font.bold: true }
                         ComboBox {
+                            focusPolicy: Qt.NoFocus
                             model: soundFontManager.availableSoundFonts
                             currentIndex: model.length > 0 ? (model.indexOf(AppSettings.soundfont_name) > -1 ? model.indexOf(AppSettings.soundfont_name) : 0) : -1
 
@@ -163,6 +169,7 @@ Pane {
 
                         Label { text: "Key Signature"; font.bold: true }
                         ComboBox {
+                            focusPolicy: Qt.NoFocus
                             model: keySignatureModel
                             currentIndex: AppSettings.keySignature
                             onCurrentIndexChanged: AppSettings.keySignature = currentIndex
