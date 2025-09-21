@@ -16,12 +16,17 @@ bool Piano::isNotePressed(int midiNote) const
     if (idx < 0 || idx >= kNumKeys) {
         return false;
     }
-    return m_pressedKeys[idx];
+    for (int i = 0; i < 16; ++i) {
+        if (m_pressedKeys[i][idx]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 Piano::Piano(QObject* parent)
     : QObject(parent)
-    , m_pressedKeys(kNumKeys, false)
+    , m_pressedKeys(16, QVector<bool>(kNumKeys, false))
 {
     // Create the FluidSynth streaming device
     m_synthDevice = new MidiSynthIODevice(this);
@@ -103,7 +108,7 @@ void Piano::keyToggle(int midi_note_number)
     int idx = noteToIndex(midi_note_number);
     if (idx < 0 || idx >= kNumKeys) return;
 
-    if (m_pressedKeys[idx]) {
+    if (m_pressedKeys[m_channel][idx]) {
         keyOff(midi_note_number, m_channel);
     } else {
         keyOn(midi_note_number, m_channel, 100);
@@ -113,13 +118,15 @@ void Piano::keyToggle(int midi_note_number)
 void Piano::clearAllKeys()
 {
     // Turn off any that are pressed, reset the array
-    for (int i = 0; i < kNumKeys; ++i) {
-        if (m_pressedKeys[i]) {
-            int midiNote = i + kLowestMIDINote;
-            fluid_synth_noteoff(m_synth, m_channel, midiNote);
+    for (int c = 0; c < 16; ++c) {
+        for (int i = 0; i < kNumKeys; ++i) {
+            if (m_pressedKeys[c][i]) {
+                int midiNote = i + kLowestMIDINote;
+                fluid_synth_noteoff(m_synth, c, midiNote);
+            }
         }
+        m_pressedKeys[c].fill(false);
     }
-    m_pressedKeys.fill(false);
     emit pressedNotesChanged(getPressedNotes());
 }
 
@@ -128,8 +135,11 @@ std::vector<size_t> Piano::getPressedNotes() const
     std::vector<size_t> pressed;
     pressed.reserve(kNumKeys);
     for (int i = 0; i < kNumKeys; ++i) {
-        if (m_pressedKeys[i]) {
-            pressed.push_back(i);
+        for (int c = 0; c < 16; ++c) {
+            if (m_pressedKeys[c][i]) {
+                pressed.push_back(i);
+                break; // Don't add the same note index twice
+            }
         }
     }
     return pressed;
@@ -176,11 +186,11 @@ void Piano::midiEvent(const MidiEvent& me)
 void Piano::keyOnInternal(int midi_note_number, int chan, int velocity)
 {
     int idx = noteToIndex(midi_note_number);
-    if (idx < 0 || idx >= kNumKeys) return;
+    if (idx < 0 || idx >= kNumKeys || chan < 0 || chan >= 16) return;
 
-    if (!m_pressedKeys[idx]) {
+    if (!m_pressedKeys[chan][idx]) {
         fluid_synth_noteon(m_synth, chan, midi_note_number, velocity);
-        m_pressedKeys[idx] = true;
+        m_pressedKeys[chan][idx] = true;
         emit noteStateChanged(midi_note_number, true);
         emit pressedNotesChanged(getPressedNotes());
     }
@@ -189,11 +199,11 @@ void Piano::keyOnInternal(int midi_note_number, int chan, int velocity)
 void Piano::keyOffInternal(int midi_note_number, int chan)
 {
     int idx = noteToIndex(midi_note_number);
-    if (idx < 0 || idx >= kNumKeys) return;
+    if (idx < 0 || idx >= kNumKeys || chan < 0 || chan >= 16) return;
 
-    if (m_pressedKeys[idx]) {
+    if (m_pressedKeys[chan][idx]) {
         fluid_synth_noteoff(m_synth, chan, midi_note_number);
-        m_pressedKeys[idx] = false;
+        m_pressedKeys[chan][idx] = false;
         emit noteStateChanged(midi_note_number, false);
         emit pressedNotesChanged(getPressedNotes());
     }

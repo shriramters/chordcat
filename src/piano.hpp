@@ -101,8 +101,8 @@ private:
     QAudioSink*        m_audioSink   = nullptr;
     fluid_synth_t*     m_synth       = nullptr;
 
-    // Pressed state for each note in [A0..C8] => [21..108]
-    QVector<bool>      m_pressedKeys;
+    // Pressed state for each note in [A0..C8] => [21..108] for all 16 channels
+    QVector<QVector<bool>> m_pressedKeys;
 
     int m_channel = 0;
 
