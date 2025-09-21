@@ -150,6 +150,21 @@ ApplicationWindow {
             icon.width: 32
             icon.height: 32
         }
+        RoundButton {
+            id: aboutButton
+            icon.source: "qrc:/assets/images/info.png"
+            onClicked: aboutDialog.open()
+            Layout.preferredWidth: 48
+            Layout.preferredHeight: 48
+            icon.width: 32
+            icon.height: 32
+            Layout.leftMargin: 10
+        }
+    }
+
+    AboutDialog {
+        id: aboutDialog
+        anchors.centerIn: window.contentItem
     }
 
     // Content area anchored between topRow and pianoKeyboard

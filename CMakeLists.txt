@@ -59,6 +59,7 @@ qt_add_qml_module(${APP_TARGET_NAME}
         PianoKeyboard.qml
         Preferences.qml
         InstrumentTable.qml
+        AboutDialog.qml
         AppSettings.qml
 )
 

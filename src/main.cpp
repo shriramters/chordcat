@@ -3,6 +3,9 @@
 #include <QAudioFormat>
 #include <QAudioSink>
 #include <QQmlContext>
+#include <fluidsynth.h>
+#include <fluidsynth/version.h>
+#include <libremidi/config.hpp>
 #include "piano.hpp"
 #include "grand_staff.hpp"
 #include "chord_identifier.hpp"
@@ -36,6 +39,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("chordIdentifier", &chordIdentifier);
     engine.rootContext()->setContextProperty("soundFontManager", &sfManager);
     engine.rootContext()->setContextProperty("midiManager", &midiManager);
+
+    // Version Info
+    engine.rootContext()->setContextProperty("qtVersion", QString(qVersion()));
+    engine.rootContext()->setContextProperty("fluidsynthVersion", QString(FLUIDSYNTH_VERSION));
+    engine.rootContext()->setContextProperty("libremidiVersion", QString(LIBREMIDI_VERSION));
 
     QObject::connect(
         &engine,

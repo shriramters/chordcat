@@ -6,5 +6,7 @@
         <file>assets/images/treble_clef.png</file>
         <file>assets/images/bass_clef.png</file>
         <file>assets/fonts/Koulen/Koulen-Regular.ttf</file>
+        <file>assets/images/chordcat.png</file>
+        <file>assets/images/info.png</file>
     </qresource>
 </RCC>

@@ -123,7 +123,9 @@ Pane {
                                 }
                             }
                             RoundButton {
-                                text: "?"
+                                icon.source: "qrc:/assets/images/info.png"
+                                icon.width: 16
+                                icon.height: 16
                                 onClicked: helpWindow.open()
                             }
                         }
