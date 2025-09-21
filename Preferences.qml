@@ -224,13 +224,12 @@ Pane {
         }
     }
 
-    Popup {
+    Dialog {
         id: helpWindow
         width: 640
         height: 480
         modal: true
         anchors.centerIn: parent
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         ColumnLayout {
             anchors.fill: parent
