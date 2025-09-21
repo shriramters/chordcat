@@ -18,7 +18,6 @@ set(ASSETS_DIR assets)
 
 include(FetchContent)
 find_package(Qt6 REQUIRED COMPONENTS Core Quick Multimedia)
-find_package(FluidSynth REQUIRED)
 
 # REMIDI
 FetchContent_Declare(
@@ -46,12 +45,36 @@ qt_add_executable(${APP_TARGET_NAME}
     ${desktop_files}
 )
 
+if(ANDROID)
+    message(STATUS "Configuring for Android: Using pre-built FluidSynth binaries.")
+    set(FLUIDSYNTH_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/android_deps/fluidsynth-2.4.7-android24)
+    set(FLUIDSYNTH_INCLUDE_DIR ${FLUIDSYNTH_ROOT}/include)
+    # ANDROID_ABI is set by the Android toolchain (e.g; arm64-v8a)
+    set(FLUIDSYNTH_LIB_DIR ${FLUIDSYNTH_ROOT}/lib/${ANDROID_ABI})
+
+    # Add FluidSynth include directories
+    target_include_directories(${APP_TARGET_NAME} PRIVATE
+        ${FLUIDSYNTH_INCLUDE_DIR}
+    )
+
+    # Link FluidSynth libraries and other common Android NDK libraries
+    target_link_libraries(${APP_TARGET_NAME} PRIVATE
+        ${FLUIDSYNTH_LIB_DIR}/libfluidsynth.so
+        android
+        log
+        OpenSLES
+    )
+else()
+    # Original FluidSynth find_package for non-Android builds
+    find_package(FluidSynth REQUIRED)
+endif()
+
 set_source_files_properties(AppSettings.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
 )
 
 # The QML module can share the project name, as the executable target is now different
-qt_add_qml_module(${APP_TARGET_NAME}
+qt_add_qml_module(ChordcatQmlModule
     URI Chordcat
     VERSION 1.0
     QML_FILES
@@ -73,6 +96,8 @@ set_target_properties(${APP_TARGET_NAME} PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
+    ANDROID_PACKAGE_NAME "dev.ters.chordcat"
 )
 
 # Link libraries to the new executable target
@@ -81,13 +106,13 @@ target_link_libraries(${APP_TARGET_NAME}
     Qt6::Quick
     Qt6::Qml
     Qt6::Multimedia
-    fluidsynth
 )
 target_link_libraries(${APP_TARGET_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
 
 # Install the new executable target
 install(TARGETS ${APP_TARGET_NAME} COMPONENT Application
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 # Install soundfonts to the user's local data directory
@@ -220,10 +245,10 @@ if(WIN32)
   set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_NAME}")
   set(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
   # Installer icon
-  set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/desktop\\chordcat.ico")
+  set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/desktop\chordcat.ico")
   # Icon in the add/remove programs list in control panel. can be .exe or ico.
   set(CPACK_NSIS_INSTALLED_ICON_NAME
-      "share\\${PROJECT_NAME}\\\${PROJECT_NAME}.ico")
+      "share\${PROJECT_NAME}\${PROJECT_NAME}.ico")
   set(CPACK_NSIS_HELP_LINK "https://shriramters.github.io/chordcat")
   set(CPACK_NSIS_URL_INFO_ABOUT "https://shriramters.github.io/chordcat")
   set(CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
@@ -239,12 +264,11 @@ if(WIN32)
 
   # Define Start Menu shortcut
   set(CPACK_NSIS_CREATE_ICONS_EXTRA
-      "CreateShortCut '$SMPROGRAMS\\$STARTMENU_FOLDER\\Chordcat.lnk' '$INSTDIR\\bin\\${PROJECT_NAME}.exe'"
-  )
+      "CreateShortCut '$SMPROGRAMS\$STARTMENU_FOLDER\Chordcat.lnk' '$INSTDIR\bin\${PROJECT_NAME}.exe'")
 
   # Define uninstall command for start menu shortcut
   set(CPACK_NSIS_DELETE_ICONS_EXTRA
-      "Delete '$SMPROGRAMS\\$STARTMENU_FOLDER\\Chordcat.lnk'")
+      "Delete '$SMPROGRAMS\$STARTMENU_FOLDER\Chordcat.lnk'")
 
   set(CPACK_GENERATOR "NSIS")
 endif()
