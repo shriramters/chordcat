@@ -37,9 +37,17 @@ Item {
         delegate: Rectangle {
             visible: !root.isBlackKey(model.index)
             property int midiNote: model.index + 21
-            property bool pressed: pianoBackend.isNotePressed(midiNote)
+            property var pressingChannels: pianoBackend.getNotePressingChannels(midiNote)
 
-            color: pressed ? AppSettings.piano_pressedNoteColor : "white"
+            color: {
+                if (pressingChannels.length === 0) {
+                    "white"
+                } else {
+                    var baseColor = Qt.color(AppSettings.piano_pressedNoteColor)
+                    var newHue = (baseColor.hsvHue + (pressingChannels.length - 1) * 0.1) % 1.0
+                    Qt.hsva(newHue, baseColor.hsvSaturation, baseColor.hsvValue, baseColor.a)
+                }
+            }
             border.color: "#555"
             border.width: 1
 
@@ -72,9 +80,9 @@ Item {
 
             Connections {
                 target: pianoBackend
-                function onNoteStateChanged(note, isOn) {
+                function onNoteChannelsChanged(note, channels) {
                     if (midiNote === note) {
-                        pressed = isOn
+                        pressingChannels = channels
                     }
                 }
             }
@@ -90,7 +98,7 @@ Item {
             visible: root.isBlackKey(model.index)
             z: 999
             property int midiNote: model.index + 21
-            property bool pressed: pianoBackend.isNotePressed(midiNote)
+            property var pressingChannels: pianoBackend.getNotePressingChannels(midiNote)
 
             width: root.blackKeyWidth
             height: root.blackKeyHeight
@@ -116,7 +124,16 @@ Item {
             Rectangle {
                 id: blackKey
                 anchors.fill: parent
-                color: pressed ? "#ed4545" : "#333"
+                color: {
+                    if (pressingChannels.length === 0) {
+                        "#333"
+                    } else {
+                        var baseColor = Qt.color(AppSettings.piano_pressedNoteColor)
+                        var newHue = (baseColor.hsvHue + (pressingChannels.length - 1) * 0.1) % 1.0
+                        var newValue = baseColor.hsvValue * 0.6
+                        Qt.hsva(newHue, baseColor.hsvSaturation, newValue, baseColor.a)
+                    }
+                }
                 border.color: "#555"
                 border.width: 1
 
@@ -134,9 +151,9 @@ Item {
 
                 Connections {
                     target: pianoBackend
-                    function onNoteStateChanged(note, isOn) {
+                    function onNoteChannelsChanged(note, channels) {
                         if (midiNote === note) {
-                            pressed = isOn
+                            pressingChannels = channels
                         }
                     }
                 }

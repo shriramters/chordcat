@@ -90,6 +90,8 @@ public:
     Q_INVOKABLE void setGain(qreal gain);
     Q_INVOKABLE void loadSoundFont(const QString& path);
 
+    Q_INVOKABLE QVector<int> getNotePressingChannels(int midiNote) const;
+
 private:
     // Low-level “turn note on/off” that manipulates m_pressedKeys & FluidSynth
     void keyOnInternal(int midi_note_number, int chan, int velocity);
@@ -107,6 +109,6 @@ private:
     int m_channel = 0;
 
 signals:
-    void noteStateChanged(int midiNote, bool isOn);
+    void noteChannelsChanged(int midiNote, const QVector<int>& channels);
     void pressedNotesChanged(const std::vector<size_t>& pressedNotes);
 };
