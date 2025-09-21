@@ -111,14 +111,20 @@ Pane {
                         }
 
                         Label { text: "Instrument" }
-                        SpinBox {
-                            focusPolicy: Qt.NoFocus
-                            from: 0
-                            to: 127
-                            value: AppSettings.pc_keyboard_program
-                            onValueChanged: {
-                                AppSettings.pc_keyboard_program = value;
-                                pianoBackend.programChange(AppSettings.pc_keyboard_channel, value);
+                        RowLayout {
+                            SpinBox {
+                                focusPolicy: Qt.NoFocus
+                                from: 0
+                                to: 127
+                                value: AppSettings.pc_keyboard_program
+                                onValueChanged: {
+                                    AppSettings.pc_keyboard_program = value;
+                                    pianoBackend.programChange(AppSettings.pc_keyboard_channel, value);
+                                }
+                            }
+                            RoundButton {
+                                text: "?"
+                                onClicked: helpWindow.open()
                             }
                         }
                     }
@@ -205,6 +211,29 @@ Pane {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    Popup {
+        id: helpWindow
+        width: 640
+        height: 480
+        modal: true
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        ColumnLayout {
+            anchors.fill: parent
+            Label {
+                text: "GM Instrument Table"
+                font.pixelSize: 20
+                padding: 12
+                Layout.alignment: Qt.AlignHCenter
+            }
+            InstrumentTable {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
         }
     }
