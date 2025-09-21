@@ -9,6 +9,7 @@ Pane {
     id: rootPane
     implicitWidth: 600
     implicitHeight: 400
+    property var pianoKeyboardRef: null
 
     property var keySignatureModel: [
         "C Major / A Minor",   "G Major / E Minor",   "D Major / B Minor",
@@ -126,7 +127,10 @@ Pane {
                                 icon.source: "qrc:/assets/images/info.png"
                                 icon.width: 16
                                 icon.height: 16
-                                onClicked: helpWindow.open()
+                                onClicked: {
+                                    helpWindow.open()
+                                    pianoKeyboardRef.forceActiveFocus()
+                                }
                             }
                         }
                     }
@@ -208,7 +212,10 @@ Pane {
                             radius: 4
                             MouseArea {
                                 anchors.fill: parent
-                                onClicked: colorDialog.open()
+                                onClicked: {
+                                    colorDialog.open()
+                                    pianoKeyboardRef.forceActiveFocus()
+                                }
                             }
                         }
                     }

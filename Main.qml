@@ -153,7 +153,10 @@ ApplicationWindow {
         RoundButton {
             id: aboutButton
             icon.source: "qrc:/assets/images/info.png"
-            onClicked: aboutDialog.open()
+            onClicked: {
+                aboutDialog.open()
+                pianoKeyboard.forceActiveFocus()
+            }
             Layout.preferredWidth: 48
             Layout.preferredHeight: 48
             icon.width: 32
@@ -210,6 +213,7 @@ ApplicationWindow {
         }
         Preferences {
             id: preferencesPage
+            pianoKeyboardRef: pianoKeyboard
         }
     }
 
