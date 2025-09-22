@@ -15,7 +15,6 @@ public:
     {
         m_settings = new_fluid_settings();
         m_synth = new_fluid_synth(m_settings);
-        fluid_synth_sfload(m_synth, "/usr/share/sounds/sf2/default.sf2", 1 /*reset Presets*/);
     }
 
     ~MidiSynthIODevice() override
