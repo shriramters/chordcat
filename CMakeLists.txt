@@ -17,7 +17,7 @@ set(CMAKE_AUTORCC ON)
 set(ASSETS_DIR assets)
 
 include(FetchContent)
-find_package(Qt6 REQUIRED COMPONENTS Core Quick Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Core Quick Qml QuickControls2 Multimedia)
 find_package(FluidSynth REQUIRED)
 
 # REMIDI
@@ -80,6 +80,7 @@ target_link_libraries(${APP_TARGET_NAME}
     PRIVATE Qt6::Core
     Qt6::Quick
     Qt6::Qml
+    Qt6::QuickControls2
     Qt6::Multimedia
     fluidsynth
 )
@@ -97,25 +98,20 @@ install(
   COMPONENT Application
 )
 
+qt_generate_deploy_app_script(
+    TARGET ${APP_TARGET_NAME}
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+install(SCRIPT ${deploy_script})
+
 if(WIN32)
   # Install windows ico
   install(
     FILES desktop/chordcat.ico
     DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
   COMPONENT Application)
-
-  # Install DLLs for the new target
-  install(
-    TARGETS ${APP_TARGET_NAME}
-    COMPONENT Application
-    RUNTIME_DEPENDENCIES
-    PRE_EXCLUDE_REGEXES
-    "api-ms-"
-    "ext-ms-"
-    POST_EXCLUDE_REGEXES
-    ".*system32/.*\\.dll"
-    DIRECTORIES
-    $<TARGET_FILE_DIR:${APP_TARGET_NAME}>)
 endif()
 
 # Install Desktop Files for Linux (Unix but not Apple)
