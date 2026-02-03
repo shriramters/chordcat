@@ -43,3 +43,6 @@ build/
 # clangd config
 .clangd
 .cache/
+
+# IDE generated files
+*.user

@@ -3,21 +3,22 @@ cmake_minimum_required(VERSION 3.21)
 project(
   chordcat
   LANGUAGES CXX
-  VERSION 0.5.0)
+  VERSION 1.0.0)
 
 message(
   STATUS "Configuring chordcat ${CMAKE_PROJECT_VERSION} - ${CMAKE_BUILD_TYPE}")
 
+set(APP_TARGET_NAME appchordcat)
+
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 set(ASSETS_DIR assets)
 
 include(FetchContent)
-# SFML
-find_package(
-  SFML
-  COMPONENTS Graphics Audio System
-  REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core Quick Qml QuickControls2 Multimedia)
+find_package(FluidSynth REQUIRED)
 
 # REMIDI
 FetchContent_Declare(
@@ -26,90 +27,91 @@ FetchContent_Declare(
   GIT_TAG v4.5.0)
 FetchContent_MakeAvailable(REMIDI)
 
-# FluidSynth
-find_package(FluidSynth REQUIRED)
-
-# ImGui
-FetchContent_Declare(
-  ImGui
-  GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG v1.91.8)
-FetchContent_MakeAvailable(ImGui)
-
-# ImGui-SFML
-set(IMGUI_DIR ${imgui_SOURCE_DIR})
-set(IMGUI_SFML_FIND_SFML OFF)
-FetchContent_Declare(
-  ImGui-SFML
-  GIT_REPOSITORY https://github.com/SFML/imgui-sfml.git
-  GIT_TAG v3.0)
-FetchContent_MakeAvailable(ImGui-SFML)
-
-# nlohmann/json
-find_package(nlohmann_json REQUIRED)
+qt_standard_project_setup(REQUIRES 6.9)
 
 include(GNUInstallDirs)
 
-# Set paths for assets
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  # Release build: set path to installed assets
-  set(APP_ASSETS_PATH
-      "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/${ASSETS_DIR}"
-  )
-else()
-  # Debug build: copy assets to build directory
-  file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_BINARY_DIR}/${APP_ASSETS_PATH})
-  set(APP_ASSETS_PATH ${CMAKE_BINARY_DIR}/${ASSETS_DIR})
-endif()
-
-# Convert paths to CMake style paths for cross-platform compatibility
-file(TO_CMAKE_PATH "${APP_ASSETS_PATH}" APP_ASSETS_PATH)
-
-# Print the asset path
-message(STATUS "Chordcat assets path: ${APP_ASSETS_PATH}")
-
-configure_file(src/config.h.in config/config.h)
-
-file(GLOB src_files CONFIGURE_DEPENDS "src/*.cpp")
-include_directories(${CMAKE_BINARY_DIR}/config)
+file(GLOB APP_SOURCES "src/*.cpp")
+file(GLOB APP_HEADERS "src/*.hpp")
 
 if(WIN32)
   set(desktop_files desktop/chordcat.rc)
 endif()
 
-add_executable(${PROJECT_NAME} ${src_files} ${desktop_files})
-target_link_libraries(
-  ${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Audio SFML::System fluidsynth
-                          ImGui-SFML::ImGui-SFML)
-target_link_libraries(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
+# Use a different name for the executable target to avoid conflicts
+qt_add_executable(${APP_TARGET_NAME}
+    ${APP_SOURCES}
+    ${APP_HEADERS}
+    resources.qrc
+    ${desktop_files}
+)
 
-# Install Targets
-install(TARGETS ${PROJECT_NAME} COMPONENT Application)
+set_source_files_properties(AppSettings.qml PROPERTIES
+    QT_QML_SINGLETON_TYPE TRUE
+)
+
+# The QML module can share the project name, as the executable target is now different
+qt_add_qml_module(${APP_TARGET_NAME}
+    URI Chordcat
+    VERSION 1.0
+    QML_FILES
+        Main.qml
+        PianoKeyboard.qml
+        Preferences.qml
+        InstrumentTable.qml
+        AboutDialog.qml
+        AppSettings.qml
+)
+
+target_include_directories(${APP_TARGET_NAME} PUBLIC src)
+
+# Set properties on the new executable target
+set_target_properties(${APP_TARGET_NAME} PROPERTIES
+    # Ensure the final executable is named "chordcat"
+    OUTPUT_NAME ${PROJECT_NAME}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+# Link libraries to the new executable target
+target_link_libraries(${APP_TARGET_NAME}
+    PRIVATE Qt6::Core
+    Qt6::Quick
+    Qt6::Qml
+    Qt6::QuickControls2
+    Qt6::Multimedia
+    fluidsynth
+)
+target_link_libraries(${APP_TARGET_NAME} PUBLIC $<BUILD_INTERFACE:libremidi>)
+
+# Install the new executable target
+install(TARGETS ${APP_TARGET_NAME} COMPONENT Application
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+# Install soundfonts to the user's local data directory
 install(
-  DIRECTORY ${ASSETS_DIR}
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
-  COMPONENT Application)
+  DIRECTORY assets/soundfonts
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/Ters/Chordcat
+  COMPONENT Application
+)
+
+qt_generate_deploy_app_script(
+    TARGET ${APP_TARGET_NAME}
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+install(SCRIPT ${deploy_script})
 
 if(WIN32)
   # Install windows ico
   install(
     FILES desktop/chordcat.ico
     DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
-    COMPONENT Application)
-
-  # Install DLLs
-  install(
-    TARGETS ${PROJECT_NAME}
-    COMPONENT Application
-    RUNTIME_DEPENDENCIES
-    PRE_EXCLUDE_REGEXES
-    "api-ms-"
-    "ext-ms-"
-    POST_EXCLUDE_REGEXES
-    ".*system32/.*\\.dll"
-    DIRECTORIES
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+  COMPONENT Application)
 endif()
 
 # Install Desktop Files for Linux (Unix but not Apple)
@@ -214,10 +216,10 @@ if(WIN32)
   set(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_NAME}")
   set(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
   # Installer icon
-  set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/desktop\\\\chordcat.ico")
+  set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/desktop\\chordcat.ico")
   # Icon in the add/remove programs list in control panel. can be .exe or ico.
   set(CPACK_NSIS_INSTALLED_ICON_NAME
-      "share\\\\${PROJECT_NAME}\\\\${PROJECT_NAME}.ico")
+      "share\\${PROJECT_NAME}\\\${PROJECT_NAME}.ico")
   set(CPACK_NSIS_HELP_LINK "https://shriramters.github.io/chordcat")
   set(CPACK_NSIS_URL_INFO_ABOUT "https://shriramters.github.io/chordcat")
   set(CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
@@ -233,12 +235,12 @@ if(WIN32)
 
   # Define Start Menu shortcut
   set(CPACK_NSIS_CREATE_ICONS_EXTRA
-      "CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Chordcat.lnk' '$INSTDIR\\\\bin\\\\${PROJECT_NAME}.exe'"
+      "CreateShortCut '$SMPROGRAMS\\$STARTMENU_FOLDER\\Chordcat.lnk' '$INSTDIR\\bin\\${PROJECT_NAME}.exe'"
   )
 
   # Define uninstall command for start menu shortcut
   set(CPACK_NSIS_DELETE_ICONS_EXTRA
-      "Delete '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\Chordcat.lnk'")
+      "Delete '$SMPROGRAMS\\$STARTMENU_FOLDER\\Chordcat.lnk'")
 
   set(CPACK_GENERATOR "NSIS")
 endif()

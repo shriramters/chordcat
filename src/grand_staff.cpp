@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #include "grand_staff.hpp"
-#include "chord.hpp"
-#include "config.h"
-#include <SFML/Graphics/RenderWindow.hpp>
+// #include "config.h"
+#include <QPainter>
+#include <QUrl>
+#include <QDebug>
+#include <QGuiApplication>
+#include <QQuickWindow>
+#include <QQmlProperty>
+#include <QColor>
 #include <cmath>
 #include <map>
 
@@ -12,213 +17,240 @@ std::map<Key, int> gKeySharpsFlats = {
     {Key::FMajor, -1},     {Key::BbMajor, -2},     {Key::EbMajor, -3},    {Key::AbMajor, -4},
     {Key::DbMajor, -5},    {Key::GbMajor, -6},     {Key::CbMajor, -7},    {Key::DSharpMajor, 6},
     {Key::GSharpMajor, 8}, {Key::ASharpMajor, 10},
-};
+    };
 
-#include <iostream>
 
-void GrandStaff::midiToLetterOctave(int midiNote, int& letter, int& octave) const {
-    int h = (midiNote - 60) % 12;
-    if (h < 0)
-        h += 12;
-
-    static int mapSharps[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
-
-    static int mapFlats[12] = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
-
-    if (is_sharp_key(currentKey))
-        letter = mapSharps[h];
-    else
-        letter = mapFlats[h];
-
-    octave = (midiNote / 12) - 1;
+GrandStaff::GrandStaff(QQuickItem* parent)
+    : QQuickPaintedItem(parent)
+{
+    trebleClef.load(":/assets/images/treble_clef.png");
+    bassClef.load(":/assets/images/bass_clef.png");
+    setAntialiasing(true); // For smoother lines
 }
 
-int GrandStaff::stepsFromRef(int midiNote, int ref) const {
-    int l1, o1, l2, o2;
-    midiToLetterOctave(midiNote, l1, o1);
-    midiToLetterOctave(ref, l2, o2);
-    return (l1 + 7 * o1) - (l2 + 7 * o2);
+void GrandStaff::componentComplete()
+{
+    QQuickPaintedItem::componentComplete();
+
+    QQuickWindow* win = window();
+
+    if (win) {
+        // listen for palette changes
+        connect(win, &QQuickWindow::paletteChanged,
+                this, &GrandStaff::updateStaffColor);
+        // update initial staff pen color
+        updateStaffColor();
+    }
 }
 
-GrandStaff::GrandStaff(sf::RenderWindow& window, sf::Font& font) : window(window), font(font) {}
+void GrandStaff::updateStaffColor()
+{
+    QQuickWindow* win = window();
+    if (!win) return; // Safety check
 
-void GrandStaff::setKey(Key key) { currentKey = key; }
+    staffColor = QQmlProperty::read(win, "palette.text").value<QColor>();
 
-void GrandStaff::updateNotes(const std::vector<size_t>& pressedMidiNotes) {
-    staffLeftX = window.getSize().x / 10.f;
-    staffTopY = window.getSize().y / 4.f;
-    noteRadius = window.getSize().x / 200.f;
-    staffSpacing = 2 * noteRadius;
-    gapBetweenStaves = 2 * staffSpacing;
+    // repaint
+    update();
+}
 
+void GrandStaff::setKey(int keyIndex)
+{
+    Key key = static_cast<Key>(keyIndex);
+    if (currentKey != key) {
+        currentKey = key;
+        update(); // triggers repaint
+    }
+}
+
+void GrandStaff::updateNotes(const std::vector<size_t>& pressedMidiNotes)
+{
+    // We'll compute geometry in paint(). For now, just store notes:
     std::vector<int> notes;
     notes.reserve(pressedMidiNotes.size());
     for (auto n : pressedMidiNotes) {
-        notes.push_back(static_cast<int>(n + 21));
+        notes.push_back(int(n + 21)); // like your SFML code: index + 21
     }
     displayedNotes = notes;
+    update();
 }
 
-void GrandStaff::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    drawStaff(target);
-    drawKeySignature(target);
-    drawNotes(target);
+void GrandStaff::setNotes(const std::vector<int>& midiNotes)
+{
+    displayedNotes = midiNotes;
+    update();
 }
 
-void GrandStaff::drawStaff(sf::RenderTarget& target) const {
-    sf::Color c = sf::Color::White;
-    float lineLength = target.getView().getSize().x / 10.f;
+/**
+ * The QQuickPaintedItem "draw" method.
+ * Replaces the SFML virtual "draw(sf::RenderTarget&, sf::RenderStates)".
+ */
+void GrandStaff::paint(QPainter *painter)
+{
+    // Dynamically compute geometry based on the current item dimensions.
+    float horizontalPadding = width() * 0.25f;
+    staffLeftX      = horizontalPadding;
+    staffTopY       = height() * 0.1f;
+    noteRadius      = width() * 0.01f;
+    staffSpacing    = height() * 0.05f;
+    noteRadius      = staffSpacing / 2.0f;
+    gapBetweenStaves = 2 * staffSpacing;
 
+    drawStaff(*painter);
+    drawKeySignature(*painter);
+    drawNotes(*painter);
+}
+
+
+void GrandStaff::drawStaff(QPainter& painter) const
+{
+    painter.setRenderHint(QPainter::Antialiasing, false);
+
+    //WAS: lineLength = target.getView().getSize().x / 10.f;
+    //Then WAS: lineLength = width()/2.5f;
+    float lineLength = width() - (2 * staffLeftX);
+
+    float lineThickness = staffSpacing * 0.05f;
+    QPen linePen(staffColor, lineThickness);
+    painter.setPen(linePen);
+
+    // Treble staff lines
     for (int i = 0; i < 5; i++) {
-        sf::RectangleShape line;
-        line.setSize(sf::Vector2f(lineLength, 1.f));
-        line.setFillColor(c);
         float y = staffTopY + i * staffSpacing;
-        line.setPosition({staffLeftX, y});
-        target.draw(line);
+        painter.drawLine(QPointF(staffLeftX, y),
+                         QPointF(staffLeftX + lineLength, y));
     }
+
+    // Bass staff lines
     float bassTop = staffTopY + 5 * staffSpacing + gapBetweenStaves;
     for (int i = 0; i < 5; i++) {
-        sf::RectangleShape line;
-        line.setSize(sf::Vector2f(lineLength, 1.f));
-        line.setFillColor(c);
         float y = bassTop + i * staffSpacing;
-        line.setPosition({staffLeftX, y});
-        target.draw(line);
-    }
-    sf::RectangleShape brace(sf::Vector2f(5.f, bassTop - staffTopY + 4 * staffSpacing));
-    brace.setFillColor(c);
-    brace.setPosition({staffLeftX - 5.f, staffTopY});
-    target.draw(brace);
-
-    static bool loaded = false;
-    static sf::Texture trebleTex;
-    static sf::Texture bassTex;
-    static sf::Sprite trebleSprite(trebleTex);
-    static sf::Sprite bassSprite(bassTex);
-
-    if (!loaded) {
-        if (!trebleTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/treble_clef.png")) {
-            std::cerr << "Failed to load treble_clef.png" << std::endl;
-        }
-        if (!bassTex.loadFromFile(std::string(APP_ASSETS_PATH) + "/images/bass_clef.png")) {
-            std::cerr << "Failed to load bass_clef.png" << std::endl;
-        }
-        trebleSprite = sf::Sprite(trebleTex);
-        bassSprite = sf::Sprite(bassTex);
-
-        float scaleFactor = (5 * staffSpacing) / trebleTex.getSize().y;
-        trebleSprite.setScale({scaleFactor, scaleFactor});
-        bassSprite.setScale({scaleFactor, scaleFactor});
-
-        loaded = true;
+        painter.drawLine(QPointF(staffLeftX, y),
+                         QPointF(staffLeftX + lineLength, y));
     }
 
-    trebleSprite.setPosition(
-        {staffLeftX - 10.f - trebleSprite.getGlobalBounds().size.x, staffTopY});
-    target.draw(trebleSprite);
+    // The bracket on the left
+    float bracketWidth = 5.f;
+    float bracketHeight = (bassTop + (4 * staffSpacing) - staffTopY) + lineThickness;
+    painter.fillRect(QRectF(staffLeftX - bracketWidth,
+                            staffTopY - lineThickness * 0.5,
+                            bracketWidth,
+                            bracketHeight),
+                     staffColor);
 
-    bassSprite.setPosition({staffLeftX - 10.f - bassSprite.getGlobalBounds().size.x, bassTop});
-    target.draw(bassSprite);
+    // If trebleClef/bassClef QPixmaps loaded, draw them:
+    if (!trebleClef.isNull()) {
+        float scaleFactor = (5 * staffSpacing) / trebleClef.height();
+        float w = trebleClef.width() * scaleFactor;
+        float h = trebleClef.height() * scaleFactor;
+        float x = staffLeftX - 10.f - w;
+        float y = staffTopY;
+        painter.drawPixmap(QRectF(x, y, w, h), trebleClef, trebleClef.rect());
+    }
+    if (!bassClef.isNull()) {
+        float bassY = bassTop;
+        float scaleFactor = (5 * staffSpacing) / bassClef.height();
+        float w = bassClef.width() * scaleFactor;
+        float h = bassClef.height() * scaleFactor;
+        float x = staffLeftX - 10.f - w;
+        painter.drawPixmap(QRectF(x, bassY, w, h), bassClef, bassClef.rect());
+    }
 }
 
-void GrandStaff::drawKeySignature(sf::RenderTarget& target) const {
+void GrandStaff::drawKeySignature(QPainter& painter) const
+{
     int count = gKeySharpsFlats.at(currentKey);
     if (count == 0)
         return;
 
-    unsigned fontSize = static_cast<unsigned>(staffSpacing * 1.5f);
-    auto text = sf::Text(font, "", fontSize);
-    text.setFillColor(sf::Color::White);
-
-    static float trebleSharpY[7] = {
-        1.f, // F#
-        4.f, // C#
-        0.f, // G#
-        3.f, // D#
-        6.f, // A#
-        2.f, // E#
-        5.f  // B#
-    };
-
-    static float trebleFlatY[7] = {
-        5.f, // Bb
-        2.f, // Eb
-        6.f, // Ab
-        3.f, // Db
-        7.f, // Gb
-        4.f, // Cb
-        8.f  // Fb
-    };
-
-    float trebleX = staffLeftX;
-    float trebleBase = staffTopY - fontSize;
     float bassTop = staffTopY + 5 * staffSpacing + gapBetweenStaves;
-    float bassX = staffLeftX;
-    float bassBase = bassTop - fontSize;
+
+    QFont textFont;
+    textFont.setPixelSize(int(staffSpacing * 1.5f));
+    painter.setFont(textFont);
+    painter.setPen(staffColor);
+
+    static float trebleSharpY[7] = {1.f, 4.f, 0.f, 3.f, 6.f, 2.f, 5.f};
+    static float trebleFlatY[7]  = {5.f, 2.f, 6.f, 3.f, 7.f, 4.f, 8.f};
+
+    float trebleBase = staffTopY - (staffSpacing * 0.25f);
+    float bassBase   = bassTop - (staffSpacing * 0.25f);
 
     int howMany = std::abs(count);
     if (count > 0) {
-        sf::String sharps = L"♯";
+        // Sharps
+        QString sharpSym = QString::fromWCharArray(L"♯");
         for (int i = 0; i < howMany && i < 7; i++) {
-            text.setString(sharps);
-            // Treble staff
-            float ty = trebleBase + trebleSharpY[i] * 0.5f * staffSpacing;
-            text.setPosition({trebleX + i * fontSize * 0.25f, ty});
-            target.draw(text);
-            // Bass staff
-            float by = bassBase + (trebleSharpY[i] + 2) * 0.5f * staffSpacing;
-            text.setPosition({bassX + i * fontSize * 0.25f, by});
-            target.draw(text);
+            float tx = staffLeftX + i * (staffSpacing * 0.75f);
+            float tyTreble = trebleBase + (trebleSharpY[i] * 0.5f * staffSpacing);
+            painter.drawText(QPointF(tx, tyTreble), sharpSym);
+
+            float tyBass = bassBase + ((trebleSharpY[i] + 2) * 0.5f * staffSpacing);
+            painter.drawText(QPointF(tx, tyBass), sharpSym);
         }
     } else {
-        sf::String flats = L"♭";
+        // Flats
+        QString flatSym = QString::fromWCharArray(L"♭");
         for (int i = 0; i < howMany && i < 7; i++) {
-            text.setString(flats);
-            // Treble staff
-            float ty = trebleBase + trebleFlatY[i] * 0.5f * staffSpacing;
-            text.setPosition({trebleX + i * fontSize * 0.25f, ty});
-            target.draw(text);
-            // Bass staff
-            float by = bassBase + trebleFlatY[i] * 0.5f * staffSpacing;
-            text.setPosition({bassX + i * fontSize * 0.25f, by});
-            target.draw(text);
+            float tx = staffLeftX + i * (staffSpacing * 0.75f);
+            float tyTreble = trebleBase + (trebleFlatY[i] * 0.5f * staffSpacing);
+            painter.drawText(QPointF(tx, tyTreble), flatSym);
+
+            float tyBass = bassBase + (trebleFlatY[i] * 0.5f * staffSpacing);
+            painter.drawText(QPointF(tx, tyBass), flatSym);
         }
     }
 }
 
-void GrandStaff::drawNotes(sf::RenderTarget& target) const {
+void GrandStaff::drawNotes(QPainter& painter) const
+{
+    float lineLength = width() - (2 * staffLeftX);
+    float noteX = staffLeftX + (lineLength / 2.0f);
+
+    QBrush noteBrush(staffColor);
+    painter.setBrush(noteBrush);
+    painter.setPen(Qt::NoPen);
+
+    // For accidental text
+    QFont accidentalFont;
+    accidentalFont.setPixelSize(int(staffSpacing * 1.5f));
+    painter.setFont(accidentalFont);
+    painter.setPen(staffColor);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
     for (auto midiNote : displayedNotes) {
         float y = noteYPosition(midiNote);
-        float x = staffLeftX + target.getView().getSize().x / 20.f;
 
-        sf::CircleShape noteHead(noteRadius);
-        noteHead.setFillColor(sf::Color::White);
-        noteHead.setPosition({x - noteRadius, y - noteRadius * 0.75f});
-        noteHead.setScale({1.f, 0.75f}); // ovalize
-        target.draw(noteHead);
+        // Draw oval note
+        float rX = noteRadius;
+        float rY = noteRadius * 0.75f;
+        QRectF noteRect(noteX - rX, y - rY, rX*2, rY*2);
+        painter.drawEllipse(noteRect);
 
-        sf::String acc = getAccidentalGlyph(midiNote);
+        // Draw accidental if needed (shifted down by one line)
+        QString acc = getAccidentalGlyph(midiNote);
         if (!acc.isEmpty()) {
-            sf::Text accidental(font, acc, static_cast<unsigned>(staffSpacing * 1.5f));
-            accidental.setFillColor(sf::Color::White);
-            accidental.setPosition({x - (staffSpacing * 1.5f), y - (staffSpacing * 0.75f)});
-            target.draw(accidental);
+            float ax = noteX - (staffSpacing * 1.5f);
+            float ay = y + (staffSpacing * 0.25f);
+            painter.drawText(QPointF(ax, ay), acc);
         }
     }
 }
 
-float GrandStaff::noteYPosition(int midiNote) const {
+float GrandStaff::noteYPosition(int midiNote) const
+{
     bool isBassClef = (midiNote < 60);
     int referenceNote = isBassClef ? 43 : 64;
     int stepCount = stepsFromRef(midiNote, referenceNote);
 
     float bassStaffTop = staffTopY + 5 * staffSpacing + gapBetweenStaves;
     float trebleStaffBottom = staffTopY + 4 * staffSpacing;
-    float bassStaffBottom = bassStaffTop + 4 * staffSpacing;
-    float verticalOffset = stepCount * (staffSpacing / 2.f);
+    float bassStaffBottom   = bassStaffTop + 4 * staffSpacing;
+    float verticalOffset    = stepCount * (staffSpacing / 2.f);
 
-    return isBassClef ? (bassStaffBottom - verticalOffset) : (trebleStaffBottom - verticalOffset);
+    return isBassClef
+               ? (bassStaffBottom - verticalOffset)
+               : (trebleStaffBottom - verticalOffset);
 }
 
 bool GrandStaff::isNatural(int midiNote) const {
@@ -259,7 +291,7 @@ bool GrandStaff::isNatural(int midiNote) const {
     return false;
 }
 
-sf::String GrandStaff::getAccidentalGlyph(int midiNote) const {
+QString GrandStaff::getAccidentalGlyph(int midiNote) const {
     static int letterMap[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
     static int sharpLetters[7] = {3, 0, 4, 1, 5, 2, 6};
     static int flatLetters[7] = {6, 2, 5, 1, 4, 0, 3};
@@ -291,14 +323,39 @@ sf::String GrandStaff::getAccidentalGlyph(int midiNote) const {
     int notePitch = (midiNote - 60 + 12 * 999) % 12;
 
     if (staffPitch == notePitch)
-        return sf::String();
+        return QString();
 
     if (isNatural(midiNote))
-        return L"♮";
+        return "♮";
     else {
         if (is_sharp_key(currentKey))
-            return L"♯";
+            return "♯";
         else
-            return L"♭";
+            return "♭";
     }
+}
+
+int GrandStaff::stepsFromRef(int midiNote, int ref) const
+{
+    int l1, o1, l2, o2;
+    midiToLetterOctave(midiNote, l1, o1);
+    midiToLetterOctave(ref, l2, o2);
+    return (l1 + 7 * o1) - (l2 + 7 * o2);
+}
+
+void GrandStaff::midiToLetterOctave(int midiNote, int& letter, int& octave) const
+{
+    int h = (midiNote - 60) % 12;
+    if (h < 0)
+        h += 12;
+
+    static int mapSharps[12] = {0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6};
+    static int mapFlats[12]  = {0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6};
+
+    if (is_sharp_key(currentKey))
+        letter = mapSharps[h];
+    else
+        letter = mapFlats[h];
+
+    octave = (midiNote / 12) - 1;
 }

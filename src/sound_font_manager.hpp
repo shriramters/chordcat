@@ -1,19 +1,32 @@
+// SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+
+#include <QObject>
+#include <QStringList>
 #include <filesystem>
-#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
-class SoundFontManager {
-  public:
-    SoundFontManager();
+class SoundFontManager : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QStringList availableSoundFonts READ availableSoundFonts NOTIFY
+                   availableSoundFontsChanged)
 
-    std::vector<std::pair<std::string, std::filesystem::path>> getAvailableSoundFonts() const;
+  public:
+    explicit SoundFontManager(QObject* parent = nullptr);
+
+    QStringList availableSoundFonts() const;
+
+    Q_INVOKABLE QString getSoundFontPath(const QString& name) const;
+
+  signals:
+    void availableSoundFontsChanged();
 
   private:
-    std::filesystem::path systemDir;
-    std::optional<std::filesystem::path> userDir;
+    void findSoundFonts();
+    std::filesystem::path getUserSoundFontDir() const;
 
-    std::optional<std::filesystem::path> getUserSoundFontDir() const;
+    std::vector<std::pair<std::string, std::filesystem::path>> m_soundfonts;
+    QStringList m_soundfont_names;
 };
