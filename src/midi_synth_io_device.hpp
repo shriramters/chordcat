@@ -51,6 +51,10 @@ public:
         return bytesWritten;
     }
 
+    qint64 bytesAvailable() const override {
+        return 4096; // hardcoding for now, based on old chordcat (1024 samples)
+    }
+
     // Not used
     qint64 writeData(const char* /*data*/, qint64 /*len*/) override
     {
