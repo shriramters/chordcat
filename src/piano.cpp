@@ -28,58 +28,29 @@ Piano::Piano(QObject* parent)
     : QObject(parent)
     , m_pressedKeys(16, QVector<bool>(kNumKeys, false))
 {
-    // Create the FluidSynth streaming device
-    m_synthDevice = new MidiSynthIODevice(this);
-    m_synth       = m_synthDevice->synth();
-
-    // Create a QAudioSink
-    QAudioFormat format;
-    format.setSampleRate(44100);
-    format.setChannelCount(2);
-    format.setSampleFormat(QAudioFormat::Int16);
-
-    auto devInfo = QMediaDevices::defaultAudioOutput();
-    if (!devInfo.isFormatSupported(format)) {
-        qWarning() << "Requested audio format not supported, using nearest format.";
-        format = devInfo.preferredFormat();
-    }
-
-    m_audioSink = new QAudioSink(devInfo, format, this);
-
-    // 3) Start streaming
-    m_synthDevice->open(QIODevice::ReadOnly);
-    m_audioSink->start(m_synthDevice);
-
-    // TODO: load a SoundFont:
-    // fluid_synth_sfload(m_synth, "/path/to/soundfont.sf2", 1 /*reset Presets*/);
-    // fluid_synth_program_change(m_synth, m_channel, 0);
+    m_audioOutput = new FluidSynthAudioOutput();
+    m_synth = m_audioOutput->synth();
 
     qDebug() << "Qt-based Piano initialized.";
 }
 
 Piano::~Piano()
 {
+    delete m_audioOutput;
     qDebug() << "Qt-based Piano destroyed.";
 }
 
 void Piano::setGain(qreal gain)
 {
-    if (m_synth) {
-        fluid_synth_set_gain(m_synth, gain);
-    }
+    m_audioOutput->setGain(gain);
 }
 
 void Piano::loadSoundFont(const QString& path)
 {
-    if (m_synth) {
-        if (fluid_synth_sfload(m_synth, path.toStdString().c_str(), 1) != FLUID_FAILED) {
-            qDebug() << "SoundFont loaded:" << path;
-            // After loading a new soundfont, it's good practice to reset programs
-            // so that channels use the new presets.
-            fluid_synth_program_reset(m_synth);
-        } else {
-            qWarning() << "Failed to load SoundFont:" << path;
-        }
+    if (m_audioOutput->loadSoundFont(path)) {
+        qDebug() << "SoundFont loaded:" << path;
+    } else {
+        qWarning() << "Failed to load SoundFont:" << path;
     }
 }
 
@@ -117,14 +88,9 @@ void Piano::keyToggle(int midi_note_number)
 
 void Piano::clearAllKeys()
 {
-    // Turn off any that are pressed, reset the array
+    m_audioOutput->allNotesOff();
+
     for (int c = 0; c < 16; ++c) {
-        for (int i = 0; i < kNumKeys; ++i) {
-            if (m_pressedKeys[c][i]) {
-                int midiNote = i + kLowestMIDINote;
-                fluid_synth_noteoff(m_synth, c, midiNote);
-            }
-        }
         m_pressedKeys[c].fill(false);
     }
     emit pressedNotesChanged(getPressedNotes());
@@ -182,15 +148,15 @@ void Piano::midiEvent(const MidiEvent& me)
         break;
 
     case MidiMessageType::CC:
-        fluid_synth_cc(m_synth, me.chan, me.data0, me.data1);
+        m_audioOutput->cc(me.chan, me.data0, me.data1);
         break;
 
     case MidiMessageType::ProgramChange:
-        fluid_synth_program_change(m_synth, me.chan, me.data0);
+        m_audioOutput->programChange(me.chan, me.data0);
         break;
 
     case MidiMessageType::PitchWheel:
-        fluid_synth_pitch_bend(m_synth, me.chan, me.data0);
+        m_audioOutput->pitchBend(me.chan, me.data0);
         break;
 
     default:
@@ -205,7 +171,7 @@ void Piano::keyOnInternal(int midi_note_number, int chan, int velocity)
     if (idx < 0 || idx >= kNumKeys || chan < 0 || chan >= 16) return;
 
     if (!m_pressedKeys[chan][idx]) {
-        fluid_synth_noteon(m_synth, chan, midi_note_number, velocity);
+        m_audioOutput->noteOn(chan, midi_note_number, velocity);
         m_pressedKeys[chan][idx] = true;
         emit noteChannelsChanged(midi_note_number, getNotePressingChannels(midi_note_number));
         emit pressedNotesChanged(getPressedNotes());
@@ -218,7 +184,7 @@ void Piano::keyOffInternal(int midi_note_number, int chan)
     if (idx < 0 || idx >= kNumKeys || chan < 0 || chan >= 16) return;
 
     if (m_pressedKeys[chan][idx]) {
-        fluid_synth_noteoff(m_synth, chan, midi_note_number);
+        m_audioOutput->noteOff(chan, midi_note_number);
         m_pressedKeys[chan][idx] = false;
         emit noteChannelsChanged(midi_note_number, getNotePressingChannels(midi_note_number));
         emit pressedNotesChanged(getPressedNotes());
@@ -227,7 +193,5 @@ void Piano::keyOffInternal(int midi_note_number, int chan)
 
 void Piano::programChange(int chan, int program)
 {
-    if (m_synth) {
-        fluid_synth_program_change(m_synth, chan, program);
-    }
+    m_audioOutput->programChange(chan, program);
 }

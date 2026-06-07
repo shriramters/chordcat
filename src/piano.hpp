@@ -2,12 +2,9 @@
 
 #include <QObject>
 #include <QVector>
-#include <QAudioSink>
-#include <QAudioFormat>
-#include <QMediaDevices>
 #include <fluidsynth.h>
 #include <vector>
-#include "midi_synth_io_device.hpp"
+#include "fluid_synth_audio_output.hpp"
 #include "midi_event.hpp"
 
 /**
@@ -98,10 +95,8 @@ private:
     void keyOffInternal(int midi_note_number, int chan);
 
 private:
-    // QAudio + FluidSynth objects
-    MidiSynthIODevice* m_synthDevice = nullptr;
-    QAudioSink*        m_audioSink   = nullptr;
-    fluid_synth_t*     m_synth       = nullptr;
+    FluidSynthAudioOutput* m_audioOutput = nullptr;
+    fluid_synth_t*         m_synth       = nullptr;
 
     // Pressed state for each note in [A0..C8] => [21..108] for all 16 channels
     QVector<QVector<bool>> m_pressedKeys;
