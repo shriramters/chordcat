@@ -81,6 +81,11 @@ Pane {
                             focusPolicy: Qt.NoFocus
                             model: midiManager.availablePorts
                             currentIndex: midiManager.currentPortIndex
+                            onCurrentIndexChanged: {
+                                if (currentIndex !== midiManager.currentPortIndex) {
+                                    midiManager.currentPortIndex = currentIndex
+                                }
+                            }
                             Layout.fillWidth: true
                         }
                     }

@@ -55,15 +55,18 @@ void MidiManager::setCurrentPortIndex(int index) {
         try {
             m_midi_in->open_port(m_ports[index]);
             m_currentPortIndex = index;
+            qDebug() << "Opened MIDI input port:" << m_availablePorts[index];
             emit portChanged();
         } catch (const libremidi::midi_exception& e) {
             qWarning() << "Failed to open MIDI port: " << e.what();
             m_currentPortIndex = -1;
+            emit portChanged();
         }
     } else {
         if (m_midi_in)
             m_midi_in->close_port();
         m_currentPortIndex = -1;
+        emit portChanged();
     }
 }
 
@@ -88,7 +91,7 @@ void MidiManager::createMidiIn() {
         m_midi_in = std::make_unique<libremidi::midi_in>(
             libremidi::input_configuration{
                 .on_message = [this](const libremidi::message& msg) {
-                    if (msg.size() > 1) { // Basic validation
+                    if (msg.size() > 0) {
                         emit midiMessageReceived(MidiEvent(msg));
                     }
                 }},

@@ -24,8 +24,8 @@ struct MidiEvent {
     MidiEvent(const libremidi::message& message) {
         messageType = static_cast<MidiMessageType>(message[0] >> 4);
         chan = static_cast<int>(message[0] & 0b1111);
-        data0 = message[1];
-        data1 = message[2];
+        data0 = message.size() > 1 ? message[1] : 0;
+        data1 = message.size() > 2 ? message[2] : 0;
     }
 
     MidiEvent(MidiMessageType mt, int chan, int data0, int data1)
